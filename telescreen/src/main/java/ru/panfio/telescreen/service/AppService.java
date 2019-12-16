@@ -26,6 +26,9 @@ public class AppService {
     @Autowired
     CallRecordRepository callRecordRepository;
 
+    @Autowired
+    AutotimerRepository autotimerRepository;
+
     public Iterable<TimeLog> findAllTimelogs() {
         return timeLogRepository.findAll();
     }
@@ -56,5 +59,9 @@ public class AppService {
 
     public Iterable<CallRecord> getCallHistoryBetweenDates(LocalDateTime t1, LocalDateTime t2) {
         return callRecordRepository.getAllBetweenDates(t1, t2);
+    }
+
+    public Iterable<Autotimer> getAutotimerRecordsBetweenDates(LocalDateTime t1, LocalDateTime t2) {
+        return autotimerRepository.getAllBetweenDates(t1, t2).stream().filter(t -> Duration.between(t.getStartTime(), t.getEndTime()).toMillis() > 10000).collect(Collectors.toList());
     }
 }

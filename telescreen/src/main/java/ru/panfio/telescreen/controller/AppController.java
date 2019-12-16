@@ -17,22 +17,6 @@ public class AppController {
     @Autowired
     AppService app;
 
-//    @Deprecated
-//    @ResponseStatus(HttpStatus.OK)
-//    @ApiOperation(value = "Get all Timelog records")
-//    @RequestMapping(value = "/app/timelog/all", method = RequestMethod.GET)
-//    ResponseEntity getAllTimeLogRecords() {
-//        return new ResponseEntity(app.findAllTimelogs(), HttpStatus.OK);
-//    }
-//
-//    @Deprecated
-//    @ResponseStatus(HttpStatus.OK)
-//    @ApiOperation(value = "Get all YouTube records")
-//    @RequestMapping(value = "/app/youtube/all", method = RequestMethod.GET)
-//    ResponseEntity getAllYouTubeRecords() {
-//        return new ResponseEntity(app.findAllYouTube(), HttpStatus.OK);
-//    }
-
     @ApiOperation(value = "Get YouTube records by period")
     @RequestMapping(value = "/app/youtube", method = RequestMethod.GET)
     ResponseEntity findYouTubeByPeriod(
@@ -81,5 +65,15 @@ public class AppController {
         LocalDateTime t1 = LocalDateTime.parse(from);
         LocalDateTime t2 = LocalDateTime.parse(to);
         return new ResponseEntity(app.getCallHistoryBetweenDates(t1, t2), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get autotimer records by period")
+    @RequestMapping(value = "/app/autotimer", method = RequestMethod.GET)
+    ResponseEntity findAutotimerRecordsByPeriod(
+            @RequestParam(value = "from") String from,
+            @RequestParam(value = "to") String to) {
+        LocalDateTime t1 = LocalDateTime.parse(from);
+        LocalDateTime t2 = LocalDateTime.parse(to);
+        return new ResponseEntity(app.getAutotimerRecordsBetweenDates(t1, t2), HttpStatus.OK);
     }
 }

@@ -13,7 +13,6 @@ class ApiService {
 
       let url = new URL(this.host + path);
       Object.keys(params).forEach((key:any) => url.searchParams.append(key, params[key]))
-      console.log(url.href.substring(this.host.length))
       return fetch(url.href.substring(this.host.length))
         .then(res => res.json())
     }
@@ -22,7 +21,7 @@ class ApiService {
       return this.getWrapper('/app/youtube', startDate, endDate)
     }
     getAutotimers(startDate: Date, endDate: Date): any { 
-      return this.getWrapper('/autotimer', startDate, endDate)
+      return this.getWrapper('/app/autotimer', startDate, endDate)
     }
     getTimeLogs(startDate: Date, endDate: Date): any {
       return this.getWrapper('/app/timelog', startDate, endDate)
