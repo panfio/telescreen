@@ -1,5 +1,9 @@
 package ru.panfio.telescreen.service;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.*;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Autotimer;
@@ -8,14 +12,15 @@ import ru.panfio.telescreen.model.timesheet.TimesheetExport;
 import ru.panfio.telescreen.repository.AutotimerRepository;
 import ru.panfio.telescreen.repository.MediaRepository;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
+import java.time.format.FormatStyle;
+import java.util.*;
 
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
@@ -101,11 +106,95 @@ public class ProcessServiceTest {
         assertEquals("Coding", out.getTags().getTags().get(0).getName());
         assertEquals("Description", out.getTasks().getTasks().get(0).getDescription());
         assertEquals(
-                LocalDateTime.parse("2019-12-07T19:28:00+03:00",  DateTimeFormatter.ISO_DATE_TIME),
+                LocalDateTime.parse("2019-12-07T19:28:00+03:00", DateTimeFormatter.ISO_DATE_TIME),
                 out.getTasks().getTasks().get(0).getStartDate());
 
         TimesheetExport fromBadFile = service.unmarshallXml(TimesheetExport.class, new ByteArrayInputStream("<xml>".getBytes(Charset.forName("UTF-8"))));
         assertNull(fromBadFile);
+    }
+
+    @Ignore
+    @Test
+    public void telegramParsing() {
+        String[] list = {"/home/apoh/Downloads/Telegram Desktop/ChatExport_17_12_2019/messages.html",
+                "/home/apoh/Downloads/Telegram Desktop/ChatExport_17_12_2019/messages2.html",
+                "/home/apoh/Downloads/Telegram Desktop/ChatExport_17_12_2019/messages3.html"};
+        try {
+            for (String file : list) {
+                Document doc = Jsoup.parse(new File(file), "utf-8");
+                Elements messages = doc.select("div.message.default");
+                String name = "";
+                for (Element message : messages) {
+                    String currentName = message.select("div.from_name").text();
+                    LocalDateTime date = LocalDateTime.parse(
+                            message.select("div.date.details").attr("title"),
+                            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+                    if (!currentName.isEmpty()) {
+                        name = currentName;
+                    }
+                    System.out.println(
+                            Long.parseLong(message.id().substring(7)) + " " +
+                                    date + " " + name + " " +
+                                    message.select("div.text").text());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Ignore
+    @Test
+    public void vkExportParsing() throws ParseException {
+        String[] list = {"/home/apoh/archive/messengers/Vk/messages/33538217/messages0.html",
+                "/home/apoh/archive/messengers/Vk/messages/33538217/messages300.html",
+                "/home/apoh/archive/messengers/Vk/messages/33538217/messages600.html"};
+        Map<String, Integer> months = new HashMap<String, Integer>() {
+            {
+                put("янв", 1);
+                put("фев", 2);
+                put("мар", 3);
+                put("апр", 4);
+                put("май", 5);
+                put("июн", 6);
+                put("июл", 7);
+                put("авг", 8);
+                put("сен", 9);
+                put("окт", 10);
+                put("ноя", 11);
+                put("дек", 12);
+            }
+        };
+        try {
+            for (String file : list) {
+                Document doc = Jsoup.parse(new File(file), "windows-1251");
+                Elements messages = doc.select("div.message");
+                for (Element message : messages) {
+                    String header = message.select("div.message__header").text().trim();
+                    String name = header.substring(0, header.indexOf(","));
+
+                    //todo remove bicycle | parse with locale doesn't work
+                    String rawdate = header.substring(header.indexOf(",") + 1).replace("(ред.)", "").trim();
+                    String mmm = rawdate.substring(rawdate.indexOf(",") + 1)
+                            .substring(rawdate.indexOf(" ") + 1, rawdate.indexOf(" ") + 4);
+                    String correctDate = rawdate.replace(mmm, months.get(mmm).toString());
+                    LocalDateTime date = LocalDateTime.parse(
+                            correctDate,
+                            DateTimeFormatter.ofPattern("d M yyyy 'в' H:mm:ss"));
+
+                    String content = message.select("div:gt(0)").text();
+                    if (content.startsWith("Сообщение удалено ")) {
+                        content = content.substring(18);
+                    }
+                    if (content.endsWith(" Сообщение удалено")) {
+                        content = content.substring(0, content.length() - 18);
+                    }
+                    System.out.println(date + " " + name + " " + content);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 //    public void shouldUnmarshalCorrectly() { //todo meaningful name
