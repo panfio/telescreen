@@ -45,7 +45,6 @@ class App extends React.Component<{}, State> {
         items: items
       }
     });
-    console.log("componentDidMount()")
   }
 
   getItems(startDate: Date, endDate: Date) {
@@ -155,12 +154,13 @@ class App extends React.Component<{}, State> {
   }
 
   render() {
+    console.log(apiClient.host)
     return (
       <div>
         <TimelineWrapper items={this.state.items} groups={this.state.groups} />
         <RangePicker
           onClose={(start: Date, end: Date) => this.setDate(start, end)} />
-        <Button variant="outlined" color="primary" href="/process/all">
+        <Button variant="outlined" color="primary" onClick={() => apiClient.processAll()}>
           Process All
         </Button>
       </div>
