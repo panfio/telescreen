@@ -118,4 +118,6 @@ cd telescreen
 ./scripts/build.sh
 export ARCHIVE_FOLDER=`pwd`\archive
 docker-compose up
+cd frontend/
+REACT_APP_API_URL=http://localhost:8080 npm start
 ```
