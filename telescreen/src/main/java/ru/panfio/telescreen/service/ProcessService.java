@@ -6,6 +6,10 @@ import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -427,10 +431,41 @@ public class ProcessService {
                 callRecords.add(cr);
             }
             //todo save last processed
+            //todo save telegram/skype calls
             callRecordRepository.saveAll(callRecords);
         } catch (SQLException | FileNotFoundException e) {
             log.info("Failed processing call history");
         }
+    }
+
+    public List<Message> parseTelegramMessage(String html) {
+        List<Message> telegramMessages = new ArrayList<>();
+        try {
+            Document doc = Jsoup.parse(html, "utf-8");
+            Elements messages = doc.select("div.message.default");
+            String name = "";
+            for (Element message : messages) {
+                String currentName = message.select("div.from_name").text();
+                LocalDateTime date = LocalDateTime.parse(
+                        message.select("div.date.details").attr("title"),
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+                if (!currentName.isEmpty()) {
+                    name = currentName;
+                }
+
+                Message tm = new Message();
+                tm.setLegacyID(message.id().substring(7));
+                tm.setCreated(date);
+                tm.setType(Message.Type.TELEGRAM);
+                tm.setAuthor(name);
+                tm.setContent(message.select("div.text").text());
+
+                telegramMessages.add(tm);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return telegramMessages;
     }
 
     /**
