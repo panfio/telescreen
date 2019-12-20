@@ -2,22 +2,16 @@ import React from 'react';
 import TimelineWrapper from './components/TimelineWrapper';
 import RangePicker from "react-range-picker"
 import ApiService from './services/ApiService';
-import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import randomColor from "randomcolor";
+import { Doughnut } from 'react-chartjs-2';
 
 const apiClient = new ApiService();
 
-function id() {
-  let i = 1;
-  return function () {
-    return i++;
-  }
-}
-const genId = id();
-
 interface State {
   groups: any,
-  items: any
+  items: any[],
+  doughnuts: any[]
 }
 
 class App extends React.Component<{}, State> {
@@ -34,127 +28,78 @@ class App extends React.Component<{}, State> {
     ]
     this.state = {
       groups: groups,
-      items: []
+      items: [],
+      doughnuts: []
     };
   }
 
   componentDidMount() {
-    const { items } = this.getItems(new Date(Date.now() - 12000 * 12 * 1000), new Date(Date.now() + 12000 * 24 * 1000));
-    this.setState((state) => {
-      return {
-        items: items
-      }
-    });
-  }
-
-  getItems(startDate: Date, endDate: Date) {
-    let items: any = [];
-    apiClient.getAutotimers(startDate, endDate).then(
-      (e: any) => e.map((e: any) => items.push({
-        id: genId(),
-        group: 1,
-        title: e.name,
-        start_time: Date.parse(e.startTime),
-        end_time: Date.parse(e.endTime),
-        canMove: false,
-        canResize: false,
-        canChangeGroup: false,
-      }))
-    );
-    apiClient.getTimeLogs(startDate, endDate).then(
-      (e: any) => e.map((e: any) => items.push({
-        id: genId(),
-        group: 3,
-        title: e.tags[0] + e.description,
-        start_time: Date.parse(e.startDate),
-        end_time: Date.parse(e.endDate),
-        canMove: false,
-        canResize: false,
-        canChangeGroup: false,
-
-      }))
-    );
-    apiClient.getListenHistory(startDate, endDate).then(
-      (e: any) => e.map((e: any) => items.push({
-        id: genId(),
-        group: 4,
-        title: e.artist + e.title,
-        start_time: Date.parse(e.listenTime),
-        end_time: Date.parse(e.listenTime + 10000),
-        canMove: false,
-        canResize: false,
-        canChangeGroup: false,
-        itemProps: {
-          onMouseDown: () => {
-            window.open(e.url, '_blank');
-          }
-        }
-      }))
-    );
-    apiClient.getYouTubes(startDate, endDate).then(
-      (e: any) => e.map((e: any) => items.push({
-        id: genId(),
-        group: 2,
-        title: e.title,
-        start_time: Date.parse(e.time),
-        end_time: Date.parse(e.time) + 120000,
-        canMove: false,
-        canResize: false,
-        canChangeGroup: false,
-        itemProps: {
-          onMouseDown: () => {
-            window.open(e.url, '_blank');
-          }
-        }
-      }))
-    );
-    apiClient.getMediaHistory(startDate, endDate).then(
-      (e: any) => e.map((e: any) => items.push({
-        id: genId(),
-        group: 5,
-        title: e.path,
-        start_time: Date.parse(e.created),
-        end_time: Date.parse(e.created) + 10000,
-        canMove: false,
-        canResize: false,
-        canChangeGroup: false,
-        itemProps: {
-          onMouseDown: () => {
-            window.open(apiClient.host + e.url, '_blank');
-          },
-          style: {
-            background: 'fuchsia'
-          }
-        }
-      }))
-    );
-    apiClient.getWellbeingHistory(startDate, endDate).then(
-      (e: any) => e.map((e: any) => items.push({
-        id: genId(),
-        group: 6,
-        title: e.app,
-        start_time: Date.parse(e.startTime),
-        end_time: Date.parse(e.endTime),
-        canMove: false,
-        canResize: false,
-        canChangeGroup: false,
-      }))
-    );
-    return { items };
+    this.setDate(new Date(Date.now() - 1000 * 60 * 60 * 24), //one day
+      new Date(Date.now()));
   }
 
   setDate(start: Date, end: Date) {
-    console.log("setDate()" + start + "   " + end)
-    const { items } = this.getItems(start, end);
-    this.setState((state) => {
-      return {
-        items: items
-      }
+    apiClient.getItems(start, end).then((items: any) => {
+
+      const timeLogKV: Map<string, number> = new Map();
+      const andriodKV: Map<string, number> = new Map();
+
+      items.map((el: any) => {
+        if (el.group === 3) {
+          timeLogKV.set(el.title, (timeLogKV.get(el.title) == null)
+            ? el.end_time - el.start_time
+            : timeLogKV.get(el.title) + el.end_time - el.start_time);
+        }
+        if (el.group === 6) {
+          andriodKV.set(el.title, (andriodKV.get(el.title) == null)
+            ? el.end_time - el.start_time
+            : andriodKV.get(el.title) + el.end_time - el.start_time);
+        }
+        return el;
+      })
+
+      let timeLogDoughnut = this.fillDoughnut(timeLogKV);
+      let andriodDoughnut = this.fillDoughnut(andriodKV);
+
+      this.setState(() => {
+        return {
+          doughnuts: [andriodDoughnut, timeLogDoughnut],
+          items: items
+        }
+      })
+    });
+  }
+
+  fillDoughnut(data: Map<string, number>){
+    let doughnut: any = {
+      labels: [],
+      datasets: [{
+        data: [],
+        backgroundColor: []
+      }]
+    };
+    
+    data.forEach((val: number, key: string) => {
+      let diffDays = Math.floor(val / 86400000); // days
+      let diffHrs = Math.floor((val % 86400000) / 3600000); // hours
+      let diffMins = Math.round(((val % 86400000) % 3600000) / 60000); // minutes
+      let diffSec = Math.floor(diffMins / 60000); // seconds
+      let period = ((diffDays > 0) ? diffDays + "d " : '') +
+        ((diffHrs > 0) ? diffHrs + "h " : '') +
+        ((diffMins > 0) ? diffMins + "m " : '') +
+        diffSec + "s";
+
+      doughnut.labels.push(key + " " + period);
+      doughnut.datasets[0].data.push(val);
+      doughnut.datasets[0].backgroundColor.push(randomColor({
+        luminosity: "random",
+        seed: Math.floor(Math.random() * 1000)
+      }));
     })
+    return doughnut;
   }
 
   render() {
-    console.log(apiClient.host)
     return (
       <div>
         <TimelineWrapper items={this.state.items} groups={this.state.groups} />
@@ -163,6 +108,11 @@ class App extends React.Component<{}, State> {
         <Button variant="outlined" color="primary" onClick={() => apiClient.processAll()}>
           Process All
         </Button>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)' }}>
+          {
+            this.state.doughnuts.map((d:any) => <div><Doughnut data={d} /></div>)
+          }
+        </div>
       </div>
     );
   }
