@@ -6,6 +6,10 @@ import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +25,7 @@ import ru.panfio.telescreen.repository.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -62,6 +64,8 @@ public class ProcessService {
     @Autowired
     CallRecordRepository callRecordRepository;
 
+    @Autowired
+    MessageRepository messageRepository;
 
     public ProcessService(S3Service s3Service, AutotimerRepository autotimerRepository, MediaRepository mediaRepository, TimeLogRepository timeLogRepository) {
         this.s3Service = s3Service;
@@ -427,10 +431,68 @@ public class ProcessService {
                 callRecords.add(cr);
             }
             //todo save last processed
+            //todo save telegram/skype calls
             callRecordRepository.saveAll(callRecords);
         } catch (SQLException | FileNotFoundException e) {
             log.info("Failed processing call history");
         }
+    }
+
+    public void processTelegramHistory() {
+        log.info("Processing Telegram messages");
+        int count = 0;
+        for (String filename : s3Service.getListOfFileNames(Bucket.APP)) {
+            if (!filename.startsWith("app/telegram") && !filename.contains("messages")) {
+                continue;
+            }
+            try (InputStream inputStream = s3Service.getInputStream(Bucket.APP, filename)) {
+                InputStreamReader isReader = new InputStreamReader(inputStream);
+                BufferedReader reader = new BufferedReader(isReader);
+                StringBuffer sb = new StringBuffer();
+                String str;
+                while ((str = reader.readLine()) != null) {
+                    sb.append(str);
+                }
+                List<Message> list = parseTelegramMessages(sb.toString());
+                count = count + list.size();
+                messageRepository.saveAll(list);
+            } catch (IOException e) {
+                log.warn("Error processing " + filename);
+                e.printStackTrace();
+            }
+        }
+        log.info("Processed Telegram messages = " + count);
+
+    }
+
+    public List<Message> parseTelegramMessages(String html) {
+        List<Message> telegramMessages = new ArrayList<>();
+        try {
+            Document doc = Jsoup.parse(html, "utf-8");
+            Elements messages = doc.select("div.message.default");
+            String name = "";
+            for (Element message : messages) {
+                String currentName = message.select("div.from_name").text();
+                LocalDateTime date = LocalDateTime.parse(
+                        message.select("div.date.details").attr("title"),
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+                if (!currentName.isEmpty()) {
+                    name = currentName;
+                }
+
+                Message tm = new Message();
+                tm.setLegacyID(message.id().substring(7));
+                tm.setCreated(date);
+                tm.setType(Message.Type.TELEGRAM);
+                tm.setAuthor(name);
+                tm.setContent(message.select("div.text").text());
+
+                telegramMessages.add(tm);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return telegramMessages;
     }
 
     /**
@@ -522,7 +584,7 @@ public class ProcessService {
      * @param filename
      * @return connection or null if an error occurred
      */
-    private Connection connectSQLite(Bucket bucket, String filename)  throws FileNotFoundException{
+    private Connection connectSQLite(Bucket bucket, String filename) throws FileNotFoundException {
         Connection conn = null;
         String path = s3Service.saveFileInTempFolder(bucket, filename);
         if (path == null) {
@@ -536,4 +598,6 @@ public class ProcessService {
         }
         return conn;
     }
+
+
 }

@@ -1,7 +1,15 @@
 package ru.panfio.telescreen.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+
 public class TestFiles {
-    public static final String timesheet = "<timesheet>\n" +
+    public static InputStream toInputStream(String content) {
+        return new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")));
+    }
+
+    public static final String TIMESHEET = "<timesheet>\n" +
             "   <tags class=\"java.util.ArrayList\" >\n" +
             "      <tag>\n" +
             "         <color>-256</color>\n" +
@@ -20,7 +28,7 @@ public class TestFiles {
             "         <lastUpdate>1574706459770</lastUpdate>\n" +
             "         <name>Coding</name>\n" +
             "      </tag>\n" +
-            "   </tags>\n"+
+            "   </tags>\n" +
             "   <taskTags class=\"java.util.ArrayList\">\n" +
             "      <taskTag>\n" +
             "         <created>1573638285408</created>\n" +
@@ -54,7 +62,8 @@ public class TestFiles {
             "      </task>" +
             "   </tasks>" +
             "</timesheet>";
-    public static final String activities = "{\n" +
+
+    public static final String ACTIVITIES = "{\n" +
             "    \"activities\": [\n" +
             "        {\n" +
             "            \"name\": \"Google Chrome -> Dreams by Ytho.\", \n" +
@@ -80,4 +89,45 @@ public class TestFiles {
             "    ]\n" +
             "}";
 
+    public static final String TELEGRAM = "<!DOCTYPE html>\n" +
+            "<html>\n" +
+            " <body onload=\"CheckLocation();\">\n" +
+            "  <div class=\"page_wrap\">\n" +
+            "   <div class=\"page_body chat_page\">\n" +
+            "    <div class=\"history\">\n" +
+            "     <div class=\"message default clearfix\" id=\"message1234\">\n" +
+            "      <div class=\"pull_left userpic_wrap\">\n" +
+            "       <div class=\"userpic userpic4\" style=\"width: 42px; height: 42px\">\n" +
+            "        <div class=\"initials\" style=\"line-height: 42px\">\n" +
+            "A\n" +
+            "        </div>\n" +
+            "       </div>\n" +
+            "      </div>\n" +
+            "      <div class=\"body\">\n" +
+            "       <div class=\"pull_right date details\" title=\"30.09.2018 22:03:27\">\n" +
+            "22:03\n" +
+            "       </div>\n" +
+            "       <div class=\"from_name\">\n" +
+            "Alex \n" +
+            "       </div>\n" +
+            "       <div class=\"text\">\n" +
+            "<a href=\"https://example.com\">https://example.com</a>\n" +
+            "       </div>\n" +
+            "      </div>\n" +
+            "     </div>\n" +
+            "     <div class=\"message default clearfix joined\" id=\"message4321\">\n" +
+            "      <div class=\"body\">\n" +
+            "       <div class=\"pull_right date details\" title=\"11.08.2019 22:54:49\">\n" +
+            "22:54\n" +
+            "       </div>\n" +
+            "       <div class=\"text\">\n" +
+            "TEST text1\n" +
+            "       </div>\n" +
+            "      </div>\n" +
+            "     </div>\n" +
+            "    </div>\n" +
+            "   </div>\n" +
+            "  </div>\n" +
+            " </body>\n" +
+            "</html>";
 }

@@ -4,25 +4,22 @@ import org.junit.*;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Autotimer;
 import ru.panfio.telescreen.model.Media;
+import ru.panfio.telescreen.model.Message;
 import ru.panfio.telescreen.model.timesheet.TimesheetExport;
 import ru.panfio.telescreen.repository.AutotimerRepository;
 import ru.panfio.telescreen.repository.MediaRepository;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static ru.panfio.telescreen.service.TestFiles.toInputStream;
 
-@Ignore
 public class ProcessServiceTest {
 
     private ProcessService service;
@@ -35,8 +32,7 @@ public class ProcessServiceTest {
         mediaRepositoryMock = mock(MediaRepository.class);
         autotimerRepositoryMock = mock(AutotimerRepository.class);
         s3Mock = mock(S3Service.class);
-
-        //service = new ProcessService(s3Mock, autotimerRepositoryMock, mediaRepositoryMock);
+        service = new ProcessService(s3Mock, autotimerRepositoryMock, mediaRepositoryMock, null);
     }
 
     @Test
@@ -75,10 +71,9 @@ public class ProcessServiceTest {
 
     @Test
     public void autotimerRecordsShouldBeCreatedCorrectly() throws FileNotFoundException {
-        List<String> activityFiles = Arrays.asList("activities-20191127-101619.json");
-        InputStream stream = new ByteArrayInputStream(TestFiles.activities.getBytes(Charset.forName("UTF-8")));
-        when(s3Mock.getListOfFileNames(Bucket.AUTOTIMER)).thenReturn(activityFiles);
-        when(s3Mock.getInputStream(Bucket.AUTOTIMER, activityFiles.get(0))).thenReturn(stream);
+        List<String> activityFiles = Arrays.asList("autotimer/activities-20191127-101619.json");
+        when(s3Mock.getListOfFileNames(Bucket.APP)).thenReturn(activityFiles);
+        when(s3Mock.getInputStream(Bucket.APP, activityFiles.get(0))).thenReturn(toInputStream(TestFiles.ACTIVITIES));
 
         service.processAutotimerRecords();
 
@@ -96,33 +91,24 @@ public class ProcessServiceTest {
 
     @Test
     public void unmarshallilgXmlShouldWorkCorrectly() {
-        InputStream stream = new ByteArrayInputStream(TestFiles.timesheet.getBytes(Charset.forName("UTF-8")));
-        TimesheetExport out = service.unmarshallXml(TimesheetExport.class, stream);
+        TimesheetExport out = service.unmarshallXml(TimesheetExport.class, toInputStream(TestFiles.TIMESHEET));
         assertEquals("Coding", out.getTags().getTags().get(0).getName());
         assertEquals("Description", out.getTasks().getTasks().get(0).getDescription());
         assertEquals(
-                LocalDateTime.parse("2019-12-07T19:28:00+03:00",  DateTimeFormatter.ISO_DATE_TIME),
+                LocalDateTime.parse("2019-12-07T19:28:00+03:00", DateTimeFormatter.ISO_DATE_TIME),
                 out.getTasks().getTasks().get(0).getStartDate());
 
-        TimesheetExport fromBadFile = service.unmarshallXml(TimesheetExport.class, new ByteArrayInputStream("<xml>".getBytes(Charset.forName("UTF-8"))));
+        TimesheetExport fromBadFile = service.unmarshallXml(TimesheetExport.class, toInputStream("<xml>"));
         assertNull(fromBadFile);
     }
 
-//    public void shouldUnmarshalCorrectly() { //todo meaningful name
-//        List<String> files = Arrays.asList(
-//                "timesheet/TimesheetBackup_2019-12-05_000000.xml",
-//                "timesheet/TimesheetBackup_2019-12-08_000000.xml",
-//                "timesheet/TimesheetBackup_2019-12-07_000000.xml");
-//        when(s3Mock.getListOfFileNames("autotimer")).thenReturn(files);
-//        InputStream inputStream = new ByteArrayInputStream(activities.getBytes(Charset.forName("UTF-8")));
-//        when(s3Mock.getInputStream("app", files.get(1))).thenReturn(inputStream);
-//
-//        //assertEquals();
-//        //todo assert process last file
-//        //todo store records
-//        //todo refactor tests
-//        //List<Tag> list = service.processTimesheetRecords();
-//        //assertEquals("Coding", list.get(0).getName());
-//    }
-
+    @Test
+    public void telegramParsing() {
+        List<Message> tml = service.parseTelegramMessages(TestFiles.TELEGRAM);
+        assertEquals("https://example.com" , tml.get(0).getContent());
+        assertEquals("1234" , tml.get(0).getLegacyID());
+        assertEquals(Message.Type.TELEGRAM, tml.get(0).getType());
+        assertEquals("Alex" , tml.get(1).getAuthor());
+        assertEquals(LocalDateTime.parse("2019-08-11T22:54:49"), tml.get(1).getCreated());
+    }
 }
