@@ -29,6 +29,9 @@ public class AppService {
     @Autowired
     AutotimerRepository autotimerRepository;
 
+    @Autowired
+    MessageRepository messageRepository;
+
     public Iterable<TimeLog> findAllTimelogs() {
         return timeLogRepository.findAll();
     }
@@ -63,5 +66,9 @@ public class AppService {
 
     public Iterable<Autotimer> getAutotimerRecordsBetweenDates(LocalDateTime t1, LocalDateTime t2) {
         return autotimerRepository.getAllBetweenDates(t1, t2).stream().filter(t -> Duration.between(t.getStartTime(), t.getEndTime()).toMillis() > 10000).collect(Collectors.toList());
+    }
+
+    public Iterable<Message> getMessageHistoryBetweenDates(LocalDateTime t1, LocalDateTime t2) {
+        return messageRepository.getAllBetweenDates(t1, t2);
     }
 }

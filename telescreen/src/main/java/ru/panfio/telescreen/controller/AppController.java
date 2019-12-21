@@ -76,4 +76,14 @@ public class AppController {
         LocalDateTime t2 = LocalDateTime.parse(to);
         return new ResponseEntity(app.getAutotimerRecordsBetweenDates(t1, t2), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "Get massage history by period")
+    @RequestMapping(value = "/app/message", method = RequestMethod.GET)
+    ResponseEntity findMessageHistoryByPeriod(
+            @RequestParam(value = "from") String from,
+            @RequestParam(value = "to") String to) {
+        LocalDateTime t1 = LocalDateTime.parse(from);
+        LocalDateTime t2 = LocalDateTime.parse(to);
+        return new ResponseEntity(app.getMessageHistoryBetweenDates(t1, t2), HttpStatus.OK);
+    }
 }

@@ -93,4 +93,11 @@ public class ProcessController {
         ps.processCallHistory();
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @ApiOperation(value = "Processing Telegram message History")
+    @RequestMapping(value = "/process/telegram", method = RequestMethod.GET)
+    public ResponseEntity processTelegramHistory() {
+        ps.processTelegramHistory();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

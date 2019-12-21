@@ -25,9 +25,7 @@ import ru.panfio.telescreen.repository.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -66,6 +64,8 @@ public class ProcessService {
     @Autowired
     CallRecordRepository callRecordRepository;
 
+    @Autowired
+    MessageRepository messageRepository;
 
     public ProcessService(S3Service s3Service, AutotimerRepository autotimerRepository, MediaRepository mediaRepository, TimeLogRepository timeLogRepository) {
         this.s3Service = s3Service;
@@ -438,7 +438,34 @@ public class ProcessService {
         }
     }
 
-    public List<Message> parseTelegramMessage(String html) {
+    public void processTelegramHistory() {
+        log.info("Processing Telegram messages");
+        int count = 0;
+        for (String filename : s3Service.getListOfFileNames(Bucket.APP)) {
+            if (!filename.startsWith("app/telegram") && !filename.contains("messages")) {
+                continue;
+            }
+            try (InputStream inputStream = s3Service.getInputStream(Bucket.APP, filename)) {
+                InputStreamReader isReader = new InputStreamReader(inputStream);
+                BufferedReader reader = new BufferedReader(isReader);
+                StringBuffer sb = new StringBuffer();
+                String str;
+                while ((str = reader.readLine()) != null) {
+                    sb.append(str);
+                }
+                List<Message> list = parseTelegramMessages(sb.toString());
+                count = count + list.size();
+                messageRepository.saveAll(list);
+            } catch (IOException e) {
+                log.warn("Error processing " + filename);
+                e.printStackTrace();
+            }
+        }
+        log.info("Processed Telegram messages = " + count);
+
+    }
+
+    public List<Message> parseTelegramMessages(String html) {
         List<Message> telegramMessages = new ArrayList<>();
         try {
             Document doc = Jsoup.parse(html, "utf-8");
@@ -557,7 +584,7 @@ public class ProcessService {
      * @param filename
      * @return connection or null if an error occurred
      */
-    private Connection connectSQLite(Bucket bucket, String filename)  throws FileNotFoundException{
+    private Connection connectSQLite(Bucket bucket, String filename) throws FileNotFoundException {
         Connection conn = null;
         String path = s3Service.saveFileInTempFolder(bucket, filename);
         if (path == null) {
@@ -571,4 +598,6 @@ public class ProcessService {
         }
         return conn;
     }
+
+
 }

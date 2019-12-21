@@ -1,9 +1,5 @@
 package ru.panfio.telescreen.service;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.*;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Autotimer;
@@ -14,7 +10,6 @@ import ru.panfio.telescreen.repository.AutotimerRepository;
 import ru.panfio.telescreen.repository.MediaRepository;
 
 import java.io.*;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -109,29 +104,11 @@ public class ProcessServiceTest {
 
     @Test
     public void telegramParsing() {
-        List<Message> tml = service.parseTelegramMessage(TestFiles.TELEGRAM);
+        List<Message> tml = service.parseTelegramMessages(TestFiles.TELEGRAM);
         assertEquals("https://example.com" , tml.get(0).getContent());
         assertEquals("1234" , tml.get(0).getLegacyID());
         assertEquals(Message.Type.TELEGRAM, tml.get(0).getType());
         assertEquals("Alex" , tml.get(1).getAuthor());
         assertEquals(LocalDateTime.parse("2019-08-11T22:54:49"), tml.get(1).getCreated());
     }
-
-//    public void shouldUnmarshalCorrectly() { //todo meaningful name
-//        List<String> files = Arrays.asList(
-//                "timesheet/TimesheetBackup_2019-12-05_000000.xml",
-//                "timesheet/TimesheetBackup_2019-12-08_000000.xml",
-//                "timesheet/TimesheetBackup_2019-12-07_000000.xml");
-//        when(s3Mock.getListOfFileNames("autotimer")).thenReturn(files);
-//        InputStream inputStream = new ByteArrayInputStream(activities.getBytes(Charset.forName("UTF-8")));
-//        when(s3Mock.getInputStream("app", files.get(1))).thenReturn(inputStream);
-//
-//        //assertEquals();
-//        //todo assert process last file
-//        //todo store records
-//        //todo refactor tests
-//        //List<Tag> list = service.processTimesheetRecords();
-//        //assertEquals("Coding", list.get(0).getName());
-//    }
-
 }
