@@ -13,4 +13,9 @@ public interface WellbeingRepository extends CrudRepository<Wellbeing,Long> {
     public List<Wellbeing> getAllBetweenDates(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    @Query(value = "from Wellbeing t where t.startTime = :startDate AND t.endTime = :endDate")
+    public Wellbeing findWellbeingRecord(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

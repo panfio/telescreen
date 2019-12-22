@@ -13,7 +13,6 @@ import java.util.Objects;
 @NoArgsConstructor
 public class TimeLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -25,5 +24,4 @@ public class TimeLog {
     @OrderColumn
     @Column(name = "TAG")
     private List<String> tags;
-
 }

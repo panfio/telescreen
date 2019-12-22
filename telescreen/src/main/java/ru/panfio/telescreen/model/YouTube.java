@@ -22,7 +22,6 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class YouTube {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     @JsonAlias("titleUrl")
@@ -30,5 +29,4 @@ public class YouTube {
     @JsonSerialize(using = IsoInstantLocalDateTimeSerializer.class)
     @JsonDeserialize(using = IsoInstantLocalDateTimeDeserializer.class)
     private LocalDateTime time;
-
 }
