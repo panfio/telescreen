@@ -6,8 +6,6 @@ import ru.panfio.telescreen.model.Autotimer;
 import ru.panfio.telescreen.model.Media;
 import ru.panfio.telescreen.model.Message;
 import ru.panfio.telescreen.model.timesheet.TimesheetExport;
-import ru.panfio.telescreen.repository.AutotimerRepository;
-import ru.panfio.telescreen.repository.MediaRepository;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -23,16 +21,14 @@ import static ru.panfio.telescreen.service.TestFiles.toInputStream;
 public class ProcessServiceTest {
 
     private ProcessService service;
-    private MediaRepository mediaRepositoryMock;
-    private AutotimerRepository autotimerRepositoryMock;
     private S3Service s3Mock;
+    private PersistenceService persistenceServiceMock;
 
     @Before
     public void setUp() {
-        mediaRepositoryMock = mock(MediaRepository.class);
-        autotimerRepositoryMock = mock(AutotimerRepository.class);
+        persistenceServiceMock = mock(PersistenceService.class);
         s3Mock = mock(S3Service.class);
-        service = new ProcessService(s3Mock, autotimerRepositoryMock, mediaRepositoryMock, null);
+        service = new ProcessService(s3Mock, persistenceServiceMock);
     }
 
     @Test
@@ -58,7 +54,7 @@ public class ProcessServiceTest {
         service.processMediaRecords();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<List<Media>> argument = ArgumentCaptor.forClass(List.class);
-        verify(mediaRepositoryMock).saveAll(argument.capture());
+        verify(persistenceServiceMock).saveMediaRecords(argument.capture());
         List<Media> list = argument.getValue();
 
         assertEquals(3, list.size());
@@ -78,7 +74,7 @@ public class ProcessServiceTest {
         service.processAutotimerRecords();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<List<Autotimer>> argument = ArgumentCaptor.forClass(List.class);
-        verify(autotimerRepositoryMock).saveAll(argument.capture());
+        verify(persistenceServiceMock).saveAutotimerRecords(argument.capture());
         List<Autotimer> list = argument.getValue();
 
         assertEquals(2, list.size());

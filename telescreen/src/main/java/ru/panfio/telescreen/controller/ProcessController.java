@@ -3,6 +3,7 @@ package ru.panfio.telescreen.controller;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.panfio.telescreen.service.ProcessService;
+
+import java.util.Collections;
 
 
 @Controller
@@ -19,17 +22,12 @@ public class ProcessController {
     ProcessService ps;
 
     @ApiOperation(value = "Processing all")
-    @RequestMapping(value = "/process/all", method = RequestMethod.GET)
+    @RequestMapping(value = "/process/all",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity processAll() {
-        ps.processAutotimerRecords();
-        ps.processYouTubeHistory();
-        ps.processMediaRecords();
-        ps.processTimesheetRecords();
-        ps.processSoundCloud();
-        ps.processWellbeingRecords();
-        ps.processWellbeingRecords();
-        ps.processCallHistory();
-        return new ResponseEntity<>(HttpStatus.OK);
+        ps.processAll();
+        return new ResponseEntity<>(Collections.singletonMap("processed", "all"), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Processing media files")

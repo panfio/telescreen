@@ -26,6 +26,7 @@ import ru.panfio.telescreen.repository.*;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.net.URL;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -33,6 +34,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,36 +47,32 @@ public class ProcessService {
     S3Service s3Service;
 
     @Autowired
-    AutotimerRepository autotimerRepository;
+    PersistenceService persistenceService;
 
-    @Autowired
-    MediaRepository mediaRepository;
+    private ThreadPoolExecutor executor =
+            (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
 
-    @Autowired
-    TimeLogRepository timeLogRepository;
-
-    @Autowired
-    YouTubeRepository youTubeRepository;
-
-    @Autowired
-    ListenRecordRepository listenRecordRepository;
-
-    @Autowired
-    WellbeingRepository wellbeingRepository;
-
-    @Autowired
-    CallRecordRepository callRecordRepository;
-
-    @Autowired
-    MessageRepository messageRepository;
-
-    public ProcessService(S3Service s3Service, AutotimerRepository autotimerRepository, MediaRepository mediaRepository, TimeLogRepository timeLogRepository) {
+    public ProcessService(S3Service s3Service, PersistenceService persistenceService) {
         this.s3Service = s3Service;
-        this.autotimerRepository = autotimerRepository;
-        this.mediaRepository = mediaRepository;
-        this.timeLogRepository = timeLogRepository;
+        this.persistenceService = persistenceService;
     }
 
+    public void processAll() {
+        executor.submit(this::processWellbeingRecords);
+        executor.submit(this::processAutotimerRecords);
+        executor.submit(this::processYouTubeHistory);
+        executor.submit(this::processMediaRecords);
+        executor.submit(this::processTimesheetRecords);
+        executor.submit(this::processSoundCloud);
+        executor.submit(this::processTelegramHistory);
+        executor.submit(this::processCallHistory);
+    }
+
+    /**
+     * Processing AutoTimer records
+     *
+     * @return true if success
+     */
     public boolean processAutotimerRecords() {
         log.info("Processsing Autotimer records");
         int count = 0;
@@ -88,8 +87,8 @@ public class ProcessService {
                         AutotimerRecords.class);
                 List<Autotimer> list = collectAutotimers(autotimerRecords.getActivities());
                 count = count + list.size();
-                autotimerRepository.saveAll(list);
                 //todo save processed filename item to db
+                persistenceService.saveAutotimerRecords(list);
             } catch (IOException e) {
                 log.warn("Autotimer parse error " + filename);
                 e.printStackTrace();
@@ -153,8 +152,7 @@ public class ProcessService {
 
                 fileList.add(record);
             }
-            mediaRepository.saveAll(fileList);
-            //todo save processed filename item to db or recreate item list
+            persistenceService.saveMediaRecords(fileList);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -168,7 +166,6 @@ public class ProcessService {
      * @return true if operation is successful
      */
     public boolean processTimesheetRecords() {
-        //todo bucket name as Enum
         //todo create method that returns file list in folder
         String lastBackup = s3Service.getListOfFileNames(Bucket.APP)
                 .stream().filter(s -> s.startsWith("timesheet/TimesheetBackup"))
@@ -178,7 +175,7 @@ public class ProcessService {
                     return ((dt != null) && (dt.isAfter(getDateFromPath(max)))) ? current : max;
                 }).orElse("");
         if (lastBackup.equals("")) {
-            log.warn("Timesheet backup files not found or already processed");
+            log.warn("Timesheet backup files not found");
             return false;
         }
         log.info("Processing " + lastBackup);
@@ -191,7 +188,6 @@ public class ProcessService {
             tags.put(tag.getTagId(), tag.getName());
         });
         List<TimeLog> timeLogs = new ArrayList<>();
-        //todo filter and insert records after last import
         for (Task task : te.getTasks().getTasks()) {
             TimeLog tl = new TimeLog();
             tl.setId(task.getTaskId());
@@ -207,14 +203,14 @@ public class ProcessService {
             tl.setTags(tlTags);
             timeLogs.add(tl);
         }
-        timeLogRepository.saveAll(timeLogs);
-        //todo save processed filename item to db
+        persistenceService.saveTimeLogRecords(timeLogs);
         return true;
     }
 
+    /**
+     * Processing YouTube history from Google export
+     */
     public void processYouTubeHistory() {
-        //todo what if there are many files for different accounts?
-        //todo save last processed
         log.info("Start processing YouTube history");
         String filename = "google/YouTube/history/watch-history.json";
         try {
@@ -229,18 +225,24 @@ public class ProcessService {
                     new TypeReference<List<YouTube>>() {
                     });
             List<YouTube> filtered = yt.stream().map(e -> {
+                e.setId(e.getTime().toEpochSecond(ZoneOffset.UTC));
                 e.setTitle(e.getTitle().substring(7)); //removes "Watched "
                 return e;
             }).collect(Collectors.toList());
-            youTubeRepository.saveAll(filtered);
+            persistenceService.saveYouTubeRecords(filtered);
         } catch (Exception e) {
             log.warn("Parse error " + filename);
             e.printStackTrace();
         }
+        log.info("End processing YouTube history");
     }
 
+    /**
+     * Processing Spotify listen history
+     *
+     * @param accessToken token from https://developer.spotify.com/console/get-track/
+     */
     public void processSpotifyRecentlyPlayed(String accessToken) {
-        //https://developer.spotify.com/console/get-track/
         final SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
@@ -250,7 +252,6 @@ public class ProcessService {
         try {
             RecentlyPlayedProto.RecentlyPlayed rp =
                     RecentlyPlayedProto.RecentlyPlayed.parseFrom(stream);
-
 //            int i = 0;
             List<ListenRecord> listenedTracks = new ArrayList<>();
             for (RecentlyPlayedProto.RecentTrack item : rp.getTList()) {
@@ -280,23 +281,9 @@ public class ProcessService {
                 listenedTracks.add(lr);
 //                i++; if (i > 10) return;
             }
-            listenRecordRepository.saveAll(listenedTracks);
+            persistenceService.saveListenRecords(listenedTracks);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void processSoundCloud() {
-        long lastPrcessedItem = 0;
-        Map<Long, ListenRecord> history = getSoundCloudPlayHistory(lastPrcessedItem);
-        Set<Long> keyset = history.keySet();
-        Collection<ListenRecord> listenedTracks = history.values();
-        if (!listenedTracks.isEmpty()) {
-            listenRecordRepository.saveAll(listenedTracks);
-        }
-        if (!keyset.isEmpty()) {
-            Long currentLastProcessedItem = Collections.max(keyset);
-            System.out.println(currentLastProcessedItem);
         }
     }
 
@@ -331,18 +318,15 @@ public class ProcessService {
     }
 
     /**
-     * Returns the SoundCloud listening history after the specified time
-     *
-     * @param timestamp
-     * @return map of listened tracks
+     * Processing the SoundCloud listening history
      */
-    private Map<Long, ListenRecord> getSoundCloudPlayHistory(long timestamp) {
+    public void processSoundCloud() {
+        log.info("Start processing SoundCloud history");
         String listenSql = "SELECT * FROM playhistory";
         Map<Long, ListenRecord> soundsInfo = getSoundsInfo();
-        Map<Long, ListenRecord> listenRecords = new HashMap<>();
+        List<ListenRecord> listenRecords = new ArrayList<>();
         try (Connection conn = this.connectSQLite(Bucket.APP, "soundcloud/collection.db");
              PreparedStatement pstmt = conn.prepareStatement(listenSql)) {
-//            pstmt.setLong(1,timestamp);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 ListenRecord sound = soundsInfo.get(rs.getLong("track_id"));
@@ -359,15 +343,20 @@ public class ProcessService {
                 lr.setListenTime(rs.getTimestamp("timestamp").toLocalDateTime());
                 lr.setUrl(sound.getUrl());
 
-                listenRecords.put(lrId, lr);
+                listenRecords.add(lr);
             }
+            persistenceService.saveListenRecords(listenRecords);
         } catch (SQLException | FileNotFoundException e) {
             log.info("Failed processing SoundCloud play history");
         }
-        return listenRecords;
+        log.info("End processing SoundCloud history");
     }
 
+    /**
+     * Processing App activity from Wellbeing database
+     */
     public void processWellbeingRecords() {
+        log.info("Start processing Wellbeing history");
         String wellbeingSql = "SELECT\n" +
                 "    e._id, e.package_id,\n" +
                 "    e.timestamp, e.type,\n" +
@@ -400,19 +389,31 @@ public class ProcessService {
                     Wellbeing wr = new Wellbeing();
                     wr.setStartTime(tempWellbringRecord.getStartTime());
                     wr.setEndTime(rs.getTimestamp("timestamp").toLocalDateTime());
-                    wr.setApp(rs.getString("package_name"));
                     wr.setType(Wellbeing.Type.ACTIVITY);
+
+//                    Document doc = Jsoup.parse(new URL("https://play.google.com/store/apps/details?id=" + rs.getString("package_name")) , 50000);
+//                    String htmlTitle = doc.head().tagName("title").text();
+//                    String appTitle = htmlTitle.substring(0, htmlTitle.lastIndexOf("-") - 1);
+                    wr.setApp(rs.getString("package_name"));
 
                     wellbeingActivities.add(wr);
                     tmp.remove(id);
+                    if (wellbeingActivities.size() > 500) {
+                        persistenceService.saveWellbeingRecords(wellbeingActivities);
+                        wellbeingActivities.clear();
+                    }
                 }
             }
-            wellbeingRepository.saveAll(wellbeingActivities);
-        } catch (SQLException | FileNotFoundException e) {
+            persistenceService.saveWellbeingRecords(wellbeingActivities);
+        } catch (Exception e) {
             log.info("Failed processing Wellbeing history");
         }
+        log.info("End processing Wellbeing history");
     }
 
+    /**
+     * Processing Call history from android phone
+     */
     public void processCallHistory() {
         String callSql = "SELECT _id, number, date, duration, name, type FROM calls";
         List<CallRecord> callRecords = new ArrayList<>();
@@ -430,17 +431,18 @@ public class ProcessService {
 
                 callRecords.add(cr);
             }
-            //todo save last processed
             //todo save telegram/skype calls
-            callRecordRepository.saveAll(callRecords);
+            persistenceService.saveCallRecords(callRecords);
         } catch (SQLException | FileNotFoundException e) {
             log.info("Failed processing call history");
         }
     }
 
+    /**
+     * Processing Telegram message history from chat history export
+     */
     public void processTelegramHistory() {
-        log.info("Processing Telegram messages");
-        int count = 0;
+        log.info("Start processing Telegram messages");
         for (String filename : s3Service.getListOfFileNames(Bucket.APP)) {
             if (!filename.startsWith("app/telegram") && !filename.contains("messages")) {
                 continue;
@@ -453,18 +455,20 @@ public class ProcessService {
                 while ((str = reader.readLine()) != null) {
                     sb.append(str);
                 }
-                List<Message> list = parseTelegramMessages(sb.toString());
-                count = count + list.size();
-                messageRepository.saveAll(list);
+                persistenceService.saveMessages(parseTelegramMessages(sb.toString()));
             } catch (IOException e) {
                 log.warn("Error processing " + filename);
                 e.printStackTrace();
             }
         }
-        log.info("Processed Telegram messages = " + count);
-
+        log.info("End processing Telegram messages");
     }
 
+    /**
+     * Parsing messages from the given html file
+     * @param html
+     * @return message list
+     */
     public List<Message> parseTelegramMessages(String html) {
         List<Message> telegramMessages = new ArrayList<>();
         try {
@@ -598,6 +602,4 @@ public class ProcessService {
         }
         return conn;
     }
-
-
 }

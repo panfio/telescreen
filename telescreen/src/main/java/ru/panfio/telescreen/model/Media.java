@@ -15,7 +15,6 @@ import java.util.Objects;
 @Data
 @NoArgsConstructor
 public class Media {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,5 +23,4 @@ public class Media {
     private LocalDateTime created;
     private String path;
     private String url;
-
 }

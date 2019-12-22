@@ -14,9 +14,9 @@ import java.util.Objects;
 @Data
 @NoArgsConstructor
 public class ListenRecord {
-    public enum Type { SPOTIFY, SOUNDCLOUD }
+    public enum Type {SPOTIFY, SOUNDCLOUD}
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String externalId;
     private Type type;
@@ -24,5 +24,4 @@ public class ListenRecord {
     private String title;
     private LocalDateTime listenTime;
     private String url;
-
 }
