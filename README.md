@@ -26,6 +26,8 @@ docker-compose up
 Add a new media files inside `archive/media` folders or upload to `media` bucket using minio [localhost:9000](http://localhost:9000). 
 Open browser at [localhost:8888](http://localhost:8888) (default credentials `user : passpass`)
 
+**Warning! Docker containers can be accessible from network even if firewall is enabled!** Check this question for details: [stackoverflow.com/questions/49549834](https://stackoverflow.com/questions/49549834/ufw-firewall-is-not-working-on-ubuntu-in-digitalocean/49563279#49563279).
+
 **Interaction**
 *Be careful when choosing a time interval. In 2 days, up to 2 thousand events can happen.*
 To interact and navigate within the timeline there are the following options:
