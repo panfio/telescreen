@@ -9,7 +9,7 @@ const genId = id();
 class ApiService {
 
   env: string = process.env.NODE_ENV
-  host: any = process.env.REACT_APP_API_URL;
+  host: string = (process.env.REACT_APP_API_URL == null) ? "" : process.env.REACT_APP_API_URL;
 
   constructUrl(path: string, params: any): string {
     let dummy = 'http://dummyurl:8080';
