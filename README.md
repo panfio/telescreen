@@ -44,7 +44,7 @@ meta + mousewheel = zoom in/out 3x faster (win or cmd + mousewheel)
 - **Media files** Try using a script that copies files from your Android device. Due to differences in hardware and operating systems, please manually set the paths `ARCHIVE_FOLDER` and `PHONE_STORAGE` inside. The script also copies the backup files.
 
 ```bash
-./scripts/copy.sh
+./scripts/copy.sh /archive
 ```
 
 Dates can be parsed correctly from the following file names. Other files saves with the creation date.
@@ -84,12 +84,12 @@ Paste this into the cron editor. Make sure that the path `/sdcard` correctly poi
 
 ```
 0 * * * * su -c cp /data/data/com.spotify.music/files/settings/Users/XXXXXXXXXXXXXXXXXXXXXXXXXX/recently_played.bnk /sdcard/archive/app/spotify/recently_played-`date "+%Y%m%d-%H%M%S"`.bnk
-0 0 * * * su -c cp -u /data/data/com.android.providers.contacts/databases/calllog.db /sdcard/archive/app/call/calllog.db
-0 0 * * * su -c cp -u /data/data/com.google.android.apps.messaging/databases/bugle_db /sdcard/archive/app/sms/bugle_db
-0 0 * * * su -c cp -u /data/data/com.soundcloud.android/databases/collection.db /sdcard/archive/app/soundcloud/collection.db
-0 0 * * * su -c cp -u /data/data/com.soundcloud.android/databases/SoundCloud /sdcard/archive/app/soundcloud/SoundCloud
-0 0 * * * su -c cp -u /data/data/com.whatsapp/databases/msgstore.db /sdcard/archive/app/whatsapp/msgstore.db
-0 0 * * * su -c cp -u /data/data/com.google.android.apps.wellbeing/databases/app_usage /sdcard/archive/app/wellbeing/app_usage
+0 0 * * * su -c cp /data/data/com.android.providers.contacts/databases/calllog.db /sdcard/archive/app/call/calllog.db
+0 0 * * * su -c cp /data/data/com.google.android.apps.messaging/databases/bugle_db /sdcard/archive/app/sms/bugle_db
+0 0 * * * su -c cp /data/data/com.soundcloud.android/databases/collection.db /sdcard/archive/app/soundcloud/collection.db
+0 0 * * * su -c cp /data/data/com.soundcloud.android/databases/SoundCloud /sdcard/archive/app/soundcloud/SoundCloud
+0 0 * * * su -c cp /data/data/com.whatsapp/databases/msgstore.db /sdcard/archive/app/whatsapp/msgstore.db
+0 0 * * * su -c cp /data/data/com.google.android.apps.wellbeing/databases/app_usage /sdcard/archive/app/wellbeing/app_usage
 ```
 
 ## Integrations
