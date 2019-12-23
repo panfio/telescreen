@@ -21,7 +21,7 @@ copy "/Day One" "/app/dayone/" "Export-Journal.zip"
 copy "/Timesheet" "/app/timesheet/" "TimesheetBackup*.xml"
 
 # #root
-copy "/archive/app/soundcloud" "/app/soundcloud/" "*.db" 
+copy "/archive/app/soundcloud" "/app/soundcloud/" "collection.db" 
 copy "/archive/app/soundcloud" "/app/soundcloud/" "SoundCloud"
 copy "/archive/app/spotify" "/app/spotify/" "*.bnk"
 copy "/archive/app/sms" "/app/sms/" "bugle_db"

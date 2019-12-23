@@ -20,11 +20,12 @@ class App extends React.Component<{}, State> {
     super(props);
     const groups = [
       { id: 1, title: 'PC time log' },
-      { id: 2, title: 'YouTube' },
-      { id: 3, title: 'TimeLog' },
-      { id: 4, title: 'Music' },
-      { id: 5, title: 'Media files' },
-      { id: 6, title: 'Android phone' }
+      { id: 2, title: 'Android phone' },
+      { id: 3, title: 'Time log' },
+      { id: 4, title: 'Messages' },
+      { id: 5, title: 'Music' },
+      { id: 6, title: 'YouTube' },
+      { id: 7, title: 'Media files' }
     ]
     this.state = {
       groups: groups,
@@ -50,7 +51,7 @@ class App extends React.Component<{}, State> {
             ? el.end_time - el.start_time
             : timeLogKV.get(el.title) + el.end_time - el.start_time);
         }
-        if (el.group === 6) {
+        if (el.group === 2) {
           andriodKV.set(el.title, (andriodKV.get(el.title) == null)
             ? el.end_time - el.start_time
             : andriodKV.get(el.title) + el.end_time - el.start_time);
