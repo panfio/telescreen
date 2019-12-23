@@ -67,12 +67,32 @@ git clone https://github.com/KalleHallden/AutoTimer $ARCHIVE_FOLDER/app/autotime
 
 - **Timesheet** Configure daily backup to Timesheet folder on the external storage
 - **Day One** Configure daily backup in the app settings
-- **Spotify** You need to get token [Here](https://developer.spotify.com/console/get-track/) and paste it as parameter before start processing
+- **Spotify** Get token [Here](https://developer.spotify.com/console/get-track/) and paste it as parameter before start processing
 
 ### For Android users with root
 
 You can manualy copying databases and related files or use cron jobs for automation. Download a terminal emulator [Termux](https://play.google.com/store/apps/details?id=com.termux).
-Copy archive folder into external storage.
+Copy archive folder into external storage and `./scripts/upload.py` into `/sdcard/upload.py`. Replace minio host inside `upload.py`
+
+```sh
+pkg install python
+pip install minio
+echo '
+#!/bin/sh
+su -c cp /data/data/com.android.providers.contacts/databases/calllog.db /sdcard/archive/app/call/calllog.db
+su -c cp /data/data/com.google.android.apps.messaging/databases/bugle_db /sdcard/archive/app/sms/bugle_db
+su -c cp /data/data/com.soundcloud.android/databases/collection.db /sdcard/archive/app/soundcloud/collection.db
+su -c cp /data/data/com.soundcloud.android/databases/SoundCloud /sdcard/archive/app/soundcloud/SoundCloud
+su -c cp /data/data/com.whatsapp/databases/msgstore.db /sdcard/archive/app/whatsapp/msgstore.db
+su -c cp /data/data/com.google.android.apps.wellbeing/databases/app_usage /sdcard/archive/app/wellbeing/app_usage
+/data/data/com.termux/files/usr/bin/python /sdcard/upload.py' > sync.sh
+chmod +x sync.sh
+./sync.sh
+```
+
+- Spotify history
+
+Edit crontab for backup recently_played file
 
 ```sh
 crontab -e -u root #edit crontab
@@ -84,12 +104,6 @@ Paste this into the cron editor. Make sure that the path `/sdcard` correctly poi
 
 ```
 0 * * * * su -c cp /data/data/com.spotify.music/files/settings/Users/XXXXXXXXXXXXXXXXXXXXXXXXXX/recently_played.bnk /sdcard/archive/app/spotify/recently_played-`date "+%Y%m%d-%H%M%S"`.bnk
-0 0 * * * su -c cp /data/data/com.android.providers.contacts/databases/calllog.db /sdcard/archive/app/call/calllog.db
-0 0 * * * su -c cp /data/data/com.google.android.apps.messaging/databases/bugle_db /sdcard/archive/app/sms/bugle_db
-0 0 * * * su -c cp /data/data/com.soundcloud.android/databases/collection.db /sdcard/archive/app/soundcloud/collection.db
-0 0 * * * su -c cp /data/data/com.soundcloud.android/databases/SoundCloud /sdcard/archive/app/soundcloud/SoundCloud
-0 0 * * * su -c cp /data/data/com.whatsapp/databases/msgstore.db /sdcard/archive/app/whatsapp/msgstore.db
-0 0 * * * su -c cp /data/data/com.google.android.apps.wellbeing/databases/app_usage /sdcard/archive/app/wellbeing/app_usage
 ```
 
 ## Integrations

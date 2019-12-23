@@ -51,6 +51,9 @@ class ApiService {
   getWellbeingHistory(startDate: Date, endDate: Date): any {
     return this.getWrapper('/app/wellbeing', startDate, endDate);
   }
+  getMessageHistory(startDate: Date, endDate: Date): any {
+    return this.getWrapper('/app/message', startDate, endDate);
+  }
   processAll() {
     fetch(this.constructUrl("/process/all", {}));
   }
@@ -74,29 +77,29 @@ class ApiService {
         }
       }))
     );
-    
+
     await this.getTimeLogs(startDate, endDate).then(
       (e: any) => e.map((e: any) => items.push({
-          id: genId(),
-          group: 3,
-          title: e.tags[0],
-          start_time: Date.parse(e.startDate),
-          end_time: Date.parse(e.endDate),
-          canMove: false,
-          canResize: false,
-          canChangeGroup: false,
-          itemProps: {
-            style: {
-              overflow: "hidden"
-            }
+        id: genId(),
+        group: 3,
+        title: e.tags[0],
+        start_time: Date.parse(e.startDate),
+        end_time: Date.parse(e.endDate),
+        canMove: false,
+        canResize: false,
+        canChangeGroup: false,
+        itemProps: {
+          style: {
+            overflow: "hidden"
           }
-        })
+        }
+      })
       )
     );
     await this.getListenHistory(startDate, endDate).then(
       (e: any) => e.map((e: any) => items.push({
         id: genId(),
-        group: 4,
+        group: 5,
         title: e.artist + e.title,
         start_time: Date.parse(e.listenTime),
         end_time: Date.parse(e.listenTime + 10000),
@@ -116,7 +119,7 @@ class ApiService {
     await this.getYouTubes(startDate, endDate).then(
       (e: any) => e.map((e: any) => items.push({
         id: genId(),
-        group: 2,
+        group: 6,
         title: e.title,
         start_time: Date.parse(e.time),
         end_time: Date.parse(e.time) + 120000,
@@ -136,7 +139,7 @@ class ApiService {
     await this.getMediaHistory(startDate, endDate).then(
       (e: any) => e.map((e: any) => items.push({
         id: genId(),
-        group: 5,
+        group: 7,
         title: e.path,
         start_time: Date.parse(e.created),
         end_time: Date.parse(e.created) + 10000,
@@ -157,10 +160,30 @@ class ApiService {
     await this.getWellbeingHistory(startDate, endDate).then(
       (e: any) => e.map((e: any) => items.push({
         id: genId(),
-        group: 6,
+        group: 2,
         title: e.app,
         start_time: Date.parse(e.startTime),
         end_time: Date.parse(e.endTime),
+        canMove: false,
+        canResize: false,
+        canChangeGroup: false,
+        itemProps: {
+          onMouseDown: () => {
+            window.open("https://play.google.com/store/apps/details?id=" + e.app, '_blank');
+          },
+          style: {
+            overflow: "hidden"
+          }
+        }
+      }))
+    );
+    await this.getMessageHistory(startDate, endDate).then(
+      (e: any) => e.map((e: any) => items.push({
+        id: genId(),
+        group: 4,
+        title: e.author + " " + e.content,
+        start_time: Date.parse(e.created),
+        end_time: Date.parse(e.created),
         canMove: false,
         canResize: false,
         canChangeGroup: false,

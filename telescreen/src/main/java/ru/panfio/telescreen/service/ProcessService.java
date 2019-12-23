@@ -398,10 +398,10 @@ public class ProcessService {
 
                     wellbeingActivities.add(wr);
                     tmp.remove(id);
-                    if (wellbeingActivities.size() > 500) {
-                        persistenceService.saveWellbeingRecords(wellbeingActivities);
-                        wellbeingActivities.clear();
-                    }
+                }
+                if (wellbeingActivities.size() > 500) {
+                    persistenceService.saveWellbeingRecords(wellbeingActivities);
+                    wellbeingActivities.clear();
                 }
             }
             persistenceService.saveWellbeingRecords(wellbeingActivities);
