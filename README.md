@@ -1,6 +1,6 @@
 # Telescreen Server
 
-Telescreen helps aggregate and monitor your actions in one place and visually present them on a timeline. Now you will know how and where your time was spent
+Telescreen helps aggregate and monitor your actions in one place and visually present them on a timeline. Now you will know how and where your time was spent.
 <img src="https://raw.githubusercontent.com/panfio/demohttpd/master/website/telescreen.jpg" alt="telescreen in action" />
 <!--You can start service and store data on a local computer, on any Kubernetes cluster or on a remote server like Heroku and use Amazon S3 as a data store.
 -->
@@ -10,9 +10,7 @@ Only you control what data should be collected and where it should be stored**
 
 ## Quickstart
 
-**Requirements:**
-
-- Docker and docker-compose
+**Requirements:** Docker and docker-compose or https://labs.play-with-docker.com/
 
 Run this in the terminal.
 
@@ -20,11 +18,13 @@ Run this in the terminal.
 git clone https://github.com/panfio/telescreen
 cd telescreen
 export ARCHIVE_FOLDER=`pwd`/archive
+#get example images
+for i in {1..9}; do  wget -O ./archive/media/photo/IMG_2020010${i}_1${i}5411.jpg https://picsum.photos/200; done
+
 docker-compose up
 ```
 
-Add a new media files inside `archive/media` folders or upload to `media` bucket using minio [localhost:9000](http://localhost:9000). 
-Open browser at [localhost:8888](http://localhost:8888) (default credentials `user : passpass`)
+Add a new media files inside `./archive/media` folders or upload to `media` bucket using minio at [localhost:9000](http://localhost:9000). Open browser at [localhost:8888](http://localhost:8888) (default credentials is `user : passpass`), start processing and find the images between 1 January 2020 and January 10, 2020.
 
 **Warning! Docker containers can be accessible from the network even if firewall is enabled!** Check this question for details: [stackoverflow.com/questions/49549834](https://stackoverflow.com/questions/49549834/ufw-firewall-is-not-working-on-ubuntu-in-digitalocean/49563279#49563279).
 
