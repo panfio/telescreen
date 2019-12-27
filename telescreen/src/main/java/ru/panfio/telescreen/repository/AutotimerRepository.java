@@ -9,8 +9,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AutotimerRepository extends CrudRepository<Autotimer, String> {
-    @Query(value = "from Autotimer t where t.startTime BETWEEN :startTime AND :endTime")
-    public List<Autotimer> getAllBetweenDates(
+
+    /**
+     * Returns list of records from time period.
+     *
+     * @param startTime period start
+     * @param endTime   period end
+     * @return list
+     */
+    @Query(value = "from Autotimer t "
+            + "where t.startTime BETWEEN :startTime AND :endTime")
+    List<Autotimer> getAllBetweenDates(
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
 }

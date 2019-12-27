@@ -15,6 +15,10 @@ import java.util.Collections;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
+    /**
+     * Configure Swagger.
+     * @return docket
+     */
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -31,7 +35,11 @@ public class SwaggerConfig {
                 "Some custom description of API.",
                 "0.1",
                 "Terms of service",
-                new Contact("Aleksey Pokhilko", "www.panfio.ru", "alekseypokhilko@gmail.com"),
-                "License of API", "API license URL", Collections.emptyList());
+                new Contact(
+                        "Aleksey Pokhilko",
+                        "panfio.ru",
+                        "alekseypokhilko@gmail.com"),
+                "License of API", "API license URL",
+                Collections.emptyList());
     }
 }

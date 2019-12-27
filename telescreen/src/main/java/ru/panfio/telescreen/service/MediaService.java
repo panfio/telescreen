@@ -1,7 +1,6 @@
 package ru.panfio.telescreen.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Media;
 import ru.panfio.telescreen.repository.MediaRepository;
@@ -10,31 +9,35 @@ import java.time.LocalDateTime;
 
 @Service
 public class MediaService {
-    @Autowired
-    private MediaRepository repo;
+
+    //CHECKSTYLE:OFF
+    private final MediaRepository repo;
+
+    private final ObjectStorage objectStorage;
 
     @Autowired
-    S3Service s3Service;
-
-    public MediaService(MediaRepository repo, S3Service s3Service) {
+    public MediaService(MediaRepository repo, ObjectStorage objectStorage) {
         this.repo = repo;
-        this.s3Service = s3Service;
+        this.objectStorage = objectStorage;
     }
 
     public String getContentType(String filename) {
-        return s3Service.getContentType(Bucket.MEDIA, filename);
+        return objectStorage.getContentType(filename);
     }
 
     public byte[] getFile(String filename) {
-        return s3Service.getByteArray(Bucket.MEDIA,filename);
+        return objectStorage.getByteArray(filename);
     }
 
     public Iterable<Media> getAllMediaRecords() {
         return repo.findAll();
     }
 
-    public Iterable<Media> getMediaRecordsByPeriod(LocalDateTime from, LocalDateTime to) {
+    public Iterable<Media> getMediaRecordsByPeriod(
+            LocalDateTime from, LocalDateTime to) {
         return repo.getAllBetweenDates(from, to);
     }
+
+    //CHECKSTYLE:ON
 }
 

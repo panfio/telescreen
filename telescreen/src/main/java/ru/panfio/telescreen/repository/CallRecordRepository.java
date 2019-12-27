@@ -9,8 +9,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CallRecordRepository extends CrudRepository<CallRecord, Long> {
-    @Query(value = "from CallRecord t where t.date BETWEEN :startDate AND :endDate")
-    public List<CallRecord> getAllBetweenDates(
+
+    /**
+     * Returns list of records from time period.
+     *
+     * @param startDate period start
+     * @param endDate   period end
+     * @return list
+     */
+    @Query(value = "from CallRecord t "
+            + "where t.date BETWEEN :startDate AND :endDate")
+    List<CallRecord> getAllBetweenDates(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 }

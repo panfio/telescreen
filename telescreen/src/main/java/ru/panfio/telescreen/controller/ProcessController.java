@@ -16,10 +16,14 @@ import java.util.Collections;
 
 
 @Controller
-public class ProcessController {
+public class ProcessController {//CHECKSTYLE:OFF
+
+    private final ProcessService ps;
 
     @Autowired
-    ProcessService ps;
+    public ProcessController(ProcessService ps) {
+        this.ps = ps;
+    }
 
     @ApiOperation(value = "Processing all")
     @RequestMapping(value = "/process/all",
@@ -27,7 +31,9 @@ public class ProcessController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity processAll() {
         ps.processAll();
-        return new ResponseEntity<>(Collections.singletonMap("processed", "all"), HttpStatus.OK);
+        return new ResponseEntity<>(
+                Collections.singletonMap("processed", "all"),
+                HttpStatus.OK);
     }
 
     @ApiOperation(value = "Processing media files")
@@ -48,9 +54,11 @@ public class ProcessController {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ApiOperation(value = "Processing Spotify recently played developer.spotify.com/console/get-track")
+    @ApiOperation(value = "Processing Spotify recently played")
     @RequestMapping(value = "/process/spotify", method = RequestMethod.GET)
-    public ResponseEntity processSpotify(@RequestParam(value = "accessToken") String accessToken) throws Exception {
+    public ResponseEntity processSpotify(
+            @RequestParam(value = "accessToken") String accessToken)
+            throws Exception {
         ps.processSpotifyRecentlyPlayed(accessToken);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -98,4 +106,5 @@ public class ProcessController {
         ps.processTelegramHistory();
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    //CHECKSTYLE:ON
 }
