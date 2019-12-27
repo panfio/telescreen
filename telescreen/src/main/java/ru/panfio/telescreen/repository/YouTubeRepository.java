@@ -9,8 +9,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface YouTubeRepository extends CrudRepository<YouTube, Long> {
-    @Query(value = "from YouTube t where t.time BETWEEN :startTime AND :endTime")
-    public List<YouTube> getAllBetweenDates(
+
+    /**
+     * Returns list of records from time period.
+     *
+     * @param startTime period start
+     * @param endTime   period end
+     * @return list
+     */
+    @Query(value = "from YouTube t "
+            + "where t.time BETWEEN :startTime AND :endTime")
+    List<YouTube> getAllBetweenDates(
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
 

@@ -1,8 +1,6 @@
 package ru.panfio.telescreen.controller;
 
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
@@ -13,11 +11,9 @@ import java.time.LocalDateTime;
 
 @CrossOrigin
 @Controller
-public class MediaController {
+public class MediaController {//CHECKSTYLE:OFF
 
-    private static final Logger logger = LoggerFactory.getLogger(MediaController.class);
-
-    private MediaService mediaService;
+    private final MediaService mediaService;
 
     @Autowired
     public MediaController(MediaService mediaService) {
@@ -29,7 +25,9 @@ public class MediaController {
     @ApiOperation(value = "Get all media records")
     @RequestMapping(value = "/media/all", method = RequestMethod.GET)
     ResponseEntity findAll() {
-        return new ResponseEntity(mediaService.getAllMediaRecords(), HttpStatus.OK);
+        return new ResponseEntity(
+                mediaService.getAllMediaRecords(),
+                HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get media records by period")
@@ -39,7 +37,9 @@ public class MediaController {
             @RequestParam(value = "to") String to) {
         LocalDateTime t1 = LocalDateTime.parse(from);
         LocalDateTime t2 = LocalDateTime.parse(to);
-        return new ResponseEntity(mediaService.getMediaRecordsByPeriod(t1, t2), HttpStatus.OK);
+        return new ResponseEntity(
+                mediaService.getMediaRecordsByPeriod(t1, t2),
+                HttpStatus.OK);
     }
 
     @RequestMapping(value = "/media/file", method = RequestMethod.GET)
@@ -55,4 +55,5 @@ public class MediaController {
                 headers,
                 HttpStatus.OK);
     }
+    //CHECKSTYLE:ON
 }

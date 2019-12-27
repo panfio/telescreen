@@ -8,14 +8,31 @@ import ru.panfio.telescreen.model.Wellbeing;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface WellbeingRepository extends CrudRepository<Wellbeing,Long> {
-    @Query(value = "from Wellbeing t where t.startTime BETWEEN :startDate AND :endDate")
-    public List<Wellbeing> getAllBetweenDates(
+public interface WellbeingRepository extends CrudRepository<Wellbeing, Long> {
+
+    /**
+     * Returns list of records from time period.
+     *
+     * @param startDate period start
+     * @param endDate   period end
+     * @return list
+     */
+    @Query(value = "from Wellbeing t "
+            + "where t.startTime BETWEEN :startDate AND :endDate")
+    List<Wellbeing> getAllBetweenDates(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
-    @Query(value = "from Wellbeing t where t.startTime = :startDate AND t.endTime = :endDate")
-    public Wellbeing findWellbeingRecord(
+    /**
+     * Find by startDate and endDate.
+     *
+     * @param startDate start
+     * @param endDate   end
+     * @return Wellbeing Record
+     */
+    @Query(value = "from Wellbeing t "
+            + "where t.startTime = :startDate AND t.endTime = :endDate")
+    Wellbeing findWellbeingRecord(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 }

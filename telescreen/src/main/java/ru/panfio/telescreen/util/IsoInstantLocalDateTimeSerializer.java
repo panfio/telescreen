@@ -1,7 +1,6 @@
 package ru.panfio.telescreen.util;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -11,11 +10,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-public class IsoInstantLocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
+public class IsoInstantLocalDateTimeSerializer
+        extends JsonSerializer<LocalDateTime> {
 
     @Override
-    public void serialize(LocalDateTime dateTime, JsonGenerator jg,
-                          SerializerProvider sp) throws IOException, JsonProcessingException {
+    public void serialize(LocalDateTime dateTime,
+                          JsonGenerator jg,
+                          SerializerProvider sp) throws IOException {
         Instant instant = dateTime.toInstant(ZoneOffset.UTC);
         jg.writeString(DateTimeFormatter.ISO_INSTANT.format(instant));
     }

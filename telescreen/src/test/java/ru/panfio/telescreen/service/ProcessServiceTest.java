@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -21,36 +20,36 @@ import static ru.panfio.telescreen.service.TestFiles.toInputStream;
 public class ProcessServiceTest {
 
     private ProcessService service;
-    private S3Service s3Mock;
+    private ObjectStorage objectStorage;
     private PersistenceService persistenceServiceMock;
 
     @Before
     public void setUp() {
         persistenceServiceMock = mock(PersistenceService.class);
-        s3Mock = mock(S3Service.class);
-        service = new ProcessService(s3Mock, persistenceServiceMock);
+        objectStorage = mock(ObjectStorage.class);
+        service = new ProcessService(objectStorage, persistenceServiceMock);
     }
 
     @Test
     public void dateFromFileNameShouldBeParsedCorrectly() {
         LocalDateTime expectedDateTime = LocalDateTime.of(2018, 11, 4, 10, 54, 11);
-        assertEquals(expectedDateTime, service.getDateFromPath("photo/IMG_20181104_105411.jpg"));
-        assertEquals(expectedDateTime, service.getDateFromPath("video/VID_20181104_105411.mp4"));
-        assertEquals(expectedDateTime, service.getDateFromPath("voicenotes/2018-11-04-10-54-11-note.m4a"));
-        assertEquals(expectedDateTime, service.getDateFromPath("screenshot/Screenshot_20181104-105411.png"));
-        assertEquals(expectedDateTime, service.getDateFromPath("screenshot/Screenshot from 2018-11-04 10-54-11.png"));
-        assertEquals(expectedDateTime, service.getDateFromPath("timesheet/TimesheetBackup_2018-11-04_105411.xml"));
+        assertEquals(expectedDateTime, service.getDateFromPath("media/photo/IMG_20181104_105411.jpg"));
+        assertEquals(expectedDateTime, service.getDateFromPath("media/video/VID_20181104_105411.mp4"));
+        assertEquals(expectedDateTime, service.getDateFromPath("media/voicenotes/2018-11-04-10-54-11-note.m4a"));
+        assertEquals(expectedDateTime, service.getDateFromPath("media/screenshot/Screenshot_20181104-105411.png"));
+        assertEquals(expectedDateTime, service.getDateFromPath("media/screenshot/Screenshot from 2018-11-04 10-54-11.png"));
+        assertEquals(expectedDateTime, service.getDateFromPath("media/timesheet/TimesheetBackup_2018-11-04_105411.xml"));
         assertNull(service.getDateFromPath("some/strange_2-11-04 10_file.png"));
-        assertNull(service.getDateFromPath("voicenotes/2019-10-05 19-25-57-note.m4a"));
+        assertNull(service.getDateFromPath("media/voicenotes/2019-10-05 19-25-57-note.m4a"));
     }
 
     @Test
     public void mediaRecordsShouldBeCreatedCorrectly() {
         List<String> mediaFiles = Arrays.asList(
-                "photo/IMG_20181104_105411.jpg",
-                "video/VID_20181104_105411.mp4",
-                "voicenotes/2018-11-04-10-54-11-note.m4a");
-        when(s3Mock.getListOfFileNames(Bucket.MEDIA)).thenReturn(mediaFiles);
+                "media/photo/IMG_20181104_105411.jpg",
+                "media/video/VID_20181104_105411.mp4",
+                "media/voicenotes/2018-11-04-10-54-11-note.m4a");
+        when(objectStorage.getListOfFileNames()).thenReturn(mediaFiles);
         service.processMediaRecords();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<List<Media>> argument = ArgumentCaptor.forClass(List.class);
@@ -59,17 +58,17 @@ public class ProcessServiceTest {
 
         assertEquals(3, list.size());
         assertNull(list.get(0).getId());
-        assertThat(list.get(0).getPath(), is("photo/IMG_20181104_105411.jpg"));
+        assertThat(list.get(0).getPath(), is("media/photo/IMG_20181104_105411.jpg"));
         assertThat(list.get(0).getCreated(), is(LocalDateTime.of(2018, 11, 4, 10, 54, 11)));
         assertThat(list.get(0).getType(), is("photo"));
-        assertThat(list.get(0).getUrl(), is("/media/file?filename=photo/IMG_20181104_105411.jpg"));
+        assertThat(list.get(0).getUrl(), is("/media/file?filename=media/photo/IMG_20181104_105411.jpg"));
     }
 
     @Test
     public void autotimerRecordsShouldBeCreatedCorrectly() throws FileNotFoundException {
         List<String> activityFiles = Arrays.asList("autotimer/activities-20191127-101619.json");
-        when(s3Mock.getListOfFileNames(Bucket.APP)).thenReturn(activityFiles);
-        when(s3Mock.getInputStream(Bucket.APP, activityFiles.get(0))).thenReturn(toInputStream(TestFiles.ACTIVITIES));
+        when(objectStorage.getListOfFileNames()).thenReturn(activityFiles);
+        when(objectStorage.getInputStream(activityFiles.get(0))).thenReturn(toInputStream(TestFiles.ACTIVITIES));
 
         service.processAutotimerRecords();
 

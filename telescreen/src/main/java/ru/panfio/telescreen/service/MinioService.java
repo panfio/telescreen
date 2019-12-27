@@ -4,10 +4,10 @@ import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.minio.Result;
 import io.minio.messages.Item;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -19,32 +19,37 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-
+@Slf4j
 @Service
-public class S3Service {
+public class MinioService implements ObjectStorage {
 
-    private final static Logger log = LoggerFactory.getLogger(S3Service.class);
+    private final MinioClient mc;
 
+    private final String bucket;
+
+    //CHECKSTYLE:OFF
     @Autowired
-    MinioClient mc;
-
-    public S3Service(MinioClient mc) {
+    public MinioService(
+            MinioClient mc, @Value("${minio.bucket}")
+            String bucket) {
         this.mc = mc;
+        this.bucket = bucket;
     }
+    //CHECKSTYLE:ON
 
     /**
-     * Returns list of filenames in bucket
+     * Returns list of filenames in bucket.
      *
-     * @param bucket name
      * @return list of filenames or empty list
      */
-    public List<String> getListOfFileNames(Bucket bucket) {
+    @Override
+    public List<String> getListOfFileNames() {
         List<String> fileList = new ArrayList<>();
         try {
-            if (!mc.bucketExists(bucket.getName())) {
+            if (!mc.bucketExists(bucket)) {
                 log.error(bucket + " bucket does not exist");
             }
-            for (Result<Item> obj : mc.listObjects(bucket.getName())) {
+            for (Result<Item> obj : mc.listObjects(bucket)) {
                 if (obj.get().isDir()) {
                     continue;
                 }
@@ -61,15 +66,15 @@ public class S3Service {
     }
 
     /**
-     * Gets file content type
+     * Gets file content type.
      *
-     * @param bucket
-     * @param filename
+     * @param filename filename
      * @return contentType or null
      */
-    public String getContentType(Bucket bucket, String filename) {
+    @Override
+    public String getContentType(String filename) {
         try {
-            ObjectStat objectStat = mc.statObject(bucket.getName(), filename);
+            ObjectStat objectStat = mc.statObject(bucket, filename);
             return objectStat.contentType();
         } catch (Exception e) {
             log.error("File not found or minio is not available");
@@ -79,75 +84,84 @@ public class S3Service {
     }
 
     /**
-     * Returns the byte array of the file
+     * Returns the byte array of the file.
      *
-     * @param bucket
-     * @param filename
+     * @param filename filename
      * @return byte array or null if file not found
      */
-    public byte[] getByteArray(Bucket bucket, String filename) {
+    @Override
+    public byte[] getByteArray(String filename) {
         try {
-            InputStream in = mc.getObject(bucket.getName(), filename);
+            InputStream in = mc.getObject(bucket, filename);
             return IOUtils.toByteArray(in);
         } catch (Exception e) {
-            log.warn("File not found " + bucket + " " + filename);
+            log.warn("File not found " + filename);
             e.printStackTrace();
             return null;
         }
     }
 
     /**
-     * Returns InputStream of the file
+     * Returns InputStream of the file.
      *
-     * @param bucket
-     * @param filename
+     * @param filename filename
      * @return inputStream or null file not found
      */
-    public InputStream getInputStream(Bucket bucket, String filename) {
+    @Override
+    public InputStream getInputStream(String filename) {
         if (filename == null) {
             throw new IllegalArgumentException();
         }
         try {
-            return mc.getObject(bucket.getName(), filename);
+            return mc.getObject(bucket, filename);
         } catch (Exception e) {
-            log.warn("File not found " + bucket.getName() + " " + filename);
+            log.warn("File not found " + filename);
 //            e.printStackTrace();
             return null;
         }
     }
 
     /**
-     * Downloads file in the temp directory
-     * @param bucket
-     * @param filename
+     * Downloads file in the temp directory.
+     *
+     * @param filename filename
      * @return path if success or else null
      */
-    public String saveFileInTempFolder(Bucket bucket, String filename) {
+    @Override
+    public String saveFileInTempFolder(String filename) {
         if (filename == null) {
             throw new IllegalArgumentException();
         }
         try {
-//            if (mc.statObject(bucket.getName(), filename).createdTime() == null) {
-//                log.warn("Error saving file " + bucket.getName() + " " + filename);
+//            if (mc.statObject(bucket, filename).createdTime() == null) {
+//                log.warn("Error saving file " + bucket + " " + filename);
 //                return null;
 //            }
-            String path = "/tmp/" + bucket.getName() + "/" + filename;
+            String path = "/tmp/" + bucket + "/" + filename;
             Files.deleteIfExists(Paths.get(path));
             Files.createDirectories(Paths.get(path).getParent());
-            mc.getObject(bucket.getName(), filename, path);
+            mc.getObject(bucket, filename, path);
             return path;
         } catch (Exception e) {
-            log.error("Error saving file " + bucket.getName() + " " + filename);
+            log.error("Error saving file " + filename);
             return null;
         }
     }
 
-    public LocalDateTime getCreatedTime(Bucket bucket, String filename) throws IllegalArgumentException {
+    /**
+     * Returns file creation time.
+     * @param filename path
+     * @return creation time
+     * @throws IllegalArgumentException when filename is null
+     */
+    @Override
+    public LocalDateTime getCreatedTime(String filename)
+            throws IllegalArgumentException {
         if (filename == null) {
             throw new IllegalArgumentException();
         }
         try {
-            Date createdTime = mc.statObject(bucket.getName(), filename).createdTime();
+            Date createdTime = mc.statObject(bucket, filename).createdTime();
             return LocalDateTime.ofInstant(
                     createdTime.toInstant(),
                     TimeZone.getDefault().toZoneId());
@@ -156,6 +170,5 @@ public class S3Service {
             return null;
         }
     }
-
 
 }
