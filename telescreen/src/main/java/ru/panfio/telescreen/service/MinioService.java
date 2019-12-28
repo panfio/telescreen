@@ -6,7 +6,6 @@ import io.minio.Result;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,15 +26,18 @@ public class MinioService implements ObjectStorage {
 
     private final String bucket;
 
-    //CHECKSTYLE:OFF
-    @Autowired
+    /**
+     * Constructor.
+     *
+     * @param mc     Minio Client
+     * @param bucket bucket name
+     */
     public MinioService(
-            MinioClient mc, @Value("${minio.bucket}")
-            String bucket) {
+            MinioClient mc,
+            @Value("${minio.bucket}") String bucket) {
         this.mc = mc;
         this.bucket = bucket;
     }
-    //CHECKSTYLE:ON
 
     /**
      * Returns list of filenames in bucket.
@@ -43,11 +45,11 @@ public class MinioService implements ObjectStorage {
      * @return list of filenames or empty list
      */
     @Override
-    public List<String> getListOfFileNames() {
+    public List<String> listAllObjects() {
         List<String> fileList = new ArrayList<>();
         try {
             if (!mc.bucketExists(bucket)) {
-                log.error(bucket + " bucket does not exist");
+                log.error("{} bucket does not exist", bucket);
             }
             for (Result<Item> obj : mc.listObjects(bucket)) {
                 if (obj.get().isDir()) {
@@ -72,13 +74,13 @@ public class MinioService implements ObjectStorage {
      * @return contentType or null
      */
     @Override
-    public String getContentType(String filename) {
+    public String contentType(String filename) {
         try {
             ObjectStat objectStat = mc.statObject(bucket, filename);
             return objectStat.contentType();
         } catch (Exception e) {
-            log.error("File not found or minio is not available");
-            e.printStackTrace();
+            log.error("File not found or minio is not available: {}",
+                    e.getMessage());
             return null;
         }
     }
@@ -95,8 +97,7 @@ public class MinioService implements ObjectStorage {
             InputStream in = mc.getObject(bucket, filename);
             return IOUtils.toByteArray(in);
         } catch (Exception e) {
-            log.warn("File not found " + filename);
-            e.printStackTrace();
+            log.warn("File not found {} {}", filename, e.getMessage());
             return null;
         }
     }
@@ -115,8 +116,7 @@ public class MinioService implements ObjectStorage {
         try {
             return mc.getObject(bucket, filename);
         } catch (Exception e) {
-            log.warn("File not found " + filename);
-//            e.printStackTrace();
+            log.warn("File not found {} {}", filename, e.getMessage());
             return null;
         }
     }
@@ -128,7 +128,7 @@ public class MinioService implements ObjectStorage {
      * @return path if success or else null
      */
     @Override
-    public String saveFileInTempFolder(String filename) {
+    public String saveInTmpFolder(String filename) {
         if (filename == null) {
             throw new IllegalArgumentException();
         }
@@ -143,13 +143,14 @@ public class MinioService implements ObjectStorage {
             mc.getObject(bucket, filename, path);
             return path;
         } catch (Exception e) {
-            log.error("Error saving file " + filename);
+            log.error("Error saving file {} {}", filename, e.getMessage());
             return null;
         }
     }
 
     /**
      * Returns file creation time.
+     *
      * @param filename path
      * @return creation time
      * @throws IllegalArgumentException when filename is null
@@ -166,7 +167,7 @@ public class MinioService implements ObjectStorage {
                     createdTime.toInstant(),
                     TimeZone.getDefault().toZoneId());
         } catch (Exception e) {
-            log.warn("File not found " + bucket + " " + filename);
+            log.warn("File not found {} {}", filename, e.getMessage());
             return null;
         }
     }

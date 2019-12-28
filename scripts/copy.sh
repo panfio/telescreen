@@ -13,10 +13,10 @@ find "$PHONE_STORAGE$1" -type f -name $3 | xargs -i cp -v -u {} $ARCHIVE_FOLDER$
 }
 
 #Not require root
-copy "/DCIM/Camera" "/media/photo/" "IMG_*.jpg"
-copy "/DCIM/Camera" "/media/video/" "VID_*.mp4" 
-copy "/EasyVoiceRecorder" "/media/voicenote/" "*note.m4a" 
-copy "/Pictures/Screenshots" "/media/screenshot/" "Screenshot*.png" 
+copy "/DCIM/Camera" "/app/media/photo/" "IMG_*.jpg"
+copy "/DCIM/Camera" "/app/media/video/" "VID_*.mp4" 
+copy "/EasyVoiceRecorder" "/app/media/voicenote/" "*note.m4a" 
+copy "/Pictures/Screenshots" "/app/media/screenshot/" "Screenshot*.png" 
 copy "/Day One" "/app/dayone/" "Export-Journal.zip" 
 copy "/Timesheet" "/app/timesheet/" "TimesheetBackup*.xml"
 
