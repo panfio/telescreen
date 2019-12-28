@@ -19,12 +19,12 @@ git clone https://github.com/panfio/telescreen
 cd telescreen
 export ARCHIVE_FOLDER=`pwd`/archive
 #get example images
-for i in {1..9}; do  wget -O ./archive/media/photo/IMG_2020010${i}_1${i}5411.jpg https://picsum.photos/200; done
+for i in {1..9}; do  wget -O ./archive/app/media/photo/IMG_2020010${i}_1${i}5411.jpg https://picsum.photos/200; done
 
 docker-compose up
 ```
 
-Add a new media files inside `./archive/media` folders or upload to `media` bucket using minio at [localhost:9000](http://localhost:9000). Open browser at [localhost:8888](http://localhost:8888) (default credentials is `user : passpass`), start processing and find the images between 1 January 2020 and January 10, 2020.
+Add a new media files inside `./archive/app/media` folders or upload to `media` bucket using minio at [localhost:9000](http://localhost:9000). Open browser at [localhost:8888](http://localhost:8888) (default credentials is `user : passpass`), start processing and find the images between 1 January 2020 and January 10, 2020.
 
 **Warning! Docker containers can be accessible from the network even if firewall is enabled!** Check this question for details: [stackoverflow.com/questions/49549834](https://stackoverflow.com/questions/49549834/ufw-firewall-is-not-working-on-ubuntu-in-digitalocean/49563279#49563279).
 
