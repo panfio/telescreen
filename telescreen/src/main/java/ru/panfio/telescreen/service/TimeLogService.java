@@ -60,7 +60,7 @@ public class TimeLogService {
      */
     public Iterable<TimeLog> getTimeLogRecordsBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return timeLogRepository.getAllBetweenDates(from, to);
+        return timeLogRepository.findByStartDateBetween(from, to);
     }
 
     /**

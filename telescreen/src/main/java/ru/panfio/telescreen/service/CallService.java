@@ -46,7 +46,7 @@ public class CallService {
      */
     public Iterable<CallRecord> getCallHistoryBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return callRecordRepository.getAllBetweenDates(from, to);
+        return callRecordRepository.findByDateBetween(from, to);
     }
 
     /**

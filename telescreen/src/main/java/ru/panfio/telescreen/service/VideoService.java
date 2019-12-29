@@ -72,7 +72,7 @@ public class VideoService { //TODO create VideoEntity
      */
     public Iterable<YouTube> getYouTubeRecordsBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return youTubeRepository.getAllBetweenDates(from, to);
+        return youTubeRepository.findByTimeBetween(from, to);
     }
 
     /**

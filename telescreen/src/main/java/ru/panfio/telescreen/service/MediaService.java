@@ -72,7 +72,7 @@ public class MediaService {
      */
     public Iterable<Media> getMediaRecordsByPeriod(
             LocalDateTime from, LocalDateTime to) {
-        return mediaRepository.getAllBetweenDates(from, to);
+        return mediaRepository.findByCreatedBetween(from, to);
     }
 
     /**
