@@ -179,6 +179,6 @@ public class MusicService {
      */
     public Iterable<ListenRecord> getListenRecordsBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return listenRecordRepository.getAllBetweenDates(from, to);
+        return listenRecordRepository.findByListenTimeBetween(from, to);
     }
 }

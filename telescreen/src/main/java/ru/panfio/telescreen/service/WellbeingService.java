@@ -47,7 +47,7 @@ public class WellbeingService {
      */
     public void saveWellbeingRecords(List<Wellbeing> records) {
         for (Wellbeing wellbeing : records) {
-            Wellbeing dbRecord = wellbeingRepository.findWellbeingRecord(
+            Wellbeing dbRecord = wellbeingRepository.findByStartTimeAndEndTime(
                     wellbeing.getStartTime(), wellbeing.getEndTime());
             if (dbRecord == null) {
                 wellbeingRepository.save(wellbeing);
@@ -65,7 +65,7 @@ public class WellbeingService {
      */
     public Iterable<Wellbeing> getWellbeingBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return wellbeingRepository.getAllBetweenDates(from, to).stream()
+        return wellbeingRepository.findByStartTimeBetween(from, to).stream()
                 .filter(t -> Duration
                         .between(t.getStartTime(), t.getEndTime())
                         .toMillis() > MIN_USAGE_TIME)

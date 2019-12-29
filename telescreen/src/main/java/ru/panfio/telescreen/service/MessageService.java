@@ -112,7 +112,7 @@ public class MessageService {
     public void saveMessages(List<Message> records) {
         for (Message message : records) {
             Message dbMessage =
-                    messageRepository.findByLegacyIdAndCreatedTime(
+                    messageRepository.findByLegacyIDAndCreated(
                             message.getLegacyID(), message.getCreated());
             if (dbMessage == null) {
                 messageRepository.save(message);
@@ -129,7 +129,7 @@ public class MessageService {
      */
     public Iterable<Message> getMessageHistoryBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return messageRepository.getAllBetweenDates(from, to);
+        return messageRepository.findByCreatedBetween(from, to);
     }
 
 }

@@ -130,7 +130,7 @@ public class AutoTimerService {
      */
     public Iterable<Autotimer> getAutotimerRecordsBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return autotimerRepository.getAllBetweenDates(from, to)
+        return autotimerRepository.findByStartTimeBetween(from, to)
                 .stream().filter(t -> {
                     long duration = Duration.between(
                             t.getStartTime(), t.getEndTime()).toMillis();
