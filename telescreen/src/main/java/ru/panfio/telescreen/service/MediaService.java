@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Media;
 import ru.panfio.telescreen.repository.MediaRepository;
+import ru.panfio.telescreen.service.util.DateWizard;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class MediaService {
+public class MediaService implements Processing {
 
     private final MediaRepository mediaRepository;
 
@@ -116,6 +117,11 @@ public class MediaService {
     public void saveMediaRecords(List<Media> records) {
         //todo clear table before saving
         mediaRepository.saveAll(records);
+    }
+
+    @Override
+    public void process() {
+        processMediaRecords();
     }
 }
 

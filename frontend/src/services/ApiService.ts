@@ -11,14 +11,7 @@ export const host: string = (process.env.REACT_APP_API_URL == null) ? "" : proce
 export const apiService = {
 
   processAll() {
-    fetch(`${host}/api/autotimer/process`);
-    fetch(`${host}/api/call/process`);
-    fetch(`${host}/api/media/process`);
-    fetch(`${host}/api/message/process/telegram`);
-    fetch(`${host}/api/music/process/soundcloud`);
-    fetch(`${host}/api/timelog/process/timesheet`);
-    fetch(`${host}/api/video/process/youtube`);
-    fetch(`${host}/api/wellbeing/process`);
+    fetch(`${host}/api/process`);
   },
 
   async getYouTubes(startDate: Date, endDate: Date): Promise<ReadonlyArray<IYouTubeRecord>> {

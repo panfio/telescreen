@@ -20,7 +20,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class MessageService {
+public class MessageService implements Processing {
 
     private final MessageRepository messageRepository;
 
@@ -132,4 +132,8 @@ public class MessageService {
         return messageRepository.findByCreatedBetween(from, to);
     }
 
+    @Override
+    public void process() {
+        processTelegramHistory();
+    }
 }

@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Media;
 import ru.panfio.telescreen.repository.MediaRepository;
+import ru.panfio.telescreen.service.util.ObjectDateWizard;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;

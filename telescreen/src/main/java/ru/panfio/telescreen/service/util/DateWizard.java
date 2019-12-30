@@ -1,4 +1,4 @@
-package ru.panfio.telescreen.service;
+package ru.panfio.telescreen.service.util;
 
 import java.time.LocalDateTime;
 

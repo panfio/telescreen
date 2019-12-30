@@ -6,6 +6,7 @@ import ru.panfio.telescreen.model.TimeLog;
 import ru.panfio.telescreen.model.timesheet.Task;
 import ru.panfio.telescreen.model.timesheet.TimesheetExport;
 import ru.panfio.telescreen.repository.TimeLogRepository;
+import ru.panfio.telescreen.service.util.DateWizard;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class TimeLogService {
+public class TimeLogService implements Processing {
 
     private final TimeLogRepository timeLogRepository;
 
@@ -133,5 +134,10 @@ public class TimeLogService {
             log.error("Parse error " + clazz.getName() + " " + e.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public void process() {
+        processTimesheetRecords();
     }
 }

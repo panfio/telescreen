@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Music;
 import ru.panfio.telescreen.model.spotify.RecentlyPlayedProto;
 import ru.panfio.telescreen.repository.ListenRecordRepository;
+import ru.panfio.telescreen.service.util.DbManager;
 import ru.panfio.telescreen.util.CustomSQL;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class MusicService {
+public class MusicService implements Processing {
 
     //TODO rename
     private final ListenRecordRepository listenRecordRepository;
@@ -149,6 +150,11 @@ public class MusicService {
     public Iterable<Music> getListenRecordsBetweenDates(
             LocalDateTime from, LocalDateTime to) {
         return listenRecordRepository.findByListenTimeBetween(from, to);
+    }
+
+    @Override
+    public void process() {
+        processSoundCloud();
     }
 }
 
