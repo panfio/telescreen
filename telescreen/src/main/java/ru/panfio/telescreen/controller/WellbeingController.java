@@ -8,6 +8,7 @@ import ru.panfio.telescreen.model.Wellbeing;
 import ru.panfio.telescreen.service.WellbeingService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -46,12 +47,12 @@ public class WellbeingController {
      */
     @ApiOperation(value = "Get Wellbeing history by period")
     @GetMapping("/wellbeing")
-    ResponseEntity<Iterable<Wellbeing>> findWellbeingByPeriod(
+    ResponseEntity<List<Wellbeing>> findWellbeingByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
         LocalDateTime t1 = LocalDateTime.parse(from);
         LocalDateTime t2 = LocalDateTime.parse(to);
-        return new ResponseEntity<Iterable<Wellbeing>>(
+        return new ResponseEntity<List<Wellbeing>>(
                 wellbeingService.getWellbeingBetweenDates(t1, t2),
                 HttpStatus.OK);
     }

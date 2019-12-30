@@ -1,14 +1,15 @@
 package ru.panfio.telescreen.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Wellbeing;
 import ru.panfio.telescreen.repository.WellbeingRepository;
 import ru.panfio.telescreen.util.CustomSQL;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class WellbeingService {
      * @param to   time
      * @return records
      */
-    public Iterable<Wellbeing> getWellbeingBetweenDates(
+    public List<Wellbeing> getWellbeingBetweenDates(
             LocalDateTime from, LocalDateTime to) {
         return wellbeingRepository.findByStartTimeBetween(from, to).stream()
                 .filter(t -> Duration
@@ -77,48 +78,50 @@ public class WellbeingService {
      */
     public void processWellbeingRecords() {
         log.info("Start processing Wellbeing history");
+
+        JdbcTemplate appHistory = dbManager.getTemplate("wellbeing/app_usage");
+        List<Wellbeing> activities = appHistory.query(
+                CustomSQL.APP_ACTIVITY_SQL, new ActivitiesMapper());
+
         List<Wellbeing> wellbeingActivities = new ArrayList<>();
-        try (Connection conn = dbManager.connectSQLite("wellbeing/app_usage");
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(CustomSQL.APP_ACTIVITY_SQL)) {
-            Map<Long, Wellbeing> tmp = new HashMap<>();
-            while (rs.next()) {
-                if (rs.getInt("type") == 1) {
-                    long id = rs.getLong("instance_id");
-
-                    Wellbeing wr = new Wellbeing();
-                    wr.setStartTime(
-                            rs.getTimestamp("timestamp").toLocalDateTime());
-                    wr.setId(id);
-
-                    tmp.put(id, wr);
-                }
-                if (rs.getInt("type") == 2) {
-                    long id = rs.getLong("instance_id");
-                    Wellbeing tempWellbringRecord = tmp.get(id);
-                    if (tempWellbringRecord == null) {
-                        continue;
-                    }
-                    Wellbeing wr = new Wellbeing();
-                    wr.setStartTime(tempWellbringRecord.getStartTime());
-                    wr.setEndTime(
-                            rs.getTimestamp("timestamp").toLocalDateTime());
-                    wr.setType(Wellbeing.Type.ACTIVITY);
-                    wr.setApp(rs.getString("package_name"));
-
-                    wellbeingActivities.add(wr);
-                    tmp.remove(id);
-                }
-                if (wellbeingActivities.size() > MAX_SIZE) {
-                    saveWellbeingRecords(wellbeingActivities);
-                    wellbeingActivities.clear();
-                }
+        Map<Long, Wellbeing> tmp = new HashMap<>();
+        for (Wellbeing activity : activities) {
+            if (activity.getType() == 1) {
+                tmp.put(activity.getId(), activity);
             }
-            saveWellbeingRecords(wellbeingActivities);
-        } catch (Exception e) {
-            log.info("Failed processing Wellbeing history");
+            if (activity.getType() == 2) {
+                long id = activity.getId();
+                Wellbeing tmpRecord = tmp.get(id);
+                if (tmpRecord == null) {
+                    continue;
+                }
+                activity.setStartTime(tmpRecord.getStartTime());
+                wellbeingActivities.add(activity);
+                tmp.remove(id);
+            }
+            if (wellbeingActivities.size() > MAX_SIZE) {
+                saveWellbeingRecords(wellbeingActivities);
+                wellbeingActivities.clear();
+            }
         }
+        saveWellbeingRecords(wellbeingActivities);
         log.info("End processing Wellbeing history");
     }
 
+}
+
+class ActivitiesMapper implements RowMapper<Wellbeing> {
+
+    @Override
+    public Wellbeing mapRow(ResultSet rs, int i) throws SQLException {
+        Wellbeing wr = new Wellbeing();
+        wr.setId(rs.getLong("instance_id"));
+        wr.setEndTime(
+                rs.getTimestamp("timestamp").toLocalDateTime());
+        wr.setStartTime(
+                rs.getTimestamp("timestamp").toLocalDateTime());
+        wr.setType(rs.getInt("type"));
+        wr.setApp(rs.getString("package_name"));
+        return wr;
+    }
 }

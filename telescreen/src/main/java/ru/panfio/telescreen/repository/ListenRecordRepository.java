@@ -1,17 +1,17 @@
 package ru.panfio.telescreen.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import ru.panfio.telescreen.model.ListenRecord;
+import ru.panfio.telescreen.model.Music;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ListenRecordRepository
-        extends CrudRepository<ListenRecord, Long> {
+        extends CrudRepository<Music, Long> {
 
     /**
      * {@inheritDoc}
      */
-    List<ListenRecord> findByListenTimeBetween(LocalDateTime startDate,
-            LocalDateTime endDate);
+    List<Music> findByListenTimeBetween(LocalDateTime startDate,
+                                        LocalDateTime endDate);
 }

@@ -13,11 +13,10 @@ import java.time.LocalDateTime;
 @Data
 @ToString
 public class Wellbeing {
-    public enum Type { ACTIVITY, NOTIFICATION }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Type type;
+    private int type;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String app;

@@ -1,17 +1,13 @@
 package ru.panfio.telescreen.service;
 
-import java.io.FileNotFoundException;
-import java.sql.Connection;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public interface DbManager {
 
     /**
-     * Establishes a database connection.
-     *
-     * @param filename filename
-     * @return connection or null if an error occurred
-     * @throws FileNotFoundException w
+     * Creates JdbcTemplate for the database access.
+     * @param filename database path
+     * @return JdbcTemplate
      */
-    Connection connectSQLite(String filename)
-            throws FileNotFoundException;
+    JdbcTemplate getTemplate(String filename);
 }

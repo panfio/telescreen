@@ -11,12 +11,12 @@ public interface WellbeingRepository extends CrudRepository<Wellbeing, Long> {
     /**
      * {@inheritDoc}
      */
-    List<Wellbeing> findByStartTimeBetween(LocalDateTime startDate,
-                                           LocalDateTime endDate);
+    List<Wellbeing> findByStartTimeBetween(LocalDateTime startTime,
+                                           LocalDateTime endTime);
 
     /**
      * {@inheritDoc}
      */
-    Wellbeing findByStartTimeAndEndTime(LocalDateTime startDate,
-                                        LocalDateTime endDate);
+    Wellbeing findByStartTimeAndEndTime(LocalDateTime startTime,
+                                        LocalDateTime endTime);
 }

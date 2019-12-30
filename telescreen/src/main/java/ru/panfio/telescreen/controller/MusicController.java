@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.panfio.telescreen.model.ListenRecord;
+import ru.panfio.telescreen.model.Music;
 import ru.panfio.telescreen.service.MusicService;
 
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ public class MusicController {
      */
     @ApiOperation(value = "Get Listen history by period")
     @GetMapping("/music")
-    ResponseEntity<Iterable<ListenRecord>> findListenRecordsByPeriod(
+    ResponseEntity<Iterable<Music>> findListenRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
         LocalDateTime t1 = LocalDateTime.parse(from);
