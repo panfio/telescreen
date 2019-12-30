@@ -13,7 +13,7 @@ import java.util.Objects;
 @Entity
 @Data
 @NoArgsConstructor
-public class ListenRecord {
+public class Music {
     public enum Type {SPOTIFY, SOUNDCLOUD}
 
     @Id

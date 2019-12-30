@@ -1,16 +1,15 @@
 package ru.panfio.telescreen.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.CallRecord;
 import ru.panfio.telescreen.repository.CallRecordRepository;
 import ru.panfio.telescreen.util.CustomSQL;
 
-import java.io.FileNotFoundException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,24 +62,25 @@ public class CallService {
      * Processing Call history from android phone.
      */
     public void processCallHistory() {
-        List<CallRecord> callRecords = new ArrayList<>();
-        try (Connection conn = dbManager.connectSQLite("call/calllog.db");
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(CustomSQL.CALL_HISTORY_SQL)) {
-            while (rs.next()) {
-                CallRecord cr = new CallRecord();
-                cr.setDate(rs.getTimestamp("date").toLocalDateTime());
-                cr.setDuration(rs.getInt("duration"));
-                cr.setNumber(rs.getString("number"));
-                String name = rs.getString("name");
-                cr.setName(name.equals("") ? "Unknown" : name);
-                cr.setType(rs.getInt("type"));
+        JdbcTemplate callHistory = dbManager.getTemplate("call/calllog.db");
+        List<CallRecord> calls = callHistory.query(
+                CustomSQL.CALL_HISTORY_SQL, new CallRecordMapper());
+        List<CallRecord> callRecords = new ArrayList<>(calls);
+        saveCallRecords(callRecords);
+    }
+}
 
-                callRecords.add(cr);
-            }
-            saveCallRecords(callRecords);
-        } catch (SQLException | FileNotFoundException e) {
-            log.info("Failed processing call history");
-        }
+class CallRecordMapper implements RowMapper<CallRecord> {
+
+    @Override
+    public CallRecord mapRow(ResultSet rs, int i) throws SQLException {
+        CallRecord cr = new CallRecord();
+        cr.setDate(rs.getTimestamp("date").toLocalDateTime());
+        cr.setDuration(rs.getInt("duration"));
+        cr.setNumber(rs.getString("number"));
+        String name = rs.getString("name");
+        cr.setName(name.equals("") ? "Unknown" : name);
+        cr.setType(rs.getInt("type"));
+        return cr;
     }
 }

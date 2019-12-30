@@ -18,7 +18,8 @@ public final class CustomSQL {
             "u.username AS username, " +
             "s.title AS title, " +
             "s.permalink_url AS permalink_url " +
-            "FROM Sounds s LEFT JOIN Users u ON s.user_id == u._id";
+            "FROM Sounds s LEFT JOIN Users u ON s.user_id == u._id " +
+            "WHERE s._id == ?";
     //CHECKSTYLE:ON
     private CustomSQL() {
 

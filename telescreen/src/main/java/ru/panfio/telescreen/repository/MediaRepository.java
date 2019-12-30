@@ -13,5 +13,5 @@ public interface MediaRepository extends CrudRepository<Media, Long> {
      * {@inheritDoc}
      */
     List<Media> findByCreatedBetween(LocalDateTime startDate,
-             LocalDateTime endDate);
+                                     LocalDateTime endDate);
 }
