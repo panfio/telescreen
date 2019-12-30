@@ -23,30 +23,7 @@ public class SqliteDbManager implements DbManager {
     public SqliteDbManager(ObjectStorage objectStorage) {
         this.objectStorage = objectStorage;
     }
-
-//    /**
-//     * Establishes a database connection.
-//     *
-//     * @param filename filename
-//     * @return connection or null if an error occurred
-//     * @throws FileNotFoundException w
-//     */
-//    public Connection connectSQLite(String filename)
-//            throws FileNotFoundException {
-//        Connection conn = null;
-//        String path = objectStorage.saveInTmpFolder(filename);
-//        if (path == null) {
-//            log.warn("File not found. Put {}", filename);
-//            throw new FileNotFoundException();
-//        }
-//        try {
-//            conn = DriverManager.getConnection("jdbc:sqlite:" + path);
-//        } catch (SQLException e) {
-//            log.error(e.getMessage());
-//        }
-//        return conn;
-//    }
-
+    
     /**
      * Establishes the database connection.
      *
