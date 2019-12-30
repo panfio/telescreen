@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Wellbeing;
 import ru.panfio.telescreen.repository.WellbeingRepository;
+import ru.panfio.telescreen.service.util.DbManager;
 import ru.panfio.telescreen.util.CustomSQL;
 
 import java.sql.ResultSet;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class WellbeingService {
+public class WellbeingService implements Processing {
 
     private static final int MIN_USAGE_TIME = 5000;
     private static final int MAX_SIZE = 500;
@@ -108,6 +109,10 @@ public class WellbeingService {
         log.info("End processing Wellbeing history");
     }
 
+    @Override
+    public void process() {
+        processWellbeingRecords();
+    }
 }
 
 class ActivitiesMapper implements RowMapper<Wellbeing> {

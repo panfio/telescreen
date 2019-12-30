@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class VideoService { //TODO create VideoEntity
+public class VideoService implements Processing { //TODO create VideoEntity
 
     private final YouTubeRepository youTubeRepository;
 
@@ -82,5 +82,10 @@ public class VideoService { //TODO create VideoEntity
      */
     public void saveYouTubeRecords(List<YouTube> records) {
         youTubeRepository.saveAll(records);
+    }
+
+    @Override
+    public void process() {
+        processYouTubeHistory();
     }
 }

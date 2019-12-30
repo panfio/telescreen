@@ -1,10 +1,11 @@
-package ru.panfio.telescreen.service;
+package ru.panfio.telescreen.service.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Service;
+import ru.panfio.telescreen.service.ObjectStorage;
 
 import javax.sql.DataSource;
 
@@ -23,7 +24,7 @@ public class SqliteDbManager implements DbManager {
     public SqliteDbManager(ObjectStorage objectStorage) {
         this.objectStorage = objectStorage;
     }
-    
+
     /**
      * Establishes the database connection.
      *

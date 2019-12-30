@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.CallRecord;
 import ru.panfio.telescreen.repository.CallRecordRepository;
+import ru.panfio.telescreen.service.util.DbManager;
 import ru.panfio.telescreen.util.CustomSQL;
 
 import java.sql.ResultSet;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class CallService {
+public class CallService implements Processing {
 
     //todo save telegram/skype calls
 
@@ -67,6 +68,11 @@ public class CallService {
                 CustomSQL.CALL_HISTORY_SQL, new CallRecordMapper());
         List<CallRecord> callRecords = new ArrayList<>(calls);
         saveCallRecords(callRecords);
+    }
+
+    @Override
+    public void process() {
+        processCallHistory();
     }
 }
 

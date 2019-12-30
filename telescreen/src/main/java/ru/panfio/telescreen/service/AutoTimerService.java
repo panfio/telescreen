@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class AutoTimerService {
+public class AutoTimerService implements Processing {
 
     private final AutotimerRepository autotimerRepository;
 
@@ -139,5 +139,10 @@ public class AutoTimerService {
                     return duration > 10000 && duration < 18000000;
                     //CHECKSTYLE:ON
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public void process() {
+        processAutotimerRecords();
     }
 }
