@@ -2,15 +2,10 @@ package ru.panfio.telescreen.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
-@Entity
 @Data
 @NoArgsConstructor
 public class Music {

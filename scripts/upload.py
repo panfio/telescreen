@@ -35,8 +35,8 @@ for (path, dirs, files) in os.walk(folder):
         fileInapp_bucket = path.replace(folder + '/' + app_bucket + '/', '') + '/' + file
         put(app_bucket, fileInapp_bucket, os.path.join(path, file))
 
-sync_folder(internal_storage + "/DCIM/Camera", ".jpg", media_bucket, 'photo/')
-sync_folder(internal_storage + "/DCIM/Camera", ".mp4", media_bucket, 'video/')
-sync_folder(internal_storage + "/Pictures/Screenshots", ".png", media_bucket, 'screenshot/')
-sync_folder(internal_storage + "/EasyVoiceRecorder", ".m4a", media_bucket, 'voicenote/')
+sync_folder(internal_storage + "/DCIM/Camera", ".jpg", app_bucket, 'media/photo/')
+sync_folder(internal_storage + "/DCIM/Camera", ".mp4", app_bucket, 'media/video/')
+sync_folder(internal_storage + "/Pictures/Screenshots", ".png", app_bucket, 'media/screenshot/')
+sync_folder(internal_storage + "/EasyVoiceRecorder", ".m4a", app_bucket, 'media/voicenote/')
 sync_folder(internal_storage + "/Timesheet", ".xml", app_bucket, 'timesheet/')
