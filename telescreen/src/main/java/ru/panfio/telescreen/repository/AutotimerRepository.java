@@ -6,7 +6,8 @@ import ru.panfio.telescreen.model.Autotimer;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface AutotimerRepository extends MongoRepository<Autotimer, String> {
+public interface AutotimerRepository
+        extends MongoRepository<Autotimer, String> {
 
     /**
      * {@inheritDoc}
