@@ -1,12 +1,12 @@
 package ru.panfio.telescreen.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.Message;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface MessageRepository extends CrudRepository<Message, Long> {
+public interface MessageRepository extends MongoRepository<Message, String> {
 
     /**
      * {@inheritDoc}

@@ -15,24 +15,14 @@ spring:
     user:
       name: "user"
       password: "passpass"
-  h2:
-    console:
-      enabled: true
-      path: /h2
-  datasource:
-    url: "jdbc:h2:mem:testdb"
-    driverClassName: "org.h2.Driver"
-    username: "user"
-    password: "passpass"
-  jpa:
-    hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.H2Dialect
-
-#logging:
-#  level:
-#    org.hibernate.SQL: DEBUG
-#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      username: user
+      password: passpass
+      database: telescreen
 
 #management:
 #  security.enabled: false

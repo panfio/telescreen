@@ -117,11 +117,11 @@ Paste this into the cron editor. Make sure that the path `/sdcard` correctly poi
 <!-- - Day One app: [dayoneapp.com](https://dayoneapp.com/) -->
 ## Used technologies
 
-TypeScript | React | [react-calendar-timeline](https://github.com/namespace-ee/react-calendar-timeline)
+TypeScript | React | Redux
 
-Java 1.8 | SpringBoot 2.1 | Swagger | [Spotify Web API](https://github.com/thelinmichael/spotify-web-api-java) | [protobuf](https://github.com/protocolbuffers/protobuf)
+Java 1.8 | SpringBoot 2.1 | Swagger
 
-[Minio](https://min.io/) | H2
+[Minio](https://min.io/) | MongoDB
 
 ## To start developing Telescreen
 

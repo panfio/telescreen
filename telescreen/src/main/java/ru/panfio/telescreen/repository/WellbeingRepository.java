@@ -1,12 +1,12 @@
 package ru.panfio.telescreen.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.Wellbeing;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface WellbeingRepository extends CrudRepository<Wellbeing, Long> {
+public interface WellbeingRepository extends MongoRepository<Wellbeing, Long> {
 
     /**
      * {@inheritDoc}

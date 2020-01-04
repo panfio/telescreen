@@ -2,12 +2,11 @@ package ru.panfio.telescreen.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
 @Data
 @NoArgsConstructor
 public class TimeLog {
@@ -18,9 +17,6 @@ public class TimeLog {
     private String description;
     private String location;
     private int feeling;
-    @ElementCollection
-    @CollectionTable(name = "TIMELOG_TAG")
-    @OrderColumn
-    @Column(name = "TAG")
+
     private List<String> tags;
 }
