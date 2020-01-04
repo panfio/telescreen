@@ -16,6 +16,7 @@ services:
     image: panfio/telescreen:latest
     environment:
       - MINIO_URL=http://minio:9000
+      - SPRING_DATA_MONGODB_HOST=mongo
       # - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:9090
     ports:
       - 8888:8080
