@@ -10,11 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: azure/docker-login@v1
-      with:
-        login-server: docker.io
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-    - run: |
+    - name: Build and push
+      run: |
         ./scripts/build.sh
-        docker push panfio/telescreen
+        echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+        docker push panfio/telescreen:latest
