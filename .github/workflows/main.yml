@@ -13,8 +13,8 @@ jobs:
     - name: Run tests
       run: |
         cd telescreen
-        ./mvnw compile test
+        ./mvnw -B compile test
     - name: Checkstyle
       run: |
         cd telescreen
-        ./mvnw checkstyle:check
+        ./mvnw -B checkstyle:check
