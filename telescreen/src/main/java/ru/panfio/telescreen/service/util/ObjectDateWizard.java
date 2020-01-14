@@ -4,13 +4,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.service.ObjectStorage;
 
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class ObjectDateWizard implements DateWizard {
+
+    //Please cover new cases in the test
+    private static final Map<String, String> DATE_FORMAT_REGEXPS =
+            new HashMap<String, String>() {{
+        put(".*(\\d{8}_\\d{6}).*", "yyyyMMdd_HHmmss");
+        put(".*(\\d{8}-\\d{6}).*", "yyyyMMdd-HHmmss");
+        put(".*(\\d{4}-\\d{1,2}-\\d{1,2}-\\d{1,2}-\\d{2}-\\d{2}).*",
+                "yyyy-MM-dd-HH-mm-ss");
+        put(".*(\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}-\\d{2}-\\d{2}).*",
+                "yyyy-MM-dd HH-mm-ss");
+        put(".*(\\d{4}-\\d{1,2}-\\d{1,2}_\\d{6}).*",
+                "yyyy-MM-dd_HHmmss");
+    }};
 
     private final ObjectStorage objectStorage;
 
@@ -48,6 +66,62 @@ public class ObjectDateWizard implements DateWizard {
     }
 
     /**
+     * Determine pattern matching with the given date string.
+     * Returns null if format is unknown.
+     *
+     * @param dateString The date string
+     * @return regexp, or null if format is unknown.
+     */
+    public static String determineDateFormat(String dateString) {
+        for (String regexp : DATE_FORMAT_REGEXPS.keySet()) {
+            if (dateString.toLowerCase().matches(regexp)) {
+                return regexp;
+            }
+        }
+        return null; // Unknown format.
+    }
+
+    /**
+     * Parse the given date string to date object and return
+     * a date instance based on the given date string.
+     *
+     * @param dateString The date string to be parsed to date object.
+     * @return The parsed date object.
+     */
+    public static LocalDateTime parse(String dateString) {
+        String regexp = determineDateFormat(dateString);
+        if (regexp == null) {
+            log.info("Unknown date format.");
+            return null;
+        }
+        Pattern pattern = Pattern.compile(regexp);
+        Matcher matcher = pattern.matcher(dateString);
+        if (matcher.find()) {
+            return parse(matcher.group(1), DATE_FORMAT_REGEXPS.get(regexp));
+        }
+        return null;
+    }
+
+    /**
+     * Validate the actual date of the given date string
+     * based on the given date format pattern and
+     * return a date instance based on the given date string.
+     *
+     * @param dateString The date string.
+     * @param dateFormat The date format pattern which should
+     *                   respect the SimpleDateFormat rules.
+     * @return The parsed date object.
+     */
+    public static LocalDateTime parse(String dateString, String dateFormat) {
+        try {
+            return LocalDateTime.parse(
+                    dateString, DateTimeFormatter.ofPattern(dateFormat));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    /**
      * Finds and return LocalDateTime from filename or null if not found.
      *
      * @param path file path
@@ -55,41 +129,7 @@ public class ObjectDateWizard implements DateWizard {
      */
     @Override
     public LocalDateTime dateFromPath(String path) {
-        //TODO find a pretty solution for this ugly code.
-        // consider switch/regexp + date validation
-        //Cover new cases in test
-        String filename = path.substring(path.lastIndexOf("/") + 1);
-        String dateInName = "";
-        String pattern = "";
-        if (filename.startsWith("IMG_")
-                || filename.startsWith("VID_")
-                || filename.startsWith("Timesheet")) {
-            if (filename.startsWith("Timesheet")) {
-                pattern = "yyyy-MM-dd_HHmmss";
-            } else {
-                pattern = "yyyyMMdd_HHmmss";
-            }
-            int start = filename.indexOf("_") + 1;
-            dateInName = filename.substring(start, start + pattern.length());
-        } else if (filename.endsWith("-note.m4a")) {
-            dateInName = filename.substring(0, filename.lastIndexOf("-"));
-            pattern = "yyyy-MM-dd-HH-mm-ss";
-        } else if (filename.startsWith("Screenshot")) {
-            dateInName = filename.substring(
-                    filename.indexOf("2"),
-                    filename.lastIndexOf("."));
-            if (filename.contains(" ")) {
-                pattern = "yyyy-MM-dd HH-mm-ss";
-            } else {
-                pattern = "yyyyMMdd-HHmmss";
-            }
-        }
-        try {
-            return LocalDateTime.parse(
-                    dateInName, DateTimeFormatter.ofPattern(pattern));
-        } catch (DateTimeParseException e) {
-            return null;
-        }
+        return parse(path);
     }
 
 }
