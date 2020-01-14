@@ -21,7 +21,7 @@ export const DoughnutsWrapper = (props: IDoughnutsWrapperProps) => {
         props.timeLogRecord.entities.forEach(
             (el: ITimeLogRecord) => {
                 const time = timeLogKV.get(el.tags[0]);
-                const period = Date.parse(el.startDate) - Date.parse(el.endDate);
+                const period = Date.parse(el.endDate) - Date.parse(el.startDate);
                 if (time === undefined) {
                     timeLogKV.set(el.tags[0], period);
                 } else {
@@ -32,7 +32,7 @@ export const DoughnutsWrapper = (props: IDoughnutsWrapperProps) => {
         props.wellbeingRecord.entities.forEach(
             (el: IWellbeingRecord) => {
                 const time = andriodKV.get(el.app);
-                const period = Date.parse(el.startTime) - Date.parse(el.endTime);
+                const period = Date.parse(el.endTime) - Date.parse(el.startTime);
                 if (time === undefined) {
                     andriodKV.set(el.app, period);
                 } else {
@@ -56,9 +56,9 @@ export const DoughnutsWrapper = (props: IDoughnutsWrapperProps) => {
         };
 
         data.forEach((val: number, key: string) => {
-            let diffDays = Math.floor(val * (-1) / 86400000); // days
-            let diffHrs = Math.floor((val * (-1) % 86400000) / 3600000); // hours
-            let diffMins = Math.round(((val * (-1) % 86400000) % 3600000) / 60000); // minutes
+            let diffDays = Math.floor(val / 86400000); // days
+            let diffHrs = Math.floor((val % 86400000) / 3600000); // hours
+            let diffMins = Math.round(((val % 86400000) % 3600000) / 60000); // minutes
             let diffSec = Math.floor(diffMins / 60000); // seconds
             let period = ((diffDays > 0) ? diffDays + "d " : '') +
                 ((diffHrs > 0) ? diffHrs + "h " : '') +
@@ -66,7 +66,7 @@ export const DoughnutsWrapper = (props: IDoughnutsWrapperProps) => {
                 diffSec + "s";
 
             doughnut.labels.push(key + " " + period);
-            doughnut.datasets[0].data.push(val * (-1));
+            doughnut.datasets[0].data.push(val);
             doughnut.datasets[0].backgroundColor.push(randomColor({
                 luminosity: "random",
                 seed: Math.floor(Math.random() * 1000)
@@ -76,7 +76,7 @@ export const DoughnutsWrapper = (props: IDoughnutsWrapperProps) => {
     }
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)' }}>
             {
                 collectDoughnuts().map((d: any) => <div><Doughnut data={d} /></div>)
             }

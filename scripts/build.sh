@@ -11,7 +11,7 @@ cd ..
 rm -rf ./telescreen/src/main/resources/static/*
 cp -r ./frontend/build/* ./telescreen/src/main/resources/static/
 cd ./telescreen
-./mvnw clean install package
+./mvnw -B clean install package
 #java -jar target/telescreen-1.jar
 
 

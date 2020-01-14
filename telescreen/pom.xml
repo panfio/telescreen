@@ -166,7 +166,10 @@
 				</dependencies>
 				<configuration>
 					<configLocation>./src/config/checkstyle.xml</configLocation>
-					<excludes>ru/panfio/telescreen/model/**</excludes>
+					<excludes>
+						ru/panfio/telescreen/model/**,
+						ru/panfio/telescreen/util/CustomSQL.java
+					</excludes>
 					<encoding>UTF-8</encoding>
 					<consoleOutput>true</consoleOutput>
 					<failsOnError>true</failsOnError>

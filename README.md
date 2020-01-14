@@ -112,9 +112,10 @@ Paste this into the cron editor. Make sure that the path `/sdcard` correctly poi
 - Timesheet app: [timesheet.io](https://timesheet.io/en/)
 - Easy Voice Recorder app: [Play Store](https://play.google.com/store/apps/details?id=com.coffeebeanventures.easyvoicerecorder)
 - Spotify
-- SoundCloud
-- YouTube history [Takeout](https://takeout.google.com/)
-<!-- - Day One app: [dayoneapp.com](https://dayoneapp.com/) -->
+- SoundCloud: [SoundCloud](https://soundcloud.com/)
+- YouTube history: [Takeout](https://takeout.google.com/)
+- Mi Fit: [Play Store](https://play.google.com/store/apps/details?id=com.xiaomi.hm.health)
+
 ## Used technologies
 
 TypeScript | React | Redux

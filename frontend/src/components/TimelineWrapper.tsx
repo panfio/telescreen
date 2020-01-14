@@ -17,6 +17,7 @@ import { IListenRecord } from '../models/listen-record.model';
 import { IMediaRecord } from '../models/media-record.model';
 import { IWellbeingRecord } from '../models/wellbeing-record.model';
 import { IMessageRecord } from '../models/message-record.model';
+import { IMiFitActivityRecord } from '../models/mifitactivity-record.model';
 
 const now = Date.now()
 
@@ -174,6 +175,25 @@ export const TimelineWrapper = (props: ITimelineProps) => {
             })
         )
 
+        props.miFitActivityRecord.entities.forEach(
+            (e: IMiFitActivityRecord) => items.push({
+                id: genId(),
+                group: 8,
+                title: "Sleep",
+                start_time: Date.parse(e.sleepStart),
+                end_time: Date.parse(e.sleepEnd),
+                canMove: false,
+                canResize: false,
+                canChangeGroup: false,
+                itemProps: {
+                    style: {
+                        overflow: "hidden",
+                        background: 'tomato'
+                    }
+                }
+            })
+        )
+
         return items;
     }
 
@@ -199,6 +219,9 @@ export const TimelineWrapper = (props: ITimelineProps) => {
         }
         if (props.mediaRecord.entities.length > 0) {
             groups.push({ id: 7, title: 'Media files' })
+        }
+        if (props.miFitActivityRecord.entities.length > 0) {
+            groups.push({ id: 8, title: 'Sleep' })
         }
         return groups
     }
@@ -227,7 +250,8 @@ const mapStateToProps = (
         messageRecord,
         wellbeingRecord,
         listenRecord,
-        mediaRecord
+        mediaRecord,
+        miFitActivityRecord
     }: IRootState) => ({
         youTubeRecord,
         timeLogRecord,
@@ -235,7 +259,8 @@ const mapStateToProps = (
         messageRecord,
         wellbeingRecord,
         mediaRecord,
-        listenRecord
+        listenRecord,
+        miFitActivityRecord
     });
 
 
