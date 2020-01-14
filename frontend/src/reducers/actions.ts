@@ -5,6 +5,7 @@ import { fetchMessageRecords } from './message-record.reducer';
 import { fetchWellbeingRecords } from './wellbeing-record.reducer';
 import { fetchListenRecords } from './listen-record.reducer';
 import { fetchMediaRecords } from './media-record.reducer';
+import { fetchMiFitActivityRecords } from './mifitactivity-record.reducer';
 
 export const fetchAll = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
@@ -15,5 +16,6 @@ export const fetchAll = (startDate: Date, endDate: Date) => {
         dispath(fetchWellbeingRecords(startDate, endDate));
         dispath(fetchListenRecords(startDate, endDate));
         dispath(fetchMediaRecords(startDate, endDate));
+        dispath(fetchMiFitActivityRecords(startDate, endDate));
     }
 }
