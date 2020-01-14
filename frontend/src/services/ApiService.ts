@@ -6,6 +6,7 @@ import { IWellbeingRecord } from '../models/wellbeing-record.model';
 import { IListenRecord } from '../models/listen-record.model';
 import { IMediaRecord } from '../models/media-record.model';
 import { IMiFitActivityRecord } from '../models/mifitactivity-record.model';
+import { ICallRecord } from '../models/call-record.model';
 
 export const host: string = (process.env.REACT_APP_API_URL == null) ? "" : process.env.REACT_APP_API_URL;
 
@@ -47,6 +48,11 @@ export const apiService = {
 
   async getMessageHistory(startDate: Date, endDate: Date): Promise<ReadonlyArray<IMessageRecord>> {
     const response = await fetch(`${host}/api/message?from=${startDate.toISOString().slice(0, -1)}&to=${endDate.toISOString().slice(0, -1)}`)
+    return await response.json();
+  },
+
+  async getCallHistory(startDate: Date, endDate: Date): Promise<ReadonlyArray<ICallRecord>> {
+    const response = await fetch(`${host}/api/call?from=${startDate.toISOString().slice(0, -1)}&to=${endDate.toISOString().slice(0, -1)}`)
     return await response.json();
   },
 

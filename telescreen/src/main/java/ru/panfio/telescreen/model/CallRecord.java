@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CallRecord {
     @Id
-    private Long id;
+    private String id;
     private String number;
     private LocalDateTime date;
     private int duration;

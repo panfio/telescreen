@@ -7,6 +7,7 @@ import wellbeingRecord, { WellbeingRecordState } from './wellbeing-record.reduce
 import listenRecord, { ListenRecordState } from './listen-record.reducer';
 import mediaRecord, { MediaRecordState } from './media-record.reducer';
 import miFitActivityRecord, { MiFitActivityRecordState } from './mifitactivity-record.reducer';
+import callRecord, { CallRecordState } from './call-record.reducer';
 
 export interface IRootState {
   readonly youTubeRecord: YouTubeRecordState;
@@ -17,6 +18,7 @@ export interface IRootState {
   readonly listenRecord: ListenRecordState;
   readonly mediaRecord: MediaRecordState;
   readonly miFitActivityRecord: MiFitActivityRecordState;
+  readonly callRecord: CallRecordState;
 }
 
 const rootReducer = combineReducers<IRootState>({
@@ -27,7 +29,8 @@ const rootReducer = combineReducers<IRootState>({
   wellbeingRecord,
   mediaRecord,
   listenRecord,
-  miFitActivityRecord
+  miFitActivityRecord,
+  callRecord
 });
 
 export default rootReducer;
