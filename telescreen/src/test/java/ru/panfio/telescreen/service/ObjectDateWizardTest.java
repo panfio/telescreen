@@ -32,7 +32,7 @@ public class ObjectDateWizardTest {
         assertEquals(expectedDateTime, service.dateFromPath("media/screenshot/Screenshot from 2018-11-04 10-54-11.png"));
         assertEquals(expectedDateTime, service.dateFromPath("media/timesheet/TimesheetBackup_2018-11-04_105411.xml"));
         assertNull(service.dateFromPath("some/strange_2-11-04 10_file.png"));
-        assertNull(service.dateFromPath("media/voicenotes/2019-10-05 19-25-57-note.m4a"));
+        assertNull(service.dateFromPath("media/voicenotes/2019-22-05 19-25-57-note.m4a"));
     }
 
 }
