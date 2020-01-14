@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CallRecordRepository
-        extends MongoRepository<CallRecord, Long> {
+        extends MongoRepository<CallRecord, String> {
 
     /**
      * {@inheritDoc}

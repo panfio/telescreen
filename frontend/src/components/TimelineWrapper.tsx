@@ -18,6 +18,8 @@ import { IMediaRecord } from '../models/media-record.model';
 import { IWellbeingRecord } from '../models/wellbeing-record.model';
 import { IMessageRecord } from '../models/message-record.model';
 import { IMiFitActivityRecord } from '../models/mifitactivity-record.model';
+import { ICallRecord } from '../models/call-record.model';
+import { duration } from 'moment';
 
 const now = Date.now()
 
@@ -175,11 +177,15 @@ export const TimelineWrapper = (props: ITimelineProps) => {
             })
         )
 
+        const toHHMM = (time: number) => {
+            return Math.floor(time / 60) + "h" + Math.floor(time % 60) + "m";
+        }
+
         props.miFitActivityRecord.entities.forEach(
             (e: IMiFitActivityRecord) => items.push({
                 id: genId(),
                 group: 8,
-                title: "Sleep",
+                title: "In bed: " + toHHMM(e.inBedMin) + "\nDeep Sleep: " + toHHMM(e.deepSleepMin) + "\nLight Sleep: " + toHHMM(e.lightSleepMin),
                 start_time: Date.parse(e.sleepStart),
                 end_time: Date.parse(e.sleepEnd),
                 canMove: false,
@@ -189,6 +195,25 @@ export const TimelineWrapper = (props: ITimelineProps) => {
                     style: {
                         overflow: "hidden",
                         background: 'tomato'
+                    }
+                }
+            })
+        )
+
+        props.callRecord.entities.forEach(
+            (e: ICallRecord) => items.push({
+                id: genId(),
+                group: 9,
+                title: e.name + " " + e.number,
+                start_time: Date.parse(e.date),
+                end_time: Date.parse(e.date) + e.duration * 1000,
+                canMove: false,
+                canResize: false,
+                canChangeGroup: false,
+                itemProps: {
+                    style: {
+                        overflow: "hidden",
+                        background: 'green'
                     }
                 }
             })
@@ -223,6 +248,9 @@ export const TimelineWrapper = (props: ITimelineProps) => {
         if (props.miFitActivityRecord.entities.length > 0) {
             groups.push({ id: 8, title: 'Sleep' })
         }
+        if (props.callRecord.entities.length > 0) {
+            groups.push({ id: 9, title: 'Calls' })
+        }
         return groups
     }
 
@@ -251,7 +279,8 @@ const mapStateToProps = (
         wellbeingRecord,
         listenRecord,
         mediaRecord,
-        miFitActivityRecord
+        miFitActivityRecord,
+        callRecord
     }: IRootState) => ({
         youTubeRecord,
         timeLogRecord,
@@ -260,7 +289,8 @@ const mapStateToProps = (
         wellbeingRecord,
         mediaRecord,
         listenRecord,
-        miFitActivityRecord
+        miFitActivityRecord,
+        callRecord
     });
 
 
