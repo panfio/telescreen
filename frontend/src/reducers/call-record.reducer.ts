@@ -2,7 +2,7 @@ import { ICallRecord } from '../models/call-record.model';
 import { apiService } from '../services/ApiService';
 
 export const ACTION_TYPES = {
-    FETCH_CALLRECORD_LIST: 'timeLogRecord/FETCH_CALLRECORD_LIST',
+    FETCH_CALLRECORD_LIST: 'callRecord/FETCH_CALLRECORD_LIST',
 };
 
 const initialState = {

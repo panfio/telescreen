@@ -16,18 +16,23 @@ import java.util.regex.Pattern;
 @Service
 public class ObjectDateWizard implements DateWizard {
 
+    private static final Map<String, String> DATE_REGEXPS =
+            new HashMap<String, String>();
+
     //Please cover new cases in the test
-    private static final Map<String, String> DATE_FORMAT_REGEXPS =
-            new HashMap<String, String>() {{
-        put(".*(\\d{8}_\\d{6}).*", "yyyyMMdd_HHmmss");
-        put(".*(\\d{8}-\\d{6}).*", "yyyyMMdd-HHmmss");
-        put(".*(\\d{4}-\\d{1,2}-\\d{1,2}-\\d{1,2}-\\d{2}-\\d{2}).*",
+    static {
+        DATE_REGEXPS.put(".*(\\d{8}_\\d{6}).*", "yyyyMMdd_HHmmss");
+        DATE_REGEXPS.put(".*(\\d{8}-\\d{6}).*", "yyyyMMdd-HHmmss");
+        DATE_REGEXPS.put(
+                ".*(\\d{4}-\\d{1,2}-\\d{1,2}-\\d{1,2}-\\d{2}-\\d{2}).*",
                 "yyyy-MM-dd-HH-mm-ss");
-        put(".*(\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}-\\d{2}-\\d{2}).*",
+        DATE_REGEXPS.put(
+                ".*(\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}-\\d{2}-\\d{2}).*",
                 "yyyy-MM-dd HH-mm-ss");
-        put(".*(\\d{4}-\\d{1,2}-\\d{1,2}_\\d{6}).*",
+        DATE_REGEXPS.put(
+                ".*(\\d{4}-\\d{1,2}-\\d{1,2}_\\d{6}).*",
                 "yyyy-MM-dd_HHmmss");
-    }};
+    }
 
     private final ObjectStorage objectStorage;
 
@@ -72,7 +77,7 @@ public class ObjectDateWizard implements DateWizard {
      * @return regexp, or null if format is unknown.
      */
     public static String determineDateFormat(String dateString) {
-        for (String regexp : DATE_FORMAT_REGEXPS.keySet()) {
+        for (String regexp : DATE_REGEXPS.keySet()) {
             if (dateString.toLowerCase().matches(regexp)) {
                 return regexp;
             }
@@ -96,7 +101,7 @@ public class ObjectDateWizard implements DateWizard {
         Pattern pattern = Pattern.compile(regexp);
         Matcher matcher = pattern.matcher(dateString);
         if (matcher.find()) {
-            return parse(matcher.group(1), DATE_FORMAT_REGEXPS.get(regexp));
+            return parse(matcher.group(1), DATE_REGEXPS.get(regexp));
         }
         return null;
     }

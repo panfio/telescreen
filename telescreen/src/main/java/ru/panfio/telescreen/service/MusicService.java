@@ -53,22 +53,25 @@ public class MusicService implements Processing {
      *
      * @param accessToken token from
      *                    https://developer.spotify.com/console/get-track/
+     * @deprecated Perhaps this functionality will be removed soon due to its
+     * complexity. There are too many moving parts and configurations.
      */
+    @Deprecated
     public void processSpotifyRecentlyPlayed(String accessToken) {
         final SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
-        //todo process list of files
+
         String filename = "spotify/recently_played.bnk";
         InputStream stream = objectStorage.getInputStream(filename);
         try {
             RecentlyPlayedProto.RecentlyPlayed rp =
                     RecentlyPlayedProto.RecentlyPlayed.parseFrom(stream);
-//            int i = 0;
+
             List<Music> listenedTracks = new ArrayList<>();
             for (RecentlyPlayedProto.RecentTrack item : rp.getTList()) {
                 String trackId = item.getTrack().substring(
-                        item.getTrack().lastIndexOf(":") + 1);
+                        item.getTrack().lastIndexOf(':') + 1);
 
                 Music lr = new Music();
                 lr.setExternalId(trackId);
@@ -92,7 +95,7 @@ public class MusicService implements Processing {
                     e.printStackTrace();
                 }
                 listenedTracks.add(lr);
-//                i++; if (i > 10) return;
+
             }
             saveListenRecords(listenedTracks);
         } catch (IOException e) {

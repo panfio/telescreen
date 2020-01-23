@@ -89,8 +89,8 @@ public class MediaService implements Processing {
                     continue;
                 }
                 String type = path.substring(
-                        path.indexOf("/") + 1,
-                        path.lastIndexOf("/"));
+                        path.indexOf('/') + 1,
+                        path.lastIndexOf('/'));
                 Media record = new Media();
                 record.setPath(path);
                 record.setType(type);

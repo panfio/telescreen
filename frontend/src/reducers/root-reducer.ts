@@ -8,6 +8,7 @@ import listenRecord, { ListenRecordState } from './listen-record.reducer';
 import mediaRecord, { MediaRecordState } from './media-record.reducer';
 import miFitActivityRecord, { MiFitActivityRecordState } from './mifitactivity-record.reducer';
 import callRecord, { CallRecordState } from './call-record.reducer';
+import timenterval, { TimeIntervalState } from './time-interval-reducer';
 
 export interface IRootState {
   readonly youTubeRecord: YouTubeRecordState;
@@ -19,6 +20,7 @@ export interface IRootState {
   readonly mediaRecord: MediaRecordState;
   readonly miFitActivityRecord: MiFitActivityRecordState;
   readonly callRecord: CallRecordState;
+  readonly timenterval: TimeIntervalState;
 }
 
 const rootReducer = combineReducers<IRootState>({
@@ -30,7 +32,8 @@ const rootReducer = combineReducers<IRootState>({
   mediaRecord,
   listenRecord,
   miFitActivityRecord,
-  callRecord
+  callRecord,
+  timenterval
 });
 
 export default rootReducer;

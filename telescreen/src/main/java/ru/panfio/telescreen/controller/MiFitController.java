@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.panfio.telescreen.model.MiFitActivity;
 import ru.panfio.telescreen.service.MiFitService;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @CrossOrigin
@@ -47,11 +49,13 @@ public class MiFitController {
      */
     @ApiOperation(value = "Get Mi Fit activity history by period")
     @GetMapping
-    ResponseEntity<List<MiFitActivity>> findMiFitActivityByPeriod(
+    public ResponseEntity<List<MiFitActivity>> findMiFitActivityByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.parse(from);
-        LocalDateTime t2 = LocalDateTime.parse(to);
+        LocalDateTime t1 = LocalDateTime.ofInstant(
+                Instant.parse(from), ZoneOffset.systemDefault());
+        LocalDateTime t2 = LocalDateTime.ofInstant(
+                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<List<MiFitActivity>>(
                 miFitService.getMiFitActivityBetweenDates(t1, t2),
                 HttpStatus.OK);
