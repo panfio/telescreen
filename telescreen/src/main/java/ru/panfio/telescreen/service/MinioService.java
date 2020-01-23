@@ -133,10 +133,6 @@ public class MinioService implements ObjectStorage {
             throw new IllegalArgumentException();
         }
         try {
-//            if (mc.statObject(bucket, filename).createdTime() == null) {
-//                log.warn("Error saving file " + bucket + " " + filename);
-//                return null;
-//            }
             String path = "/tmp/" + bucket + "/" + filename;
             Files.deleteIfExists(Paths.get(path));
             Files.createDirectories(Paths.get(path).getParent());

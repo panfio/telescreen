@@ -35,14 +35,24 @@ services:
       MONGO_INITDB_ROOT_USERNAME: user
       MONGO_INITDB_ROOT_PASSWORD: passpass
 
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: user
-      ME_CONFIG_MONGODB_ADMINPASSWORD: passpass
+###
+### DEV utils
+###
+
+  # sonar:
+  #   image: sonarqube:7.9.1-community
+  #   ports:
+  #     - 9001:9000
+  #     - 9092:9092
+
+  # mongo-express:
+  #   image: mongo-express
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: user
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: passpass
 
   # admin:
   #   image: panfio/admin:latest

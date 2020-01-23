@@ -46,7 +46,7 @@ public class AutoTimerService implements Processing {
         log.info("Processsing Autotimer records");
         int count = 0;
         for (String filename : objectStorage.listAllObjects()) {
-            if (!filename.contains("activities-")) {
+            if (!filename.contains("activities")) {
                 continue;
             }
             try {

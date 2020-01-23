@@ -56,16 +56,16 @@ export const DoughnutsWrapper = (props: IDoughnutsWrapperProps) => {
         };
 
         data.forEach((val: number, key: string) => {
-            let diffDays = Math.floor(val / 86400000); // days
-            let diffHrs = Math.floor((val % 86400000) / 3600000); // hours
-            let diffMins = Math.round(((val % 86400000) % 3600000) / 60000); // minutes
-            let diffSec = Math.floor(diffMins / 60000); // seconds
+            let diffDays = Math.floor(val / 86400000);
+            let diffHrs = Math.floor((val % 86400000) / 3600000);
+            let diffMins = Math.round(((val % 86400000) % 3600000) / 60000);
+            let diffSec = Math.floor(diffMins / 60000);
             let period = ((diffDays > 0) ? diffDays + "d " : '') +
                 ((diffHrs > 0) ? diffHrs + "h " : '') +
                 ((diffMins > 0) ? diffMins + "m " : '') +
                 diffSec + "s";
 
-            doughnut.labels.push(key + " " + period);
+            doughnut.labels.push(key.substring(key.lastIndexOf(".") + 1) + " " + period);
             doughnut.datasets[0].data.push(val);
             doughnut.datasets[0].backgroundColor.push(randomColor({
                 luminosity: "random",
@@ -78,7 +78,7 @@ export const DoughnutsWrapper = (props: IDoughnutsWrapperProps) => {
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)' }}>
             {
-                collectDoughnuts().map((d: any) => <div><Doughnut data={d} /></div>)
+                collectDoughnuts().map((d: any) => <div key={Math.floor(Math.random()*1000)}><Doughnut data={d} /></div>)
             }
         </div>
     );

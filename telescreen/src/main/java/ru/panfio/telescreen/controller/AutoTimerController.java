@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.panfio.telescreen.model.Autotimer;
 import ru.panfio.telescreen.service.AutoTimerService;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
@@ -47,11 +49,13 @@ public class AutoTimerController {
      */
     @ApiOperation(value = "Get autotimer records by period")
     @GetMapping("/autotimer")
-    ResponseEntity<Iterable<Autotimer>> findAutotimerRecordsByPeriod(
+    public ResponseEntity<Iterable<Autotimer>> findAutotimerRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.parse(from);
-        LocalDateTime t2 = LocalDateTime.parse(to);
+        LocalDateTime t1 = LocalDateTime.ofInstant(
+                Instant.parse(from), ZoneOffset.systemDefault());
+        LocalDateTime t2 = LocalDateTime.ofInstant(
+                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<>(
                 service.getAutotimerRecordsBetweenDates(t1, t2),
                 HttpStatus.OK);

@@ -85,6 +85,7 @@ su -c cp /data/data/com.soundcloud.android/databases/collection.db /sdcard/archi
 su -c cp /data/data/com.soundcloud.android/databases/SoundCloud /sdcard/archive/app/soundcloud/SoundCloud
 su -c cp /data/data/com.whatsapp/databases/msgstore.db /sdcard/archive/app/whatsapp/msgstore.db
 su -c cp /data/data/com.google.android.apps.wellbeing/databases/app_usage /sdcard/archive/app/wellbeing/app_usage
+su -c cp /data/data/com.xiaomi.hm.health/databases/`su -c ls /data/data/com.xiaomi.hm.health/databases | grep origin_db | awk '!/journal/'` /sdcard/archive/app/mifit/db/origin_db
 /data/data/com.termux/files/usr/bin/python /sdcard/upload.py' > sync.sh
 chmod +x sync.sh
 ./sync.sh
@@ -124,10 +125,17 @@ Java 1.8 | SpringBoot 2.1 | Swagger
 
 [Minio](https://min.io/) | MongoDB
 
+Components:
+
+- [material-ui](https://material-ui.com/)
+- [material-ui-pickers](https://material-ui-pickers.dev/)
+- [react-calendar-timeline](https://github.com/namespace-ee/react-calendar-timeline)
+- [reactdatepicker](https://reactdatepicker.com/)
+
 ## To start developing Telescreen
 
 Ensure you have a working Java, NPM, Docker environment.
-Then run:
+Uncomment the required services in `docker-compose.yml` in the DEV section. Then run:
 
 ```sh
 git clone https://github.com/panfio/telescreen
@@ -137,4 +145,8 @@ export ARCHIVE_FOLDER=`pwd`\archive
 docker-compose up
 cd frontend/
 REACT_APP_API_URL=http://localhost:8080 npm start
+
+#for sonarqube
+cd telescreen
+./mvnw clean verify sonar:sonar
 ```

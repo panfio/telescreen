@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.panfio.telescreen.model.YouTube;
 import ru.panfio.telescreen.service.VideoService;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
@@ -34,11 +36,13 @@ public class VideoController {
      */
     @ApiOperation(value = "Get YouTube records by period")
     @GetMapping("/video/youtube")
-    ResponseEntity<Iterable<YouTube>> findYouTubeByPeriod(
+    public ResponseEntity<Iterable<YouTube>> findYouTubeByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.parse(from);
-        LocalDateTime t2 = LocalDateTime.parse(to);
+        LocalDateTime t1 = LocalDateTime.ofInstant(
+                Instant.parse(from), ZoneOffset.systemDefault());
+        LocalDateTime t2 = LocalDateTime.ofInstant(
+                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<>(
                 videoService.getYouTubeRecordsBetweenDates(t1, t2),
                 HttpStatus.OK);
