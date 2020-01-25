@@ -1,4 +1,4 @@
-package ru.panfio.telescreen.service.util;
+package ru.panfio.telescreen.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,5 +49,4 @@ public class SqliteDbManager implements DbManager {
         DataSource dataSource = sqliteDataSource(filename);
         return new JdbcTemplate(dataSource);
     }
-
 }

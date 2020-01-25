@@ -16,9 +16,7 @@ import java.util.List;
 public class MediaService implements Processing {
 
     private final MediaRepository mediaRepository;
-
     private final ObjectStorage objectStorage;
-
     private final DateWizard dateWizard;
 
     /**
@@ -78,44 +76,50 @@ public class MediaService implements Processing {
 
     /**
      * Save Media records into database.
-     *
-     * @return success
      */
-    public boolean processMediaRecords() {
-        try {
-            List<Media> fileList = new ArrayList<>();
-            for (String path : objectStorage.listAllObjects()) {
-                if (!path.startsWith("media")) {
-                    continue;
-                }
-                String type = path.substring(
-                        path.indexOf('/') + 1,
-                        path.lastIndexOf('/'));
-                Media record = new Media();
-                record.setPath(path);
-                record.setType(type);
-                //TODO URL is redundant
-                record.setUrl("/api/media/file?filename=" + path);
-                //TODO refactor
-                record.setCreated(dateWizard.creationTime(path));
-
-                fileList.add(record);
+    public void processMediaRecords() {
+        List<Media> fileList = new ArrayList<>();
+        for (String path : objectStorage.listAllObjects()) {
+            if (!path.startsWith("media")) {
+                continue;
             }
-            saveMediaRecords(fileList);
-            return true;
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return false;
+            fileList.add(createMedia(path));
         }
+        saveMediaRecords(fileList);
+        log.info("Processing media records complete");
     }
 
+    /**
+     * Creates media record.
+     *
+     * @param path file patch.
+     * @return media record
+     */
+    private Media createMedia(String path) {
+        Media record = new Media();
+        record.setPath(path);
+        record.setType(getMediaType(path));
+        record.setCreated(dateWizard.creationTime(path));
+        return record;
+    }
+
+    private String getMediaType(String path) {
+        try {
+            return path.substring(
+                    path.indexOf('/') + 1,
+                    path.lastIndexOf('/'));
+        } catch (Exception e) {
+            return "other";
+        }
+    }
     /**
      * Saves media records in the database.
      *
      * @param records list of records
      */
     public void saveMediaRecords(List<Media> records) {
-        //todo clear table before saving
+        //only existing files are stored in the database
+        mediaRepository.deleteAll();
         mediaRepository.saveAll(records);
     }
 

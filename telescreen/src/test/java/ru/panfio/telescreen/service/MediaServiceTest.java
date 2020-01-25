@@ -48,6 +48,5 @@ public class MediaServiceTest {
         assertThat(list.get(0).getPath(), is("media/photo/IMG_20181104_105411.jpg"));
         assertThat(list.get(0).getCreated(), is(LocalDateTime.of(2018, 11, 4, 10, 54, 11)));
         assertThat(list.get(0).getType(), is("photo"));
-        assertThat(list.get(0).getUrl(), is("/api/media/file?filename=media/photo/IMG_20181104_105411.jpg"));
     }
 }

@@ -16,5 +16,4 @@ public class Media {
 //    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private LocalDateTime created;
     private String path;
-    private String url;
 }

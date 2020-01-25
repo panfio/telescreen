@@ -10,6 +10,7 @@ import ru.panfio.telescreen.repository.YouTubeRepository;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 public class VideoService implements Processing { //TODO create VideoEntity
 
     private final YouTubeRepository youTubeRepository;
-
     private final ObjectStorage objectStorage;
 
     /**
@@ -39,35 +39,46 @@ public class VideoService implements Processing { //TODO create VideoEntity
     public void processYouTubeHistory() {
         log.info("Start processing YouTube history");
         String filename = "google/YouTube/history/watch-history.json";
-        try {
-            InputStream stream = objectStorage.getInputStream(filename);
-            if (stream == null) {
-                log.warn("File not found. Put watch-history.json "
-                        + "in google/YouTube/history/");
-                return;
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            List<YouTube> yt = mapper.readValue(
-                    stream,
-                    new TypeReference<List<YouTube>>() {
-                    });
-            List<YouTube> filtered = yt.stream().map(e -> {
-                e.setId(e.getTime().toEpochSecond(ZoneOffset.UTC));
-                e.setTitle(e.getTitle().substring("Watched ".length()));
-                return e;
-            }).collect(Collectors.toList());
-            saveYouTubeRecords(filtered);
-        } catch (Exception e) {
-            log.warn("Parse error " + filename);
-            e.printStackTrace();
+        InputStream stream = objectStorage.getInputStream(filename);
+        if (stream == null) {
+            log.warn("File not found. Put watch-history.json "
+                    + "in google/YouTube/history/");
+            return;
         }
+        List<YouTube> yt = parseExport(stream);
+        List<YouTube> filtered = yt.stream().map(e -> {
+            e.setId(e.getTime().toEpochSecond(ZoneOffset.UTC));
+            e.setTitle(e.getTitle().substring("Watched ".length()));
+            return e;
+        }).collect(Collectors.toList());
+        saveYouTubeRecords(filtered);
         log.info("End processing YouTube history");
     }
 
     /**
+     * Parse export file.
+     *
+     * @param stream input stream
+     * @return entities list
+     */
+    private List<YouTube> parseExport(InputStream stream) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(
+                    stream,
+                    new TypeReference<List<YouTube>>() {
+                    });
+        } catch (Exception e) {
+            log.warn("Parse error " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
      * Finds and returns records from period.
+     *
      * @param from time
-     * @param to time
+     * @param to   time
      * @return records
      */
     public Iterable<YouTube> getYouTubeRecordsBetweenDates(

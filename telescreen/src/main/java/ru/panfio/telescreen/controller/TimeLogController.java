@@ -13,7 +13,7 @@ import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/timelog")
 public class TimeLogController {
 
     private final TimeLogService timeLogService;
@@ -35,7 +35,7 @@ public class TimeLogController {
      * @return timelog records
      */
     @ApiOperation(value = "Get TimeLog records by period")
-    @GetMapping("/timelog")
+    @GetMapping
     public ResponseEntity<Iterable<TimeLog>> findTimeLogByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
@@ -54,7 +54,7 @@ public class TimeLogController {
      * @return ok
      */
     @ApiOperation(value = "Processing Timesheet records")
-    @GetMapping("/timelog/process/timesheet")
+    @GetMapping("/process/timesheet")
     public ResponseEntity processTimesheetRecords() {
         if (timeLogService.processTimesheetRecords()) {
             return new ResponseEntity(HttpStatus.OK);

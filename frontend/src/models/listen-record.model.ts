@@ -8,14 +8,3 @@ export interface IListenRecord {
     path?: string;
     type?: string;
 }
-
-export const defaultValue: Readonly<IListenRecord> = {
-    id: -1,
-    path: '',
-    url: '',
-    listenTime: new Date(Date.now()).toISOString(),
-    type: '',
-    externalId: '',
-    title: '',
-    artist: ''
-};

@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -167,5 +168,22 @@ public class MinioService implements ObjectStorage {
             return null;
         }
     }
+
+    /**
+     * Gets text content from the file.
+     *
+     * @param filename filename
+     * @param charset  text encoding
+     * @return text
+     */
+    public String getContent(String filename, String charset) {
+        try (InputStream inputStream = getInputStream(filename)) {
+            return IOUtils.toString(inputStream, charset);
+        } catch (IOException e) {
+            log.warn("Error processing " + filename);
+            return "";
+        }
+    }
+
 
 }

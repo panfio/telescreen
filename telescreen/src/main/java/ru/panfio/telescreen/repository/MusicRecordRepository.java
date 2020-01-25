@@ -6,7 +6,7 @@ import ru.panfio.telescreen.model.Music;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ListenRecordRepository
+public interface MusicRecordRepository
         extends MongoRepository<Music, Long> {
 
     /**

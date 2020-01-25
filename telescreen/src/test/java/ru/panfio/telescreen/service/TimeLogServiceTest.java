@@ -2,16 +2,23 @@ package ru.panfio.telescreen.service;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import ru.panfio.telescreen.model.TimeLog;
 import ru.panfio.telescreen.model.timesheet.TimesheetExport;
 import ru.panfio.telescreen.repository.TimeLogRepository;
+import ru.panfio.telescreen.service.util.DateWizard;
 import ru.panfio.telescreen.service.util.ObjectDateWizard;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 import static ru.panfio.telescreen.service.TestFiles.toInputStream;
 
 public class TimeLogServiceTest {
@@ -20,12 +27,14 @@ public class TimeLogServiceTest {
     private TimeLogService service;
     private ObjectStorage objectStorage;
     private TimeLogRepository timeLogRepository;
+    private DateWizard dateWizard;
 
     @Before
     public void setUp() {
         timeLogRepository = mock(TimeLogRepository.class);
         objectStorage = mock(ObjectStorage.class);
-        service = new TimeLogService(timeLogRepository, objectStorage, new ObjectDateWizard(objectStorage));
+        dateWizard = mock(DateWizard.class);
+        service = new TimeLogService(timeLogRepository, objectStorage, dateWizard);
     }
 
     @Test
@@ -41,4 +50,25 @@ public class TimeLogServiceTest {
         assertNull(fromBadFile);
     }
 
+    @Test
+    public void processTimesheetRecordsTest() {
+        List<String> activityFiles = Arrays.asList("timesheet/TimesheetBackup_2018-11-04_000000.xml");
+
+        when(objectStorage.listAllObjects()).thenReturn(activityFiles);
+        when(dateWizard.dateFromPath(activityFiles.get(0))).thenReturn(LocalDateTime.of(2018, 11, 4, 0, 0, 0));
+        when(objectStorage.getInputStream(activityFiles.get(0))).thenReturn(toInputStream(TestFiles.TIMESHEET));
+
+        service.processTimesheetRecords();
+
+        @SuppressWarnings("unchecked") final ArgumentCaptor<List<TimeLog>> argument = ArgumentCaptor.forClass(List.class);
+        verify(timeLogRepository).saveAll(argument.capture());
+        List<TimeLog> list = argument.getValue();
+
+        assertEquals(1, list.size());
+        assertEquals("Coding", list.get(0).getTags().get(0));
+        assertEquals("Description", list.get(0).getDescription());
+        assertEquals(
+                LocalDateTime.parse("2019-12-07T19:28:00+03:00", DateTimeFormatter.ISO_DATE_TIME),
+                list.get(0).getStartDate());
+    }
 }

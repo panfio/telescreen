@@ -91,28 +91,11 @@ chmod +x sync.sh
 ./sync.sh
 ```
 
-- Spotify history
-
-Edit crontab for backup recently_played file
-
-```sh
-crontab -e -u root #edit crontab
-crond -b #run service
-ps -aux #check that crond  is running
-```
-
-Paste this into the cron editor. Make sure that the path `/sdcard` correctly points to `EXTERNAL_STORAGE` and replace “XXX” with your Spotify ID.
-
-```
-0 * * * * su -c cp /data/data/com.spotify.music/files/settings/Users/XXXXXXXXXXXXXXXXXXXXXXXXXX/recently_played.bnk /sdcard/archive/app/spotify/recently_played-`date "+%Y%m%d-%H%M%S"`.bnk
-```
-
 ## Integrations
 
 - Activity log using [KalleHallden/AutoTimer](https://github.com/KalleHallden/AutoTimer)
 - Timesheet app: [timesheet.io](https://timesheet.io/en/)
 - Easy Voice Recorder app: [Play Store](https://play.google.com/store/apps/details?id=com.coffeebeanventures.easyvoicerecorder)
-- Spotify
 - SoundCloud: [SoundCloud](https://soundcloud.com/)
 - YouTube history: [Takeout](https://takeout.google.com/)
 - Mi Fit: [Play Store](https://play.google.com/store/apps/details?id=com.xiaomi.hm.health)

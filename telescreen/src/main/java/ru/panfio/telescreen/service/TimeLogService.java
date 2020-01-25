@@ -23,9 +23,7 @@ import java.util.stream.Collectors;
 public class TimeLogService implements Processing {
 
     private final TimeLogRepository timeLogRepository;
-
     private final ObjectStorage objectStorage;
-
     private final DateWizard dateWizard;
 
     /**
@@ -70,50 +68,106 @@ public class TimeLogService implements Processing {
      * @return true if operation is successful
      */
     public boolean processTimesheetRecords() {
-        //todo create method that returns file list in folder
-        String lastBackup = objectStorage.listAllObjects().stream()
+        String lastBackup = findLastBackupFile();
+        log.info("Processing " + lastBackup);
+        TimesheetExport export = parseExportFile(lastBackup);
+        if (export == null) {
+            log.error("File is invalid");
+            return false;
+        }
+        //tags are collected here to increase performance
+        Map<String, String> tags = getTags(export);
+        List<TimeLog> timeLogs = new ArrayList<>();
+        for (Task task : export.getTasks().getTasks()) {
+            List<String> taskTags = getTaskTags(export, tags, task);
+            timeLogs.add(createTimeLog(task, taskTags));
+        }
+        saveTimeLogRecords(timeLogs);
+        log.info("End processing Timesheet records");
+        return true;
+    }
+
+    /**
+     * Gets all tags.
+     *
+     * @param export export
+     * @return tags
+     */
+    private Map<String, String> getTags(TimesheetExport export) {
+        Map<String, String> tags = new HashMap<>();
+        export.getTags().getTags().forEach(tag -> {
+            tags.put(tag.getTagId(), tag.getName());
+        });
+        return tags;
+    }
+
+    /**
+     * Collects task tags.
+     *
+     * @param export export
+     * @param tags   tags
+     * @param task   task
+     * @return tags
+     */
+    private List<String> getTaskTags(final TimesheetExport export,
+                                     final Map<String, String> tags,
+                                     final Task task) {
+        return export.getTaskTags().getTaskTags().stream()
+                .filter(
+                        taskTag -> taskTag.getTaskId()
+                                .equals(task.getTaskId()))
+                .map(el -> tags.get(el.getTagId()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Parsing export file.
+     *
+     * @param filename filename
+     * @return export
+     */
+    private TimesheetExport parseExportFile(final String filename) {
+        log.info(filename);
+        return unmarshallXml(
+                TimesheetExport.class,
+                objectStorage.getInputStream(filename));
+    }
+
+    /**
+     * Creates a timelog entity.
+     *
+     * @param task     current task
+     * @param taskTags tags
+     * @return entity
+     */
+    private TimeLog createTimeLog(final Task task,
+                                  final List<String> taskTags) {
+        TimeLog tl = new TimeLog();
+        tl.setId(task.getTaskId());
+        tl.setDescription(task.getDescription());
+        tl.setStartDate(task.getStartDate());
+        tl.setEndDate(task.getEndDate());
+        tl.setLocation(task.getLocation());
+        tl.setFeeling(task.getFeeling());
+        tl.setTags(taskTags);
+        return tl;
+    }
+
+    /**
+     * Gets the newest backup file.
+     *
+     * @return file path
+     */
+    public String findLastBackupFile() {
+        return objectStorage.listAllObjects().stream()
                 .filter(s -> s.startsWith("timesheet/TimesheetBackup"))
                 .reduce((max, current) -> {
-                    //will fall if filename is incorrect
                     LocalDateTime dt = dateWizard.dateFromPath(current);
                     return ((dt != null) && (dt.isAfter(
                             dateWizard.dateFromPath(max))))
                             ? current
                             : max;
                 }).orElse("");
-        if (lastBackup.equals("")) {
-            log.warn("Timesheet backup files not found");
-            return false;
-        }
-        log.info("Processing " + lastBackup);
-        TimesheetExport te = unmarshallXml(
-                TimesheetExport.class,
-                objectStorage.getInputStream(lastBackup));
-
-        Map<String, String> tags = new HashMap<>();
-        te.getTags().getTags().forEach(tag -> {
-            tags.put(tag.getTagId(), tag.getName());
-        });
-        List<TimeLog> timeLogs = new ArrayList<>();
-        for (Task task : te.getTasks().getTasks()) {
-            TimeLog tl = new TimeLog();
-            tl.setId(task.getTaskId());
-            tl.setDescription(task.getDescription());
-            tl.setStartDate(task.getStartDate());
-            tl.setEndDate(task.getEndDate());
-            tl.setLocation(task.getLocation());
-            tl.setFeeling(task.getFeeling());
-            List<String> tlTags = te.getTaskTags().getTaskTags().stream()
-                    .filter(
-                            taskTag -> taskTag.getTaskId()
-                                    .equals(task.getTaskId()))
-                    .map(el -> tags.get(el.getTagId()))
-                    .collect(Collectors.toList());
-            tl.setTags(tlTags);
-            timeLogs.add(tl);
-        }
-        saveTimeLogRecords(timeLogs);
-        return true;
     }
 
     /**

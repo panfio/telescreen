@@ -13,7 +13,7 @@ import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/autotimer")
 public class AutoTimerController {
 
     private final AutoTimerService service;
@@ -32,7 +32,7 @@ public class AutoTimerController {
      * @return status
      */
     @ApiOperation(value = "Processing \"Аutotimer\" records")
-    @GetMapping("/autotimer/process")
+    @GetMapping("/process")
     public ResponseEntity processAutotimerRecords() {
         if (service.processAutotimerRecords()) {
             return new ResponseEntity(HttpStatus.OK);
@@ -48,7 +48,7 @@ public class AutoTimerController {
      * @return list of records
      */
     @ApiOperation(value = "Get autotimer records by period")
-    @GetMapping("/autotimer")
+    @GetMapping
     public ResponseEntity<Iterable<Autotimer>> findAutotimerRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-public class CallRecord {
+public class Call {
     @Id
     private String id;
     private String number;

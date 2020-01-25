@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class AutoTimerService implements Processing {
 
     private final AutotimerRepository autotimerRepository;
-
     private final ObjectStorage objectStorage;
 
     /**
@@ -44,29 +43,36 @@ public class AutoTimerService implements Processing {
      */
     public boolean processAutotimerRecords() {
         log.info("Processsing Autotimer records");
-        int count = 0;
         for (String filename : objectStorage.listAllObjects()) {
             if (!filename.contains("activities")) {
                 continue;
             }
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                AutotimerRecords autotimerRecords = mapper.readValue(
-                        objectStorage.getInputStream(filename),
-                        AutotimerRecords.class);
-                List<Autotimer> list =
-                        collectAutotimers(autotimerRecords.getActivities());
-                count = count + list.size();
-                //todo save processed filename item to db
-                save(list);
-            } catch (IOException e) {
-                log.warn("Autotimer parse error " + filename);
-                e.printStackTrace();
-                return false;
-            }
+            //todo processing files in parallel
+            List<Activity> activities = parseActivityFile(filename);
+            List<Autotimer> list = collectAutotimers(activities);
+            //todo save processed filename item to db ???
+            save(list);
         }
-        log.info("Processed Autotimer items = " + count);
         return true;
+    }
+
+
+    /**
+     * Parsing activity file.
+     * @param filename fillename
+     * @return activity list
+     */
+    private List<Activity> parseActivityFile(String filename) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            AutotimerRecords autotimerRecords = mapper.readValue(
+                    objectStorage.getInputStream(filename),
+                    AutotimerRecords.class);
+            return autotimerRecords.getActivities();
+        } catch (IOException e) {
+            log.warn("Autotimer parse error " + filename);
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -80,36 +86,57 @@ public class AutoTimerService implements Processing {
         for (Activity activity : activities) {
             List<TimeEntry> list = activity.getTime_entries();
             for (TimeEntry timeEntry : list) {
-                String name = activity.getName();
+                final String name = activity.getName();
                 if (name.startsWith("Desktop")) {
                     continue;
                 }
-                Autotimer autotimer = new Autotimer();
-                autotimer.setName(name);
-                autotimer.setStartTime(timeEntry.getStart_time().toInstant()
-                        .atOffset(ZoneOffset.ofHours(0)).toLocalDateTime());
-                autotimer.setEndTime(timeEntry.getEnd_time().toInstant()
-                        .atOffset(ZoneOffset.ofHours(0)).toLocalDateTime());
-                autotimer.setType(0); //default
-                //TODO find alternative
-                if (name.startsWith("Google Chrome")
-                        || name.startsWith("Chromium")
-                        || name.startsWith("Mozilla Firefox")) {
-                    autotimer.setType(1);
-                }
-                if (name.equals("Visual Studio Code")
-                        || name.startsWith(".../src/main")) {
-                    autotimer.setType(2);
-                }
-                if (name.startsWith("Telegram")) {
-                    //CHECKSTYLE:OFF
-                    autotimer.setType(3);
-                    //CHECKSTYLE:ON
-                }
-                autotimers.add(autotimer);
+                autotimers.add(createAutotimer(name, timeEntry));
             }
         }
         return autotimers;
+    }
+
+    /**
+     * Creates the Autotimer entity.
+     *
+     * @param name      activity name
+     * @param timeEntry time entry
+     * @return autotimer
+     */
+    private Autotimer createAutotimer(String name, TimeEntry timeEntry) {
+        Autotimer autotimer = new Autotimer();
+        autotimer.setName(name);
+        autotimer.setStartTime(timeEntry.getStart_time().toInstant()
+                .atOffset(ZoneOffset.ofHours(0)).toLocalDateTime());
+        autotimer.setEndTime(timeEntry.getEnd_time().toInstant()
+                .atOffset(ZoneOffset.ofHours(0)).toLocalDateTime());
+        autotimer.setType(getAutotimerType(name));
+        return autotimer;
+    }
+
+    /**
+     * Extracts Autotimer type based on the activity name.
+     *
+     * @param name activity name
+     * @return Autotimer type
+     */
+    private int getAutotimerType(final String name) {
+        //TODO find alternative
+        if (name.startsWith("Google Chrome")
+                || name.startsWith("Chromium")
+                || name.startsWith("Mozilla Firefox")) {
+            return 1;
+        }
+        if (name.equals("Visual Studio Code")
+                || name.startsWith(".../src/main")) {
+            return 2;
+        }
+        if (name.startsWith("Telegram")) {
+            //CHECKSTYLE:OFF
+            return 3;
+            //CHECKSTYLE:ON
+        }
+        return 0;
     }
 
     /**

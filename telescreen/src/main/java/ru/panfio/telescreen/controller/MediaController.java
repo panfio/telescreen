@@ -11,7 +11,7 @@ import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/media")
 public class MediaController {
 
     private final MediaService service;
@@ -33,7 +33,7 @@ public class MediaController {
     @Deprecated
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Get all media records")
-    @GetMapping("/media/all")
+    @GetMapping("/all")
     public ResponseEntity findAll() {
         return new ResponseEntity<>(
                 service.getAllMediaRecords(),
@@ -46,12 +46,10 @@ public class MediaController {
      * @return ok
      */
     @ApiOperation(value = "Processing media files")
-    @GetMapping("/media/process")
+    @GetMapping("/process")
     public ResponseEntity processMediaRecords() {
-        if (service.processMediaRecords()) {
-            return new ResponseEntity(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        service.processMediaRecords();
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     /**
@@ -81,7 +79,7 @@ public class MediaController {
      * @param filename file path
      * @return file
      */
-    @GetMapping("/media/file")
+    @GetMapping("/file")
     public ResponseEntity<byte[]> getFileByFileName(
             @RequestParam(value = "filename") String filename) {
         String contentType = service.getContentType(filename);
