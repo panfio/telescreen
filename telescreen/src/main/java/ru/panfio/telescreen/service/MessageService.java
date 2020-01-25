@@ -9,10 +9,6 @@ import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Message;
 import ru.panfio.telescreen.repository.MessageRepository;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,7 +19,6 @@ import java.util.List;
 public class MessageService implements Processing {
 
     private final MessageRepository messageRepository;
-
     private final ObjectStorage objectStorage;
 
     /**
@@ -48,60 +43,62 @@ public class MessageService implements Processing {
                     && !filename.contains("messages")) {
                 continue;
             }
-            try (InputStream inputStream =
-                         objectStorage.getInputStream(filename)) {
-                InputStreamReader isReader = new InputStreamReader(inputStream);
-                BufferedReader reader = new BufferedReader(isReader);
-                StringBuffer sb = new StringBuffer();
-                String str;
-                while ((str = reader.readLine()) != null) {
-                    sb.append(str);
-                }
-                saveMessages(parseTelegramMessages(sb.toString()));
-            } catch (IOException e) {
-                log.warn("Error processing " + filename);
-                e.printStackTrace();
-            }
+            //todo process in parallel
+            String content = objectStorage.getContent(filename, "utf-8");
+            saveMessages(getTelegramMessages(content));
         }
         log.info("End processing Telegram messages");
     }
 
     /**
-     * Parsing messages from the given html file.
+     * Collecting messages from the given html file.
      *
      * @param html html
      * @return message list
      */
-    public List<Message> parseTelegramMessages(String html) {
+    private List<Message> getTelegramMessages(String html) {
         List<Message> telegramMessages = new ArrayList<>();
-        try {
-            Document doc = Jsoup.parse(html, "utf-8");
-            Elements messages = doc.select("div.message.default");
-            String name = "";
-            for (Element message : messages) {
-                String currentName =
-                        message.select("div.from_name").text();
-                LocalDateTime date = LocalDateTime.parse(
-                        message.select("div.date.details").attr("title"),
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
-                if (!currentName.isEmpty()) {
-                    name = currentName;
-                }
-
-                Message tm = new Message();
-                // message1234567890
-                tm.setLegacyID(message.id().substring("message".length()));
-                tm.setCreated(date);
-                tm.setType(Message.Type.TELEGRAM);
-                tm.setAuthor(name);
-                tm.setContent(message.select("div.text").text());
-
-                telegramMessages.add(tm);
+        Elements messages = parseTelegramMessages(html);
+        if (messages == null) {
+            return telegramMessages;
+        }
+        String author = "";
+        for (Element message : messages) {
+            Message tm = parseTelegramMessage(message);
+            //in a message group, only the first element has an author
+            String currentAuthor = tm.getAuthor();
+            if (!tm.getAuthor().isEmpty()) {
+                author = currentAuthor;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            tm.setAuthor(author);
+            telegramMessages.add(tm);
         }
         return telegramMessages;
+    }
+
+    private Elements parseTelegramMessages(String html) {
+        try {
+            Document doc = Jsoup.parse(html, "utf-8");
+            return doc.select("div.message.default");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private Message parseTelegramMessage(Element message) {
+        LocalDateTime date = LocalDateTime.parse(
+                message.select("div.date.details").attr("title"),
+                DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        Message tm = new Message();
+        // message1234567890
+        tm.setLegacyID(message.id().substring("message".length()));
+        tm.setCreated(date);
+        tm.setType(Message.Type.TELEGRAM);
+        tm.setAuthor(message.select("div.from_name").text());
+        tm.setContent(message.select("div.text").text());
+        return tm;
     }
 
     /**

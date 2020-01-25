@@ -13,7 +13,7 @@ import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/video")
 public class VideoController {
 
     private final VideoService videoService;
@@ -35,7 +35,7 @@ public class VideoController {
      * @return records
      */
     @ApiOperation(value = "Get YouTube records by period")
-    @GetMapping("/video/youtube")
+    @GetMapping("/youtube")
     public ResponseEntity<Iterable<YouTube>> findYouTubeByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
@@ -53,7 +53,7 @@ public class VideoController {
      * @return ok
      */
     @ApiOperation(value = "Processing YouTube from google export")
-    @GetMapping("/video/process/youtube")
+    @GetMapping("/process/youtube")
     public ResponseEntity processYouTubeRecords() {
         videoService.processYouTubeHistory();
         return new ResponseEntity<>(HttpStatus.OK);

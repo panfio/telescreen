@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.panfio.telescreen.model.CallRecord;
+import ru.panfio.telescreen.model.Call;
 import ru.panfio.telescreen.service.CallService;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/call")
 public class CallController {
 
     private final CallService callService;
@@ -35,8 +35,8 @@ public class CallController {
      * @return call records
      */
     @ApiOperation(value = "Get Call history by period")
-    @GetMapping("/call")
-    public ResponseEntity<Iterable<CallRecord>> findCallRecordsByPeriod(
+    @GetMapping
+    public ResponseEntity<Iterable<Call>> findCallRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
         LocalDateTime t1 = LocalDateTime.ofInstant(
@@ -54,7 +54,7 @@ public class CallController {
      * @return ok
      */
     @ApiOperation(value = "Processing Call History records")
-    @GetMapping("/call/process")
+    @GetMapping("/process")
     public ResponseEntity processCallHistory() {
         callService.processCallHistory();
         return new ResponseEntity<>(HttpStatus.OK);

@@ -6,10 +6,3 @@ export interface IWellbeingRecord {
     type?: string;
 }
 
-export const defaultValue: Readonly<IWellbeingRecord> = {
-    id: 1,
-    app: '',
-    startTime: new Date(Date.now()).toISOString(),
-    endTime: new Date(Date.now()).toISOString(),
-    type: '',
-};

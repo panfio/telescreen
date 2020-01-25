@@ -14,7 +14,7 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/wellbeing")
 public class WellbeingController {
 
     private final WellbeingService wellbeingService;
@@ -34,7 +34,7 @@ public class WellbeingController {
      * @return ok
      */
     @ApiOperation(value = "Processing Wellbeing records")
-    @GetMapping("/wellbeing/process")
+    @GetMapping("/process")
     public ResponseEntity processWellbeingRecords() {
         wellbeingService.processWellbeingRecords();
         return new ResponseEntity<>(HttpStatus.OK);
@@ -48,7 +48,7 @@ public class WellbeingController {
      * @return records
      */
     @ApiOperation(value = "Get Wellbeing history by period")
-    @GetMapping("/wellbeing")
+    @GetMapping
     public ResponseEntity<List<Wellbeing>> findWellbeingByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {

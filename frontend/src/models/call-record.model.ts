@@ -7,12 +7,3 @@ export interface ICallRecord {
   type: number;
 
 }
-
-export const defaultValue: Readonly<ICallRecord> = {
-  id: '',
-  date: new Date(Date.now()).toISOString(),
-  type: -1,
-  number: '',
-  duration: 0,
-  name: '',
-};

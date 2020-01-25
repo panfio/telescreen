@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-public class Music {
+public class Music implements Cloneable {
     public enum Type {SPOTIFY, SOUNDCLOUD}
 
     @Id
@@ -19,4 +19,9 @@ public class Music {
     private String title;
     private LocalDateTime listenTime;
     private String url;
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

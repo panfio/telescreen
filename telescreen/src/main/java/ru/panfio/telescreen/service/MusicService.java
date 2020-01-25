@@ -1,24 +1,12 @@
 package ru.panfio.telescreen.service;
 
-import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.specification.Track;
-import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Music;
-import ru.panfio.telescreen.model.spotify.RecentlyPlayedProto;
-import ru.panfio.telescreen.repository.ListenRecordRepository;
-import ru.panfio.telescreen.service.util.DbManager;
-import ru.panfio.telescreen.util.CustomSQL;
+import ru.panfio.telescreen.repository.MusicRecordRepository;
+import ru.panfio.telescreen.dao.SoundCloudDao;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -26,106 +14,39 @@ import java.util.*;
 @Service
 public class MusicService implements Processing {
 
-    //TODO rename
-    private final ListenRecordRepository listenRecordRepository;
-
-    private final ObjectStorage objectStorage;
-
-    private final DbManager dbManager;
+    private final MusicRecordRepository musicRecordRepository;
+    private final SoundCloudDao soundCloudDao;
 
     /**
      * Constructor.
      *
-     * @param listenRecordRepository repo
-     * @param objectStorage          service
-     * @param dbManager              dbManager
+     * @param musicRecordRepository repo
+     * @param soundCloudDao         dbManager
      */
-    public MusicService(ListenRecordRepository listenRecordRepository,
-                        ObjectStorage objectStorage,
-                        DbManager dbManager) {
-        this.listenRecordRepository = listenRecordRepository;
-        this.objectStorage = objectStorage;
-        this.dbManager = dbManager;
-    }
-
-    /**
-     * Processing Spotify listen history.
-     *
-     * @param accessToken token from
-     *                    https://developer.spotify.com/console/get-track/
-     * @deprecated Perhaps this functionality will be removed soon due to its
-     * complexity. There are too many moving parts and configurations.
-     */
-    @Deprecated
-    public void processSpotifyRecentlyPlayed(String accessToken) {
-        final SpotifyApi spotifyApi = new SpotifyApi.Builder()
-                .setAccessToken(accessToken)
-                .build();
-
-        String filename = "spotify/recently_played.bnk";
-        InputStream stream = objectStorage.getInputStream(filename);
-        try {
-            RecentlyPlayedProto.RecentlyPlayed rp =
-                    RecentlyPlayedProto.RecentlyPlayed.parseFrom(stream);
-
-            List<Music> listenedTracks = new ArrayList<>();
-            for (RecentlyPlayedProto.RecentTrack item : rp.getTList()) {
-                String trackId = item.getTrack().substring(
-                        item.getTrack().lastIndexOf(':') + 1);
-
-                Music lr = new Music();
-                lr.setExternalId(trackId);
-                lr.setType(Music.Type.SPOTIFY);
-                lr.setId((long) item.getTimestamp());
-                lr.setArtist(trackId);
-                lr.setTitle(trackId);
-                lr.setListenTime(LocalDateTime.ofInstant(
-                        Instant.ofEpochSecond(item.getTimestamp()),
-                        TimeZone.getDefault().toZoneId()));
-                final GetTrackRequest getTrackRequest =
-                        spotifyApi.getTrack(trackId).build();
-                try {
-                    Track track = getTrackRequest.execute();
-
-                    lr.setArtist(track.getArtists()[0].getName());
-                    lr.setTitle(track.getName());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (SpotifyWebApiException e) {
-                    e.printStackTrace();
-                }
-                listenedTracks.add(lr);
-
-            }
-            saveListenRecords(listenedTracks);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public MusicService(MusicRecordRepository musicRecordRepository,
+                        SoundCloudDao soundCloudDao) {
+        this.musicRecordRepository = musicRecordRepository;
+        this.soundCloudDao = soundCloudDao;
     }
 
     /**
      * Processing the SoundCloud listening history.
      */
+    @SneakyThrows
     public void processSoundCloud() {
         log.info("Start processing SoundCloud history");
-        JdbcTemplate recentlyPlayed = dbManager.getTemplate(
-                "soundcloud/collection.db");
-        JdbcTemplate soundsInfo = dbManager.getTemplate(
-                "soundcloud/SoundCloud");
-        List<Music> listenedTracks = recentlyPlayed.query(
-                CustomSQL.PLAY_HISTORY_SQL, new RecentlyPlayedMapper());
+        List<Music> listenedTracks = soundCloudDao.recentlyPlayed();
+        Map<String, Music> soundsInfo = soundCloudDao.soundsInfo();
 
         List<Music> musicList = new ArrayList<>();
         for (Music track : listenedTracks) {
-            Music info = soundsInfo.queryForObject(
-                    CustomSQL.SOUND_INFO_SQL,
-                    new Object[]{track.getExternalId()},
-                    new MusicInfoMapper());
-            if (info == null) {
+            final String key = track.getExternalId();
+            if (!soundsInfo.containsKey(key)) {
                 log.error("Track info not found. "
                         + "Please refresh listening history in the App");
                 continue;
             }
+            Music info = (Music) soundsInfo.get(key).clone();
             info.setListenTime(track.getListenTime());
             info.setId(track.getId());
             musicList.add(info);
@@ -140,7 +61,7 @@ public class MusicService implements Processing {
      * @param records list of records
      */
     public void saveListenRecords(List<Music> records) {
-        listenRecordRepository.saveAll(records);
+        musicRecordRepository.saveAll(records);
     }
 
     /**
@@ -152,37 +73,11 @@ public class MusicService implements Processing {
      */
     public Iterable<Music> getListenRecordsBetweenDates(
             LocalDateTime from, LocalDateTime to) {
-        return listenRecordRepository.findByListenTimeBetween(from, to);
+        return musicRecordRepository.findByListenTimeBetween(from, to);
     }
 
     @Override
     public void process() {
         processSoundCloud();
-    }
-}
-
-class RecentlyPlayedMapper implements RowMapper<Music> {
-
-    @Override
-    public Music mapRow(ResultSet rs, int i) throws SQLException {
-        Music record = new Music();
-        record.setId(rs.getLong("timestamp"));
-        record.setExternalId(rs.getString("track_id"));
-        record.setListenTime(rs.getTimestamp("timestamp").toLocalDateTime());
-        return record;
-    }
-}
-
-class MusicInfoMapper implements RowMapper<Music> {
-
-    @Override
-    public Music mapRow(ResultSet rs, int i) throws SQLException {
-        Music record = new Music();
-        record.setExternalId(rs.getString("id"));
-        record.setArtist(rs.getString("username"));
-        record.setTitle(rs.getString("title"));
-        record.setUrl(rs.getString("permalink_url"));
-        record.setType(Music.Type.SOUNDCLOUD);
-        return record;
     }
 }

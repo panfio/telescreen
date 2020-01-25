@@ -13,7 +13,7 @@ import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/message")
 public class MessageController {
 
     private final MessageService messageService;
@@ -35,7 +35,7 @@ public class MessageController {
      * @return messages
      */
     @ApiOperation(value = "Get massage history by period")
-    @GetMapping("/message")
+    @GetMapping
     public ResponseEntity<Iterable<Message>> findMessageHistoryByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
@@ -54,7 +54,7 @@ public class MessageController {
      * @return ok
      */
     @ApiOperation(value = "Processing Telegram message History")
-    @GetMapping("/message/process/telegram")
+    @GetMapping("/process/telegram")
     public ResponseEntity processTelegramHistory() {
         messageService.processTelegramHistory();
         return new ResponseEntity<>(HttpStatus.OK);

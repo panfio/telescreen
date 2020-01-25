@@ -112,8 +112,7 @@ public class ObjectDateWizard implements DateWizard {
      * return a date instance based on the given date string.
      *
      * @param dateString The date string.
-     * @param dateFormat The date format pattern which should
-     *                   respect the SimpleDateFormat rules.
+     * @param dateFormat The date format pattern
      * @return The parsed date object.
      */
     public static LocalDateTime parse(String dateString, String dateFormat) {

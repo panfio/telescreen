@@ -1,16 +1,11 @@
 package ru.panfio.telescreen.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Wellbeing;
 import ru.panfio.telescreen.repository.WellbeingRepository;
-import ru.panfio.telescreen.service.util.DbManager;
-import ru.panfio.telescreen.util.CustomSQL;
+import ru.panfio.telescreen.dao.WellbeingDao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,19 +22,18 @@ public class WellbeingService implements Processing {
     private static final int MAX_SIZE = 500;
 
     private final WellbeingRepository wellbeingRepository;
-
-    private final DbManager dbManager;
+    private final WellbeingDao wellbeingDao;
 
     /**
      * Constructor.
      *
      * @param wellbeingRepository repo
-     * @param dbManager           dbManager
+     * @param wellbeingDao        wellbeingDao
      */
     public WellbeingService(WellbeingRepository wellbeingRepository,
-                            DbManager dbManager) {
+                            WellbeingDao wellbeingDao) {
         this.wellbeingRepository = wellbeingRepository;
-        this.dbManager = dbManager;
+        this.wellbeingDao = wellbeingDao;
     }
 
     /**
@@ -79,10 +73,7 @@ public class WellbeingService implements Processing {
      */
     public void processWellbeingRecords() {
         log.info("Start processing Wellbeing history");
-
-        JdbcTemplate appHistory = dbManager.getTemplate("wellbeing/app_usage");
-        List<Wellbeing> activities = appHistory.query(
-                CustomSQL.APP_ACTIVITY_SQL, new ActivitiesMapper());
+        List<Wellbeing> activities = wellbeingDao.getActivities();
 
         List<Wellbeing> wellbeingActivities = new ArrayList<>();
         Map<Long, Wellbeing> tmp = new HashMap<>();
@@ -90,8 +81,9 @@ public class WellbeingService implements Processing {
             if (activity.getType() == 1) {
                 tmp.put(activity.getId(), activity);
             }
+
             if (activity.getType() == 2) {
-                long id = activity.getId();
+                final long id = activity.getId();
                 Wellbeing tmpRecord = tmp.get(id);
                 if (tmpRecord == null) {
                     continue;
@@ -100,6 +92,7 @@ public class WellbeingService implements Processing {
                 wellbeingActivities.add(activity);
                 tmp.remove(id);
             }
+
             if (wellbeingActivities.size() > MAX_SIZE) {
                 saveWellbeingRecords(wellbeingActivities);
                 wellbeingActivities.clear();
@@ -112,21 +105,5 @@ public class WellbeingService implements Processing {
     @Override
     public void process() {
         processWellbeingRecords();
-    }
-}
-
-class ActivitiesMapper implements RowMapper<Wellbeing> {
-
-    @Override
-    public Wellbeing mapRow(ResultSet rs, int i) throws SQLException {
-        Wellbeing wr = new Wellbeing();
-        wr.setId(rs.getLong("instance_id"));
-        wr.setEndTime(
-                rs.getTimestamp("timestamp").toLocalDateTime());
-        wr.setStartTime(
-                rs.getTimestamp("timestamp").toLocalDateTime());
-        wr.setType(rs.getInt("type"));
-        wr.setApp(rs.getString("package_name"));
-        return wr;
     }
 }

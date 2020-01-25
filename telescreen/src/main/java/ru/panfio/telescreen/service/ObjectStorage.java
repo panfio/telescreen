@@ -55,4 +55,12 @@ public interface ObjectStorage {
     LocalDateTime getCreatedTime(String filename)
             throws IllegalArgumentException;
 
+    /**
+     * Gets text content from the file.
+     *
+     * @param filename filename
+     * @param charset  text encoding
+     * @return text
+     */
+    String getContent(String filename, String charset);
 }

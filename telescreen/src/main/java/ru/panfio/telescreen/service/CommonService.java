@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Service
 public class CommonService {
 
-    private static final int THREAD_COUNT = 4;
+    private static final int THREAD_COUNT = 8;
     private final ThreadPoolExecutor executor =
             (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_COUNT);
 

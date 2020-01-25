@@ -13,7 +13,7 @@ import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/music")
 public class MusicController {
 
     private final MusicService musicService;
@@ -35,7 +35,7 @@ public class MusicController {
      * @return ok
      */
     @ApiOperation(value = "Get Listen history by period")
-    @GetMapping("/music")
+    @GetMapping
     public  ResponseEntity<Iterable<Music>> findListenRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
@@ -49,26 +49,12 @@ public class MusicController {
     }
 
     /**
-     * Processing Spotify recently played.
-     *
-     * @param accessToken token
-     * @return ok
-     */
-    @ApiOperation(value = "Processing Spotify recently played")
-    @GetMapping("/music/process/spotify")
-    public ResponseEntity processSpotify(
-            @RequestParam(value = "accessToken") String accessToken) {
-        musicService.processSpotifyRecentlyPlayed(accessToken);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    /**
      * Processing SoundCloud history.
      *
      * @return ok
      */
     @ApiOperation(value = "Processing SoundCloud history")
-    @GetMapping("/music/process/soundcloud")
+    @GetMapping("/process/soundcloud")
     public ResponseEntity processSoundCloud() {
         musicService.processSoundCloud();
         return new ResponseEntity<>(HttpStatus.OK);

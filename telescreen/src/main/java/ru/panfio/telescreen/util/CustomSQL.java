@@ -18,8 +18,7 @@ public final class CustomSQL {
             "u.username AS username, " +
             "s.title AS title, " +
             "s.permalink_url AS permalink_url " +
-            "FROM Sounds s LEFT JOIN Users u ON s.user_id == u._id " +
-            "WHERE s._id == ?";
+            "FROM Sounds s LEFT JOIN Users u ON s.user_id == u._id ";
     public static final String MIBAND_DAILY_SQL = "select Date||\" \" as Date,LightSleepMin+DeepSleepMin as InBedMin,DeepSleepMin,LightSleepMin,SleepStart,SleepEnd,AwakeMin\n" +
             ",DailyDistanceMeter,DailySteps,DailyBurnCalories\n" +
             ",DailyDistanceMeter-RunDistanceMeter as WalkDistance,WalkTimeMin,DailyBurnCalories-RunBurnCalories as WalkBurnCalories\n" +

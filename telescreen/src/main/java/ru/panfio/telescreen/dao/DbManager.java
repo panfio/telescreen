@@ -1,4 +1,4 @@
-package ru.panfio.telescreen.service.util;
+package ru.panfio.telescreen.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
