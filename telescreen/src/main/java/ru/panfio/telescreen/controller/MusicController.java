@@ -8,8 +8,6 @@ import ru.panfio.telescreen.model.Music;
 import ru.panfio.telescreen.service.MusicService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
@@ -36,15 +34,14 @@ public class MusicController {
      */
     @ApiOperation(value = "Get Listen history by period")
     @GetMapping
-    public  ResponseEntity<Iterable<Music>> findListenRecordsByPeriod(
+    public ResponseEntity<Iterable<Music>> findListenRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.ofInstant(
-                Instant.parse(from), ZoneOffset.systemDefault());
-        LocalDateTime t2 = LocalDateTime.ofInstant(
-                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<>(
-                musicService.getListenRecordsBetweenDates(t1, t2),
+                musicService.getListenRecordsBetweenDates(
+                        Instant.parse(from),
+                        Instant.parse(to)
+                ),
                 HttpStatus.OK);
     }
 

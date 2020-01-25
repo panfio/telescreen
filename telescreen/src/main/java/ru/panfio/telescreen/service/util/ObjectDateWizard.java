@@ -1,10 +1,13 @@
 package ru.panfio.telescreen.service.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.service.ObjectStorage;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -16,6 +19,8 @@ import java.util.regex.Pattern;
 @Service
 public class ObjectDateWizard implements DateWizard {
 
+    @Value("${server.zoneOffset}")
+    private String zoneOffset;
     private static final Map<String, String> DATE_REGEXPS =
             new HashMap<String, String>();
 
@@ -52,21 +57,21 @@ public class ObjectDateWizard implements DateWizard {
      * @return file's creation time
      */
     @Override
-    public LocalDateTime creationTime(String path) {
+    public Instant creationTime(String path) {
         if (path == null) {
             throw new IllegalArgumentException();
         }
-        LocalDateTime dateFromPath = dateFromPath(path);
+        Instant dateFromPath = dateFromPath(path);
         if (dateFromPath != null) {
             return dateFromPath;
         }
-        LocalDateTime dateFromObjectInfo = objectStorage.getCreatedTime(path);
+        Instant dateFromObjectInfo = objectStorage.getCreatedTime(path);
         if (dateFromObjectInfo != null) {
             return dateFromObjectInfo;
         }
         //todo get date from meta like Iphone photos
         // (may be significantly slower)
-        return LocalDateTime.now(); //todo
+        return Instant.now(); //todo
     }
 
     /**
@@ -131,8 +136,15 @@ public class ObjectDateWizard implements DateWizard {
      * @return localDateTime can be null
      */
     @Override
-    public LocalDateTime dateFromPath(String path) {
-        return parse(path);
+    public Instant dateFromPath(String path) {
+        Instant dateFromPath = null;
+        try {
+            dateFromPath = parse(path).toInstant(
+                    ZoneOffset.ofHours(Integer.parseInt(zoneOffset)));
+        } catch (Exception ignore) {
+            // warning message will be thrown in the parse function
+        }
+        return dateFromPath;
     }
 
 }

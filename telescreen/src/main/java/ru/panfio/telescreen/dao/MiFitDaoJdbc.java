@@ -8,7 +8,9 @@ import ru.panfio.telescreen.util.CustomSQL;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -50,15 +52,15 @@ public class MiFitDaoJdbc implements MiFitDao {
                     .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
                     .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
                     .toFormatter();
-            LocalDateTime date = LocalDateTime.parse(
-                    rs.getString("Date"), formatter);
+            Instant date = LocalDateTime.parse(
+                    rs.getString("Date"), formatter).toInstant(ZoneOffset.UTC);
 
             MiFitActivity activity = new MiFitActivity();
             activity.setDate(date);
             activity.setSleepStart(
-                    rs.getTimestamp("SleepStart").toLocalDateTime());
+                    rs.getTimestamp("SleepStart").toInstant());
             activity.setSleepEnd(
-                    rs.getTimestamp("SleepEND").toLocalDateTime());
+                    rs.getTimestamp("SleepEND").toInstant());
             activity.setInBedMin(rs.getInt("InBedMin"));
             activity.setLightSleepMin(rs.getInt("LightSleepMin"));
             activity.setDeepSleepMin(rs.getInt("DeepSleepMin"));

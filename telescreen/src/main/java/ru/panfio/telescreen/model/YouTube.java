@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import ru.panfio.telescreen.util.IsoInstantLocalDateTimeDeserializer;
-import ru.panfio.telescreen.util.IsoInstantLocalDateTimeSerializer;
+import ru.panfio.telescreen.util.IsoInstantDeserializer;
+import ru.panfio.telescreen.util.IsoInstantSerializer;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class YouTube {
     private String title;
     @JsonAlias("titleUrl")
     private String url;
-    @JsonSerialize(using = IsoInstantLocalDateTimeSerializer.class)
-    @JsonDeserialize(using = IsoInstantLocalDateTimeDeserializer.class)
-    private LocalDateTime time;
+    @JsonSerialize(using = IsoInstantSerializer.class)
+    @JsonDeserialize(using = IsoInstantDeserializer.class)
+    private Instant time;
 }

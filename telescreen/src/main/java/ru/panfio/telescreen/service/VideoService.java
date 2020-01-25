@@ -8,8 +8,7 @@ import ru.panfio.telescreen.model.YouTube;
 import ru.panfio.telescreen.repository.YouTubeRepository;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +46,7 @@ public class VideoService implements Processing { //TODO create VideoEntity
         }
         List<YouTube> yt = parseExport(stream);
         List<YouTube> filtered = yt.stream().map(e -> {
-            e.setId(e.getTime().toEpochSecond(ZoneOffset.UTC));
+            e.setId(e.getTime().getEpochSecond());
             e.setTitle(e.getTitle().substring("Watched ".length()));
             return e;
         }).collect(Collectors.toList());
@@ -82,7 +81,7 @@ public class VideoService implements Processing { //TODO create VideoEntity
      * @return records
      */
     public Iterable<YouTube> getYouTubeRecordsBetweenDates(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return youTubeRepository.findByTimeBetween(from, to);
     }
 

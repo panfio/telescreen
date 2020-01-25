@@ -2,6 +2,7 @@ package ru.panfio.telescreen.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Autotimer;
 import ru.panfio.telescreen.model.autotimer.Activity;
@@ -11,16 +12,18 @@ import ru.panfio.telescreen.repository.AutotimerRepository;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class AutoTimerService implements Processing {
-
+    @Value("${server.zoneOffset}")
+    private String zoneOffset;
     private final AutotimerRepository autotimerRepository;
     private final ObjectStorage objectStorage;
 
@@ -59,6 +62,7 @@ public class AutoTimerService implements Processing {
 
     /**
      * Parsing activity file.
+     *
      * @param filename fillename
      * @return activity list
      */
@@ -106,12 +110,22 @@ public class AutoTimerService implements Processing {
     private Autotimer createAutotimer(String name, TimeEntry timeEntry) {
         Autotimer autotimer = new Autotimer();
         autotimer.setName(name);
-        autotimer.setStartTime(timeEntry.getStart_time().toInstant()
-                .atOffset(ZoneOffset.ofHours(0)).toLocalDateTime());
-        autotimer.setEndTime(timeEntry.getEnd_time().toInstant()
-                .atOffset(ZoneOffset.ofHours(0)).toLocalDateTime());
+        autotimer.setStartTime(toInstant(timeEntry.getStart_time()));
+        autotimer.setEndTime(toInstant(timeEntry.getEnd_time()));
         autotimer.setType(getAutotimerType(name));
         return autotimer;
+    }
+
+    /**
+     * Converts Date to Instant.
+     * @param date date object
+     * @return instant
+     */
+    private Instant toInstant(Date date) {
+        return Instant.ofEpochMilli(date.getTime())
+                .atZone(ZoneOffset.ofHours(0))
+                .toLocalDateTime()
+                .toInstant(ZoneOffset.ofHours(Integer.parseInt(zoneOffset)));
     }
 
     /**
@@ -156,7 +170,7 @@ public class AutoTimerService implements Processing {
      * @return records
      */
     public Iterable<Autotimer> getAutotimerRecordsBetweenDates(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return autotimerRepository.findByStartTimeBetween(from, to)
                 .stream().filter(t -> {
                     long duration = Duration.between(

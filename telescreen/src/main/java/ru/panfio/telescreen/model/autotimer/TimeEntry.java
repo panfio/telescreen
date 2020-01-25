@@ -13,8 +13,6 @@ public class TimeEntry {
     private int seconds;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     private Date start_time;
-//    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     private Date end_time;
-
 }

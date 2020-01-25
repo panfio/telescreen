@@ -8,8 +8,6 @@ import ru.panfio.telescreen.model.Wellbeing;
 import ru.panfio.telescreen.service.WellbeingService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @CrossOrigin
@@ -52,12 +50,11 @@ public class WellbeingController {
     public ResponseEntity<List<Wellbeing>> findWellbeingByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.ofInstant(
-                Instant.parse(from), ZoneOffset.systemDefault());
-        LocalDateTime t2 = LocalDateTime.ofInstant(
-                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<List<Wellbeing>>(
-                wellbeingService.getWellbeingBetweenDates(t1, t2),
+                wellbeingService.getWellbeingBetweenDates(
+                        Instant.parse(from),
+                        Instant.parse(to)
+                ),
                 HttpStatus.OK);
     }
 }

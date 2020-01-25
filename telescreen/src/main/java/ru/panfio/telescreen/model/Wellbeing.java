@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @ToString
@@ -16,7 +16,7 @@ public class Wellbeing {
     @Id
     private Long id;
     private int type;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private Instant startTime;
+    private Instant endTime;
     private String app;
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +14,7 @@ public class Message {
     private String id;
     private String legacyID;
     private Type type;
-    private LocalDateTime created;
+    private Instant created;
     private String author;
 
     private String content;

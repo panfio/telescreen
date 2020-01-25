@@ -73,7 +73,7 @@ public class SoundCloudDaoJdbc implements SoundCloudDao {
             record.setId(rs.getLong("timestamp"));
             record.setExternalId(rs.getString("track_id"));
             record.setListenTime(
-                    rs.getTimestamp("timestamp").toLocalDateTime());
+                    rs.getTimestamp("timestamp").toInstant());
             return record;
         }
     }

@@ -18,7 +18,7 @@ public class WellbeingDaoJdbc implements WellbeingDao {
     /**
      * Constructor.
      *
-     * @param dbManager           dbManager
+     * @param dbManager dbManager
      */
     public WellbeingDaoJdbc(DbManager dbManager) {
         this.dbManager = dbManager;
@@ -43,10 +43,8 @@ public class WellbeingDaoJdbc implements WellbeingDao {
         public Wellbeing mapRow(ResultSet rs, int i) throws SQLException {
             Wellbeing wr = new Wellbeing();
             wr.setId(rs.getLong("instance_id"));
-            wr.setEndTime(
-                    rs.getTimestamp("timestamp").toLocalDateTime());
-            wr.setStartTime(
-                    rs.getTimestamp("timestamp").toLocalDateTime());
+            wr.setEndTime(rs.getTimestamp("timestamp").toInstant());
+            wr.setStartTime(rs.getTimestamp("timestamp").toInstant());
             wr.setType(rs.getInt("type"));
             wr.setApp(rs.getString("package_name"));
             return wr;

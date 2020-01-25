@@ -1,5 +1,6 @@
 server:
   port: 8080
+  zoneOffset: 3 #
   #url: "http://localhost:8080"
 
 minio:

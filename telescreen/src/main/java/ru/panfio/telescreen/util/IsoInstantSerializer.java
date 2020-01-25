@@ -6,19 +6,15 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
-public class IsoInstantLocalDateTimeSerializer
-        extends JsonSerializer<LocalDateTime> {
+public class IsoInstantSerializer
+        extends JsonSerializer<Instant> {
 
     @Override
-    public void serialize(LocalDateTime dateTime,
+    public void serialize(Instant dateTime,
                           JsonGenerator jg,
                           SerializerProvider sp) throws IOException {
-        Instant instant = dateTime.toInstant(ZoneOffset.UTC);
-        jg.writeString(DateTimeFormatter.ISO_INSTANT.format(instant));
+        jg.writeString(dateTime.toString());
     }
 
 }

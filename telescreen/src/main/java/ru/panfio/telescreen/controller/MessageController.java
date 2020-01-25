@@ -8,8 +8,6 @@ import ru.panfio.telescreen.model.Message;
 import ru.panfio.telescreen.service.MessageService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
@@ -39,12 +37,11 @@ public class MessageController {
     public ResponseEntity<Iterable<Message>> findMessageHistoryByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.ofInstant(
-                Instant.parse(from), ZoneOffset.systemDefault());
-        LocalDateTime t2 = LocalDateTime.ofInstant(
-                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<>(
-                messageService.getMessageHistoryBetweenDates(t1, t2),
+                messageService.getMessageHistoryBetweenDates(
+                        Instant.parse(from),
+                        Instant.parse(to)
+                ),
                 HttpStatus.OK);
     }
 

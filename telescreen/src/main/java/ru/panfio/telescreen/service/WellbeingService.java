@@ -7,7 +7,7 @@ import ru.panfio.telescreen.repository.WellbeingRepository;
 import ru.panfio.telescreen.dao.WellbeingDao;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +60,7 @@ public class WellbeingService implements Processing {
      * @return records
      */
     public List<Wellbeing> getWellbeingBetweenDates(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return wellbeingRepository.findByStartTimeBetween(from, to).stream()
                 .filter(t -> Duration
                         .between(t.getStartTime(), t.getEndTime())

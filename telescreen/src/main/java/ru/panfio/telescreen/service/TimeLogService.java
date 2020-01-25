@@ -11,7 +11,7 @@ import ru.panfio.telescreen.service.util.DateWizard;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +58,7 @@ public class TimeLogService implements Processing {
      * @return records
      */
     public Iterable<TimeLog> getTimeLogRecordsBetweenDates(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return timeLogRepository.findByStartDateBetween(from, to);
     }
 
@@ -162,7 +162,7 @@ public class TimeLogService implements Processing {
         return objectStorage.listAllObjects().stream()
                 .filter(s -> s.startsWith("timesheet/TimesheetBackup"))
                 .reduce((max, current) -> {
-                    LocalDateTime dt = dateWizard.dateFromPath(current);
+                    Instant dt = dateWizard.dateFromPath(current);
                     return ((dt != null) && (dt.isAfter(
                             dateWizard.dateFromPath(max))))
                             ? current

@@ -6,7 +6,7 @@ import ru.panfio.telescreen.model.MiFitActivity;
 import ru.panfio.telescreen.repository.MiFitActivityRepository;
 import ru.panfio.telescreen.dao.MiFitDao;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -70,8 +70,8 @@ public class MiFitService implements Processing {
      * @param to   time
      * @return records
      */
-    public List<MiFitActivity> getMiFitActivityBetweenDates(LocalDateTime from,
-                                                            LocalDateTime to) {
+    public List<MiFitActivity> getMiFitActivityBetweenDates(Instant from,
+                                                            Instant to) {
         return miFitActivityRepo.findByDateBetween(from, to);
     }
 }

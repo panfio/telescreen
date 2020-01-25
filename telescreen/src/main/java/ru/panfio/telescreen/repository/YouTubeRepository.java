@@ -3,7 +3,7 @@ package ru.panfio.telescreen.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.YouTube;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface YouTubeRepository extends MongoRepository<YouTube, Long> {
@@ -11,7 +11,7 @@ public interface YouTubeRepository extends MongoRepository<YouTube, Long> {
     /**
      * {@inheritDoc}
      */
-    List<YouTube> findByTimeBetween(LocalDateTime startTime,
-                                    LocalDateTime endTime);
+    List<YouTube> findByTimeBetween(Instant startTime,
+                                    Instant endTime);
 
 }

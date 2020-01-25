@@ -7,7 +7,7 @@ import ru.panfio.telescreen.model.Wellbeing;
 import ru.panfio.telescreen.repository.WellbeingRepository;
 import ru.panfio.telescreen.dao.WellbeingDao;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,19 +25,20 @@ public class WellbeingServiceTest {
         wellbeingRepository = mock(WellbeingRepository.class);
         wellbeingDao = mock(WellbeingDao.class);
         service = new WellbeingService(wellbeingRepository, wellbeingDao);
+
     }
 
     @Test
     public void processWellbeingRecordsTest() {
         List<Wellbeing> activities = new ArrayList<>();
-        activities.add(new Wellbeing(116145949L, 1, LocalDateTime.parse("2020-01-17T21:37:06.247"), LocalDateTime.parse("2020-01-17T21:37:06.247"), "com.soundcloud.android"));
-        activities.add(new Wellbeing(230777275L, 23, LocalDateTime.parse("2020-01-17T21:37:06.774"), LocalDateTime.parse("2020-01-17T21:37:06.774"), "org.telegram.messenger"));
-        activities.add(new Wellbeing(116145949L, 2, LocalDateTime.parse("2020-01-17T21:37:53.117"), LocalDateTime.parse("2020-01-17T21:37:53.117"), "com.soundcloud.android"));
-        activities.add(new Wellbeing(230777275L, 1, LocalDateTime.parse("2020-01-17T21:37:53.135"), LocalDateTime.parse("2020-01-17T21:37:53.135"), "org.telegram.messenger"));
-        activities.add(new Wellbeing(212850132L, 1, LocalDateTime.parse("2020-01-17T21:37:53.795"), LocalDateTime.parse("2020-01-17T21:37:53.795"), "com.google.android.apps.nexuslauncher"));
-        activities.add(new Wellbeing(230777275L, 2, LocalDateTime.parse("2020-01-17T21:37:53.803"), LocalDateTime.parse("2020-01-17T21:37:53.803"), "org.telegram.messenger"));
-        activities.add(new Wellbeing(116145949L, 23, LocalDateTime.parse("2020-01-17T21:37:54.030"), LocalDateTime.parse("2020-01-17T21:37:54.030"), "com.soundcloud.android"));
-        activities.add(new Wellbeing(230777275L, 23, LocalDateTime.parse("2020-01-17T21:37:54.406"), LocalDateTime.parse("2020-01-17T21:37:54.406"), "org.telegram.messenger"));
+        activities.add(new Wellbeing(116145949L, 1, Instant.parse("2020-01-17T21:37:06.247Z"), Instant.parse("2020-01-17T21:37:06.247Z"), "com.soundcloud.android"));
+        activities.add(new Wellbeing(230777275L, 23, Instant.parse("2020-01-17T21:37:06.774Z"), Instant.parse("2020-01-17T21:37:06.774Z"), "org.telegram.messenger"));
+        activities.add(new Wellbeing(116145949L, 2, Instant.parse("2020-01-17T21:37:53.117Z"), Instant.parse("2020-01-17T21:37:53.117Z"), "com.soundcloud.android"));
+        activities.add(new Wellbeing(230777275L, 1, Instant.parse("2020-01-17T21:37:53.135Z"), Instant.parse("2020-01-17T21:37:53.135Z"), "org.telegram.messenger"));
+        activities.add(new Wellbeing(212850132L, 1, Instant.parse("2020-01-17T21:37:53.795Z"), Instant.parse("2020-01-17T21:37:53.795Z"), "com.google.android.apps.nexuslauncher"));
+        activities.add(new Wellbeing(230777275L, 2, Instant.parse("2020-01-17T21:37:53.803Z"), Instant.parse("2020-01-17T21:37:53.803Z"), "org.telegram.messenger"));
+        activities.add(new Wellbeing(116145949L, 23, Instant.parse("2020-01-17T21:37:54.030Z"), Instant.parse("2020-01-17T21:37:54.030Z"), "com.soundcloud.android"));
+        activities.add(new Wellbeing(230777275L, 23, Instant.parse("2020-01-17T21:37:54.406Z"), Instant.parse("2020-01-17T21:37:54.406Z"), "org.telegram.messenger"));
 
         when(wellbeingDao.getActivities()).thenReturn(activities);
 
@@ -50,8 +51,8 @@ public class WellbeingServiceTest {
         assertEquals(230777275 , wr.getId().longValue());
         assertEquals("org.telegram.messenger" , wr.getApp());
         assertEquals(2, wr.getType());
-        assertEquals(LocalDateTime.parse("2020-01-17T21:37:53.135"), wr.getStartTime());
-        assertEquals(LocalDateTime.parse("2020-01-17T21:37:53.803"), wr.getEndTime());
+        assertEquals(Instant.parse("2020-01-17T21:37:53.135Z"), wr.getStartTime());
+        assertEquals(Instant.parse("2020-01-17T21:37:53.803Z"), wr.getEndTime());
     }
 
 }

@@ -4,16 +4,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Message;
-import ru.panfio.telescreen.model.TimeLog;
 import ru.panfio.telescreen.repository.MessageRepository;
 
-import java.time.LocalDateTime;
+import java.lang.reflect.Field;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static ru.panfio.telescreen.service.TestFiles.toInputStream;
+
 
 public class MeassageServiceTest {
 
@@ -22,10 +22,14 @@ public class MeassageServiceTest {
     private MessageRepository messageRepository;
 
     @Before
-    public void setUp() {
+    public void setUp() throws NoSuchFieldException, IllegalAccessException {
         messageRepository = mock(MessageRepository.class);
         objectStorage = mock(ObjectStorage.class);
         service = new MessageService(messageRepository, objectStorage);
+
+        Field zoneOffset = service.getClass().getDeclaredField("zoneOffset");
+        zoneOffset.setAccessible(true);
+        zoneOffset.set(service, "3");
     }
 
     @Test
@@ -46,6 +50,6 @@ public class MeassageServiceTest {
         assertEquals("4321" , tml.getLegacyID());
         assertEquals(Message.Type.TELEGRAM, tml.getType());
         assertEquals("Alex" , tml.getAuthor());
-        assertEquals(LocalDateTime.parse("2019-08-11T22:54:49"), tml.getCreated());
+        assertEquals(Instant.parse("2019-08-11T19:54:49Z"), tml.getCreated());
     }
 }

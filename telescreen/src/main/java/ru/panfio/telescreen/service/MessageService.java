@@ -5,11 +5,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Message;
 import ru.panfio.telescreen.repository.MessageRepository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,8 @@ import java.util.List;
 @Service
 public class MessageService implements Processing {
 
+    @Value("${server.zoneOffset}")
+    private String zoneOffset;
     private final MessageRepository messageRepository;
     private final ObjectStorage objectStorage;
 
@@ -94,7 +99,8 @@ public class MessageService implements Processing {
         Message tm = new Message();
         // message1234567890
         tm.setLegacyID(message.id().substring("message".length()));
-        tm.setCreated(date);
+        tm.setCreated(date.toInstant(
+                ZoneOffset.ofHours(Integer.parseInt(zoneOffset))));
         tm.setType(Message.Type.TELEGRAM);
         tm.setAuthor(message.select("div.from_name").text());
         tm.setContent(message.select("div.text").text());
@@ -125,7 +131,7 @@ public class MessageService implements Processing {
      * @return records
      */
     public Iterable<Message> getMessageHistoryBetweenDates(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return messageRepository.findByCreatedBetween(from, to);
     }
 

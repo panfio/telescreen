@@ -8,8 +8,6 @@ import ru.panfio.telescreen.model.TimeLog;
 import ru.panfio.telescreen.service.TimeLogService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
@@ -39,12 +37,11 @@ public class TimeLogController {
     public ResponseEntity<Iterable<TimeLog>> findTimeLogByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.ofInstant(
-                Instant.parse(from), ZoneOffset.systemDefault());
-        LocalDateTime t2 = LocalDateTime.ofInstant(
-                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<>(
-                timeLogService.getTimeLogRecordsBetweenDates(t1, t2),
+                timeLogService.getTimeLogRecordsBetweenDates(
+                        Instant.parse(from),
+                        Instant.parse(to)
+                ),
                 HttpStatus.OK);
     }
 

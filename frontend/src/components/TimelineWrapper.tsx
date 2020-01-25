@@ -133,7 +133,7 @@ export const TimelineWrapper = (props: ITimelineProps) => {
       group: 5,
       title: e.artist + e.title,
       start_time: Date.parse(e.listenTime),
-      end_time: Date.parse(e.listenTime + 10000),
+      end_time: Date.parse(e.listenTime) + 10000,
       canMove: false,
       canResize: false,
       canChangeGroup: false,

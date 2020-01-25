@@ -8,21 +8,19 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
-public class IsoInstantLocalDateTimeDeserializer
-        extends JsonDeserializer<LocalDateTime> {
+public class IsoInstantDeserializer
+        extends JsonDeserializer<Instant> {
 
     @Override
-    public LocalDateTime deserialize(
+    public Instant deserialize(
             JsonParser jp, DeserializationContext dc) throws IOException {
         ObjectCodec codec = jp.getCodec();
         TextNode node = codec.readTree(jp);
         String dateString = node.textValue();
         Instant instant = Instant.parse(dateString);
-        LocalDateTime dateTime =
-                LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        return dateTime;
+//        LocalDateTime dateTime =
+//                LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        return instant;
     }
 }

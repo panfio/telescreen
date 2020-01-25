@@ -3,7 +3,7 @@ package ru.panfio.telescreen.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.Call;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface CallRecordRepository
@@ -12,6 +12,6 @@ public interface CallRecordRepository
     /**
      * {@inheritDoc}
      */
-    List<Call> findByDateBetween(LocalDateTime startDate,
-                                 LocalDateTime endDate);
+    List<Call> findByDateBetween(Instant startDate,
+                                 Instant endDate);
 }

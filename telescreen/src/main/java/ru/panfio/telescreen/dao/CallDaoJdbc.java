@@ -34,7 +34,7 @@ public class CallDaoJdbc implements CallDao {
         @Override
         public Call mapRow(ResultSet rs, int i) throws SQLException {
             Call cr = new Call();
-            cr.setDate(rs.getTimestamp("date").toLocalDateTime());
+            cr.setDate(rs.getTimestamp("date").toInstant());
             cr.setDuration(rs.getInt("duration"));
             cr.setNumber(rs.getString("number"));
             String name = rs.getString("name");

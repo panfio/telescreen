@@ -3,7 +3,7 @@ package ru.panfio.telescreen.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.Autotimer;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface AutotimerRepository
@@ -12,6 +12,6 @@ public interface AutotimerRepository
     /**
      * {@inheritDoc}
      */
-    List<Autotimer> findByStartTimeBetween(LocalDateTime startTime,
-                                           LocalDateTime endTime);
+    List<Autotimer> findByStartTimeBetween(Instant startTime,
+                                           Instant endTime);
 }

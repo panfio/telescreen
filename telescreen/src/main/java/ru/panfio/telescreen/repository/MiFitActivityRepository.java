@@ -3,7 +3,7 @@ package ru.panfio.telescreen.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.MiFitActivity;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface MiFitActivityRepository
@@ -12,11 +12,11 @@ public interface MiFitActivityRepository
     /**
      * {@inheritDoc}
      */
-    List<MiFitActivity> findByDateBetween(LocalDateTime startDate,
-                                          LocalDateTime endDate);
+    List<MiFitActivity> findByDateBetween(Instant startDate,
+                                          Instant endDate);
 
     /**
      * {@inheritDoc}
      */
-    MiFitActivity findByDate(LocalDateTime date);
+    MiFitActivity findByDate(Instant date);
 }
