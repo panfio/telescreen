@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.panfio.telescreen.service.MediaService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
@@ -64,12 +62,11 @@ public class MediaController {
     public ResponseEntity findAutotimerRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.ofInstant(
-                Instant.parse(from), ZoneOffset.systemDefault());
-        LocalDateTime t2 = LocalDateTime.ofInstant(
-                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<>(
-                service.getMediaRecordsByPeriod(t1, t2),
+                service.getMediaRecordsByPeriod(
+                        Instant.parse(from),
+                        Instant.parse(to)
+                ),
                 HttpStatus.OK);
     }
 

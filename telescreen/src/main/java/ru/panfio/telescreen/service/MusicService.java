@@ -7,7 +7,7 @@ import ru.panfio.telescreen.model.Music;
 import ru.panfio.telescreen.repository.MusicRecordRepository;
 import ru.panfio.telescreen.dao.SoundCloudDao;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -72,7 +72,7 @@ public class MusicService implements Processing {
      * @return records
      */
     public Iterable<Music> getListenRecordsBetweenDates(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return musicRecordRepository.findByListenTimeBetween(from, to);
     }
 

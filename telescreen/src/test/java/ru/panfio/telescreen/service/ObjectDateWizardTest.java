@@ -5,7 +5,8 @@ import org.junit.Test;
 import ru.panfio.telescreen.service.util.DateWizard;
 import ru.panfio.telescreen.service.util.ObjectDateWizard;
 
-import java.time.LocalDateTime;
+import java.lang.reflect.Field;
+import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -17,14 +18,18 @@ public class ObjectDateWizardTest {
     private ObjectStorage objectStorage;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IllegalAccessException, NoSuchFieldException {
         objectStorage = mock(ObjectStorage.class);
         service = new ObjectDateWizard(objectStorage);
+
+        Field zoneOffset = service.getClass().getDeclaredField("zoneOffset");
+        zoneOffset.setAccessible(true);
+        zoneOffset.set(service, "3");
     }
 
     @Test
     public void dateFromFileNameShouldBeParsedCorrectly() {
-        LocalDateTime expectedDateTime = LocalDateTime.of(2018, 11, 4, 10, 54, 11);
+        Instant expectedDateTime = Instant.parse("2018-11-04T07:54:11Z");
         assertEquals(expectedDateTime, service.dateFromPath("media/photo/IMG_20181104_105411.jpg"));
         assertEquals(expectedDateTime, service.dateFromPath("media/video/VID_20181104_105411.mp4"));
         assertEquals(expectedDateTime, service.dateFromPath("media/voicenotes/2018-11-04-10-54-11-note.m4a"));

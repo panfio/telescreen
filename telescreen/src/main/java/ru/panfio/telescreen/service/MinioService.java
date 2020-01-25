@@ -13,11 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 @Slf4j
 @Service
@@ -153,16 +152,14 @@ public class MinioService implements ObjectStorage {
      * @throws IllegalArgumentException when filename is null
      */
     @Override
-    public LocalDateTime getCreatedTime(String filename)
+    public Instant getCreatedTime(String filename)
             throws IllegalArgumentException {
         if (filename == null) {
             throw new IllegalArgumentException();
         }
         try {
             Date createdTime = mc.statObject(bucket, filename).createdTime();
-            return LocalDateTime.ofInstant(
-                    createdTime.toInstant(),
-                    TimeZone.getDefault().toZoneId());
+            return  createdTime.toInstant();
         } catch (Exception e) {
             log.warn("File not found {} {}", filename, e.getMessage());
             return null;

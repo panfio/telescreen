@@ -3,7 +3,7 @@ package ru.panfio.telescreen.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.TimeLog;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface TimeLogRepository
@@ -12,6 +12,6 @@ public interface TimeLogRepository
     /**
      * {@inheritDoc}
      */
-    List<TimeLog> findByStartDateBetween(LocalDateTime startDate,
-                                         LocalDateTime endDate);
+    List<TimeLog> findByStartDateBetween(Instant startDate,
+                                         Instant endDate);
 }

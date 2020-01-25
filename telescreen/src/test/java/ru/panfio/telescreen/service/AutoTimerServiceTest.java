@@ -7,13 +7,13 @@ import ru.panfio.telescreen.model.Autotimer;
 import ru.panfio.telescreen.repository.AutotimerRepository;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static ru.panfio.telescreen.service.TestFiles.toInputStream;
@@ -25,10 +25,13 @@ public class AutoTimerServiceTest {
     private AutotimerRepository autotimerRepository;
 
     @Before
-    public void setUp() {
+    public void setUp() throws NoSuchFieldException, IllegalAccessException {
         autotimerRepository = mock(AutotimerRepository.class);
         objectStorage = mock(ObjectStorage.class);
         service = new AutoTimerService(autotimerRepository, objectStorage);
+        Field zoneOffset = service.getClass().getDeclaredField("zoneOffset");
+        zoneOffset.setAccessible(true);
+        zoneOffset.set(service, "3");
     }
 
     @Test
@@ -45,10 +48,10 @@ public class AutoTimerServiceTest {
 
         assertEquals(2, list.size());
         assertNull(list.get(0).getId());
-        assertThat(list.get(0).getName(), is("Google Chrome -> Dreams by Ytho."));
-        assertThat(list.get(0).getStartTime(), is(LocalDateTime.of(2019, 11, 26, 23, 52, 1)));
-        assertThat(list.get(0).getEndTime(), is(LocalDateTime.of(2019, 11, 26, 23, 52, 10)));
-        assertThat(list.get(0).getType(), is(1));
+        assertEquals("Google Chrome -> Dreams by Ytho.",list.get(0).getName());
+        assertEquals(LocalDateTime.of(2019, 11, 26, 23, 52, 1).toInstant(ZoneOffset.ofHours(3)), list.get(0).getStartTime());
+        assertEquals(LocalDateTime.of(2019, 11, 26, 23, 52, 10).toInstant(ZoneOffset.ofHours(3)), list.get(0).getEndTime());
+        assertEquals(1, list.get(0).getType());
     }
 
 }

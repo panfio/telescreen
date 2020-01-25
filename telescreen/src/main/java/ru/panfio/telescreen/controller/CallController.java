@@ -8,8 +8,6 @@ import ru.panfio.telescreen.model.Call;
 import ru.panfio.telescreen.service.CallService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @CrossOrigin
 @RestController
@@ -39,12 +37,11 @@ public class CallController {
     public ResponseEntity<Iterable<Call>> findCallRecordsByPeriod(
             @RequestParam(value = "from") String from,
             @RequestParam(value = "to") String to) {
-        LocalDateTime t1 = LocalDateTime.ofInstant(
-                Instant.parse(from), ZoneOffset.systemDefault());
-        LocalDateTime t2 = LocalDateTime.ofInstant(
-                Instant.parse(to), ZoneOffset.systemDefault());
         return new ResponseEntity<>(
-                callService.getCallHistoryBetweenDates(t1, t2),
+                callService.getCallHistoryBetweenDates(
+                        Instant.parse(from),
+                        Instant.parse(to)
+                ),
                 HttpStatus.OK);
     }
 

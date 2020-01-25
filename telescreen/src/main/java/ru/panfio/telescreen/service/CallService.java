@@ -6,7 +6,7 @@ import ru.panfio.telescreen.model.Call;
 import ru.panfio.telescreen.repository.CallRecordRepository;
 import ru.panfio.telescreen.dao.CallDaoJdbc;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -38,7 +38,7 @@ public class CallService implements Processing {
      * @return records
      */
     public Iterable<Call> getCallHistoryBetweenDates(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return callRecordRepository.findByDateBetween(from, to);
     }
 

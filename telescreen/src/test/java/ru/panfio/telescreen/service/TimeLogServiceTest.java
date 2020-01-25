@@ -7,17 +7,12 @@ import ru.panfio.telescreen.model.TimeLog;
 import ru.panfio.telescreen.model.timesheet.TimesheetExport;
 import ru.panfio.telescreen.repository.TimeLogRepository;
 import ru.panfio.telescreen.service.util.DateWizard;
-import ru.panfio.telescreen.service.util.ObjectDateWizard;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static ru.panfio.telescreen.service.TestFiles.toInputStream;
 
@@ -43,7 +38,7 @@ public class TimeLogServiceTest {
         assertEquals("Coding", out.getTags().getTags().get(0).getName());
         assertEquals("Description", out.getTasks().getTasks().get(0).getDescription());
         assertEquals(
-                LocalDateTime.parse("2019-12-07T19:28:00+03:00", DateTimeFormatter.ISO_DATE_TIME),
+                Instant.parse("2019-12-07T16:28:00Z"),
                 out.getTasks().getTasks().get(0).getStartDate());
 
         TimesheetExport fromBadFile = service.unmarshallXml(TimesheetExport.class, toInputStream("<xml>"));
@@ -55,7 +50,7 @@ public class TimeLogServiceTest {
         List<String> activityFiles = Arrays.asList("timesheet/TimesheetBackup_2018-11-04_000000.xml");
 
         when(objectStorage.listAllObjects()).thenReturn(activityFiles);
-        when(dateWizard.dateFromPath(activityFiles.get(0))).thenReturn(LocalDateTime.of(2018, 11, 4, 0, 0, 0));
+        when(dateWizard.dateFromPath(activityFiles.get(0))).thenReturn(Instant.parse("2018-11-04T00:00:00Z"));
         when(objectStorage.getInputStream(activityFiles.get(0))).thenReturn(toInputStream(TestFiles.TIMESHEET));
 
         service.processTimesheetRecords();
@@ -68,7 +63,7 @@ public class TimeLogServiceTest {
         assertEquals("Coding", list.get(0).getTags().get(0));
         assertEquals("Description", list.get(0).getDescription());
         assertEquals(
-                LocalDateTime.parse("2019-12-07T19:28:00+03:00", DateTimeFormatter.ISO_DATE_TIME),
+                Instant.parse("2019-12-07T16:28:00Z"),
                 list.get(0).getStartDate());
     }
 }

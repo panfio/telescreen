@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +17,7 @@ public class Music implements Cloneable {
     private Type type;
     private String artist;
     private String title;
-    private LocalDateTime listenTime;
+    private Instant listenTime;
     private String url;
 
     @Override

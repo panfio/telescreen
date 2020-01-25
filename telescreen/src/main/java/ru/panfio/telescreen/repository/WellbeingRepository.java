@@ -3,7 +3,7 @@ package ru.panfio.telescreen.repository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import ru.panfio.telescreen.model.Wellbeing;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface WellbeingRepository extends MongoRepository<Wellbeing, Long> {
@@ -11,12 +11,12 @@ public interface WellbeingRepository extends MongoRepository<Wellbeing, Long> {
     /**
      * {@inheritDoc}
      */
-    List<Wellbeing> findByStartTimeBetween(LocalDateTime startTime,
-                                           LocalDateTime endTime);
+    List<Wellbeing> findByStartTimeBetween(Instant startTime,
+                                           Instant endTime);
 
     /**
      * {@inheritDoc}
      */
-    Wellbeing findByStartTimeAndEndTime(LocalDateTime startTime,
-                                        LocalDateTime endTime);
+    Wellbeing findByStartTimeAndEndTime(Instant startTime,
+                                        Instant endTime);
 }

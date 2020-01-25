@@ -1,7 +1,7 @@
 package ru.panfio.telescreen.service;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface ObjectStorage {
@@ -52,7 +52,7 @@ public interface ObjectStorage {
      * @return creation time
      * @throws IllegalArgumentException when filename is null
      */
-    LocalDateTime getCreatedTime(String filename)
+    Instant getCreatedTime(String filename)
             throws IllegalArgumentException;
 
     /**

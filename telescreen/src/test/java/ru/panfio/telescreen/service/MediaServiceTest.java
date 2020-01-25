@@ -5,15 +5,15 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Media;
 import ru.panfio.telescreen.repository.MediaRepository;
+import ru.panfio.telescreen.service.util.DateWizard;
 import ru.panfio.telescreen.service.util.ObjectDateWizard;
 
-import java.time.LocalDateTime;
+import java.lang.reflect.Field;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 
@@ -24,10 +24,16 @@ public class MediaServiceTest {
     private MediaRepository mediaRepository;
 
     @Before
-    public void setUp() {
+    public void setUp() throws NoSuchFieldException, IllegalAccessException {
         mediaRepository = mock(MediaRepository.class);
         objectStorage = mock(ObjectStorage.class);
-        service = new MediaService(mediaRepository, objectStorage, new ObjectDateWizard(objectStorage));
+
+        ObjectDateWizard dw = new ObjectDateWizard(objectStorage);
+        Field zoneOffset = dw.getClass().getDeclaredField("zoneOffset");
+        zoneOffset.setAccessible(true);
+        zoneOffset.set(dw, "3");
+
+        service = new MediaService(mediaRepository, objectStorage, dw);
     }
 
     @Test
@@ -45,8 +51,8 @@ public class MediaServiceTest {
 
         assertEquals(3, list.size());
         assertNull(list.get(0).getId());
-        assertThat(list.get(0).getPath(), is("media/photo/IMG_20181104_105411.jpg"));
-        assertThat(list.get(0).getCreated(), is(LocalDateTime.of(2018, 11, 4, 10, 54, 11)));
-        assertThat(list.get(0).getType(), is("photo"));
+        assertEquals("media/photo/IMG_20181104_105411.jpg",list.get(0).getPath());
+        assertEquals(Instant.parse("2018-11-04T07:54:11Z"), list.get(0).getCreated());
+        assertEquals("photo", list.get(0).getType());
     }
 }

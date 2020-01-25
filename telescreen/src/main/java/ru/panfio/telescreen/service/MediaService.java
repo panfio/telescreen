@@ -7,7 +7,7 @@ import ru.panfio.telescreen.model.Media;
 import ru.panfio.telescreen.repository.MediaRepository;
 import ru.panfio.telescreen.service.util.DateWizard;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +70,7 @@ public class MediaService implements Processing {
      * @return records
      */
     public Iterable<Media> getMediaRecordsByPeriod(
-            LocalDateTime from, LocalDateTime to) {
+            Instant from, Instant to) {
         return mediaRepository.findByCreatedBetween(from, to);
     }
 
