@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Wellbeing;
-import ru.panfio.telescreen.repository.WellbeingRepository;
 import ru.panfio.telescreen.dao.WellbeingDao;
 
 import java.time.Instant;
@@ -18,13 +17,13 @@ import static org.mockito.Mockito.times;
 public class WellbeingServiceTest {
     private WellbeingService service;
     private WellbeingDao wellbeingDao;
-    private WellbeingRepository wellbeingRepository;
+    private MessageBus messageBus;
 
     @Before
     public void setUp() {
-        wellbeingRepository = mock(WellbeingRepository.class);
         wellbeingDao = mock(WellbeingDao.class);
-        service = new WellbeingService(wellbeingRepository, wellbeingDao);
+        messageBus = mock(MessageBus.class);
+        service = new WellbeingService(wellbeingDao,messageBus);
 
     }
 
@@ -45,7 +44,7 @@ public class WellbeingServiceTest {
         service.processWellbeingRecords();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<Wellbeing> argument = ArgumentCaptor.forClass(Wellbeing.class);
-        verify(wellbeingRepository, times(2)).save(argument.capture());
+        verify(messageBus, times(2)).send(anyString(), argument.capture());
 
         Wellbeing wr = argument.getValue();
         assertEquals(230777275 , wr.getId().longValue());

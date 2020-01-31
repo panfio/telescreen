@@ -24,21 +24,6 @@ public class MediaController {
     }
 
     /**
-     * Get all media records.
-     *
-     * @return media records
-     */
-    @Deprecated
-    @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "Get all media records")
-    @GetMapping("/all")
-    public ResponseEntity findAll() {
-        return new ResponseEntity<>(
-                service.getAllMediaRecords(),
-                HttpStatus.OK);
-    }
-
-    /**
      * Processing media files.
      *
      * @return ok

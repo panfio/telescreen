@@ -8,29 +8,28 @@ import ru.panfio.telescreen.repository.MediaRepository;
 import ru.panfio.telescreen.service.util.DateWizard;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
 public class MediaService implements Processing {
 
-    private final MediaRepository mediaRepository;
+    @Autowired //todo remove
+    private MediaRepository mediaRepository;
+    private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
     private final DateWizard dateWizard;
 
     /**
      * Constructor.
      *
-     * @param mediaRepository repo
-     * @param objectStorage   storage
-     * @param dateWizard      date helper
+     * @param messageBus    message bus
+     * @param objectStorage storage
+     * @param dateWizard    date helper
      */
-    @Autowired
-    public MediaService(MediaRepository mediaRepository,
-                        ObjectStorage objectStorage,
-                        DateWizard dateWizard) {
-        this.mediaRepository = mediaRepository;
+    public MediaService(ObjectStorage objectStorage,
+                        DateWizard dateWizard,
+                        MessageBus messageBus) {
+        this.messageBus = messageBus;
         this.objectStorage = objectStorage;
         this.dateWizard = dateWizard;
     }
@@ -54,15 +53,6 @@ public class MediaService implements Processing {
     }
 
     /**
-     * Finds and returns all media records from period.
-     *
-     * @return records
-     */
-    public Iterable<Media> getAllMediaRecords() {
-        return mediaRepository.findAll();
-    }
-
-    /**
      * Finds and returns records from period.
      *
      * @param from time
@@ -78,14 +68,12 @@ public class MediaService implements Processing {
      * Save Media records into database.
      */
     public void processMediaRecords() {
-        List<Media> fileList = new ArrayList<>();
         for (String path : objectStorage.listAllObjects()) {
             if (!path.startsWith("media")) {
                 continue;
             }
-            fileList.add(createMedia(path));
+            messageBus.send("media", createMedia(path));
         }
-        saveMediaRecords(fileList);
         log.info("Processing media records complete");
     }
 
@@ -111,16 +99,6 @@ public class MediaService implements Processing {
         } catch (Exception e) {
             return "other";
         }
-    }
-    /**
-     * Saves media records in the database.
-     *
-     * @param records list of records
-     */
-    public void saveMediaRecords(List<Media> records) {
-        //only existing files are stored in the database
-        mediaRepository.deleteAll();
-        mediaRepository.saveAll(records);
     }
 
     @Override

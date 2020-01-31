@@ -18,9 +18,6 @@ public class IsoInstantDeserializer
         ObjectCodec codec = jp.getCodec();
         TextNode node = codec.readTree(jp);
         String dateString = node.textValue();
-        Instant instant = Instant.parse(dateString);
-//        LocalDateTime dateTime =
-//                LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        return instant;
+        return Instant.parse(dateString);
     }
 }

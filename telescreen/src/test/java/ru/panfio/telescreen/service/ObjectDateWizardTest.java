@@ -24,7 +24,7 @@ public class ObjectDateWizardTest {
 
         Field zoneOffset = service.getClass().getDeclaredField("zoneOffset");
         zoneOffset.setAccessible(true);
-        zoneOffset.set(service, "3");
+        zoneOffset.set(service, 3);
     }
 
     @Test

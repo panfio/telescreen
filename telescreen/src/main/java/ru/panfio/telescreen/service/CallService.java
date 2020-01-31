@@ -1,6 +1,7 @@
 package ru.panfio.telescreen.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Call;
 import ru.panfio.telescreen.repository.CallRecordRepository;
@@ -15,18 +16,20 @@ public class CallService implements Processing {
 
     //todo save telegram/skype calls
 
-    private final CallRecordRepository callRecordRepository;
+    @Autowired //todo remove
+    private CallRecordRepository callRecordRepository;
+    private final MessageBus messageBus;
     private final CallDaoJdbc callDaoJdbc;
 
     /**
      * Constructor.
      *
-     * @param callRecordRepository repo
-     * @param callDaoJdbc            dbManager
+     * @param messageBus    message bus
+     * @param callDaoJdbc callDaoJdbc
      */
-    public CallService(CallRecordRepository callRecordRepository,
-                       CallDaoJdbc callDaoJdbc) {
-        this.callRecordRepository = callRecordRepository;
+    public CallService(CallDaoJdbc callDaoJdbc,
+                       MessageBus messageBus) {
+        this.messageBus = messageBus;
         this.callDaoJdbc = callDaoJdbc;
     }
 
@@ -43,21 +46,13 @@ public class CallService implements Processing {
     }
 
     /**
-     * Saves call records in the database.
-     *
-     * @param records list of records
-     */
-    public void saveCallRecords(List<Call> records) {
-        callRecordRepository.saveAll(records); //todo
-    }
-
-
-    /**
      * Processing Call history from android phone.
      */
     public void processCallHistory() {
         List<Call> callRecords = callDaoJdbc.getPhoneCalls();
-        saveCallRecords(callRecords);
+        callRecords.forEach((call) -> {
+            messageBus.send("call", call);
+        });
     }
 
     @Override

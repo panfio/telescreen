@@ -3,32 +3,34 @@ package ru.panfio.telescreen.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.YouTube;
 import ru.panfio.telescreen.repository.YouTubeRepository;
+import ru.panfio.telescreen.util.Json;
 
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class VideoService implements Processing { //TODO create VideoEntity
-
-    private final YouTubeRepository youTubeRepository;
+    @Autowired //todo delete
+    private YouTubeRepository youTubeRepository;
+    private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
 
     /**
      * Constructor.
      *
-     * @param youTubeRepository repo
+     * @param messageBus    message bus
      * @param objectStorage     repo
      */
-    public VideoService(YouTubeRepository youTubeRepository,
-                        ObjectStorage objectStorage) {
-        this.youTubeRepository = youTubeRepository;
+    public VideoService(ObjectStorage objectStorage,
+                        MessageBus messageBus) {
+        this.messageBus = messageBus;
         this.objectStorage = objectStorage;
     }
 
@@ -44,13 +46,13 @@ public class VideoService implements Processing { //TODO create VideoEntity
                     + "in google/YouTube/history/");
             return;
         }
+
         List<YouTube> yt = parseExport(stream);
-        List<YouTube> filtered = yt.stream().map(e -> {
+        yt.forEach(e -> {
             e.setId(e.getTime().getEpochSecond());
             e.setTitle(e.getTitle().substring("Watched ".length()));
-            return e;
-        }).collect(Collectors.toList());
-        saveYouTubeRecords(filtered);
+            messageBus.send("video", Json.toJson(e));
+        });
         log.info("End processing YouTube history");
     }
 
@@ -83,15 +85,6 @@ public class VideoService implements Processing { //TODO create VideoEntity
     public Iterable<YouTube> getYouTubeRecordsBetweenDates(
             Instant from, Instant to) {
         return youTubeRepository.findByTimeBetween(from, to);
-    }
-
-    /**
-     * Saves view records in the database.
-     *
-     * @param records list of records
-     */
-    public void saveYouTubeRecords(List<YouTube> records) {
-        youTubeRepository.saveAll(records);
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.panfio.telescreen.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Autotimer;
@@ -23,19 +24,21 @@ import java.util.stream.Collectors;
 @Service
 public class AutoTimerService implements Processing {
     @Value("${server.zoneOffset}")
-    private String zoneOffset;
-    private final AutotimerRepository autotimerRepository;
+    private int zoneOffset;
+    @Autowired //todo remove
+    private AutotimerRepository autotimerRepository;
+    private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
 
     /**
      * Constructor.
      *
-     * @param autotimerRepository repo
-     * @param objectStorage       repo
+     * @param messageBus    message bus
+     * @param objectStorage storage
      */
-    public AutoTimerService(AutotimerRepository autotimerRepository,
-                            ObjectStorage objectStorage) {
-        this.autotimerRepository = autotimerRepository;
+    public AutoTimerService(ObjectStorage objectStorage,
+                            MessageBus messageBus) {
+        this.messageBus = messageBus;
         this.objectStorage = objectStorage;
     }
 
@@ -53,8 +56,9 @@ public class AutoTimerService implements Processing {
             //todo processing files in parallel
             List<Activity> activities = parseActivityFile(filename);
             List<Autotimer> list = collectAutotimers(activities);
-            //todo save processed filename item to db ???
-            save(list);
+            list.forEach(activity -> {
+                messageBus.send("autotimer", activity);
+            });
         }
         return true;
     }
@@ -118,6 +122,7 @@ public class AutoTimerService implements Processing {
 
     /**
      * Converts Date to Instant.
+     *
      * @param date date object
      * @return instant
      */
@@ -125,7 +130,7 @@ public class AutoTimerService implements Processing {
         return Instant.ofEpochMilli(date.getTime())
                 .atZone(ZoneOffset.ofHours(0))
                 .toLocalDateTime()
-                .toInstant(ZoneOffset.ofHours(Integer.parseInt(zoneOffset)));
+                .toInstant(ZoneOffset.ofHours(zoneOffset));
     }
 
     /**
@@ -151,15 +156,6 @@ public class AutoTimerService implements Processing {
             //CHECKSTYLE:ON
         }
         return 0;
-    }
-
-    /**
-     * Saves AutoTimer records in the database.
-     *
-     * @param records list of records
-     */
-    public void save(List<Autotimer> records) {
-        autotimerRepository.saveAll(records);
     }
 
     /**

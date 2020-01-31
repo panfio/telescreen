@@ -23,7 +23,6 @@ import java.util.List;
 public class MinioService implements ObjectStorage {
 
     private final MinioClient mc;
-
     private final String bucket;
 
     /**
@@ -61,9 +60,9 @@ public class MinioService implements ObjectStorage {
                 fileList.add(obj.get().objectName());
             }
             return fileList;
-        } catch (Exception ignore) {
-            ignore.printStackTrace();
-            return new ArrayList<>();
+        } catch (Exception e) {
+            log.error("Minio is not available: {}", e.getMessage());
+            return fileList;
         }
     }
 

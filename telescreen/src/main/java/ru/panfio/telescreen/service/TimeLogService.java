@@ -1,53 +1,38 @@
 package ru.panfio.telescreen.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.TimeLog;
 import ru.panfio.telescreen.model.timesheet.Task;
 import ru.panfio.telescreen.model.timesheet.TimesheetExport;
 import ru.panfio.telescreen.repository.TimeLogRepository;
-import ru.panfio.telescreen.service.util.DateWizard;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class TimeLogService implements Processing {
-
-    private final TimeLogRepository timeLogRepository;
+    @Autowired  //todo remove
+    private TimeLogRepository timeLogRepository;
+    private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
-    private final DateWizard dateWizard;
 
     /**
      * Constructor.
      *
-     * @param timeLogRepository repo
-     * @param objectStorage     service
-     * @param dateWizard        date helper
+     * @param messageBus    message bus
+     * @param objectStorage service
      */
-    public TimeLogService(TimeLogRepository timeLogRepository,
-                          ObjectStorage objectStorage,
-                          DateWizard dateWizard) {
-        this.timeLogRepository = timeLogRepository;
+    public TimeLogService(ObjectStorage objectStorage,
+                          MessageBus messageBus) {
+        this.messageBus = messageBus;
         this.objectStorage = objectStorage;
-        this.dateWizard = dateWizard;
-    }
-
-    /**
-     * Saves timelog records in the database.
-     *
-     * @param records list of records
-     */
-    public void saveTimeLogRecords(List<TimeLog> records) {
-        timeLogRepository.saveAll(records);
     }
 
     /**
@@ -77,12 +62,11 @@ public class TimeLogService implements Processing {
         }
         //tags are collected here to increase performance
         Map<String, String> tags = getTags(export);
-        List<TimeLog> timeLogs = new ArrayList<>();
         for (Task task : export.getTasks().getTasks()) {
             List<String> taskTags = getTaskTags(export, tags, task);
-            timeLogs.add(createTimeLog(task, taskTags));
+            TimeLog activity = createTimeLog(task, taskTags);
+            messageBus.send("timelog", activity);
         }
-        saveTimeLogRecords(timeLogs);
         log.info("End processing Timesheet records");
         return true;
     }
@@ -159,15 +143,12 @@ public class TimeLogService implements Processing {
      * @return file path
      */
     public String findLastBackupFile() {
-        return objectStorage.listAllObjects().stream()
+        return objectStorage.listAllObjects()
+                .stream()
                 .filter(s -> s.startsWith("timesheet/TimesheetBackup"))
-                .reduce((max, current) -> {
-                    Instant dt = dateWizard.dateFromPath(current);
-                    return ((dt != null) && (dt.isAfter(
-                            dateWizard.dateFromPath(max))))
-                            ? current
-                            : max;
-                }).orElse("");
+                .max(String::compareToIgnoreCase)
+                .orElseThrow(
+                        () -> new NoSuchElementException("No files found"));
     }
 
     /**

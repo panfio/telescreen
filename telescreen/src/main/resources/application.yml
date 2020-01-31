@@ -16,6 +16,7 @@ spring:
     user:
       name: "user"
       password: "passpass"
+
   data:
     mongodb:
       host: localhost
@@ -24,6 +25,9 @@ spring:
       username: user
       password: passpass
       database: telescreen
+
+kafka:
+  bootstrapAddress: localhost:9092
 
 #management:
 #  security.enabled: false

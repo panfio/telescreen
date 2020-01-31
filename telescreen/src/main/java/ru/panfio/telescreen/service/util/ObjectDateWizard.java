@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class ObjectDateWizard implements DateWizard {
 
     @Value("${server.zoneOffset}")
-    private String zoneOffset;
+    private int zoneOffset;
     private static final Map<String, String> DATE_REGEXPS =
             new HashMap<String, String>();
 
@@ -130,21 +130,19 @@ public class ObjectDateWizard implements DateWizard {
     }
 
     /**
-     * Finds and return LocalDateTime from filename or null if not found.
+     * Finds and return creation time from the filename or null if not found.
      *
      * @param path file path
-     * @return localDateTime can be null
+     * @return time can be null
      */
     @Override
     public Instant dateFromPath(String path) {
-        Instant dateFromPath = null;
-        try {
-            dateFromPath = parse(path).toInstant(
-                    ZoneOffset.ofHours(Integer.parseInt(zoneOffset)));
-        } catch (Exception ignore) {
-            // warning message will be thrown in the parse function
+        LocalDateTime dateFromPath = parse(path);
+        if (dateFromPath != null) {
+            return dateFromPath.toInstant(
+                    ZoneOffset.ofHours(zoneOffset));
         }
-        return dateFromPath;
+        return null;
     }
 
 }

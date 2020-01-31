@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.Autotimer;
-import ru.panfio.telescreen.repository.AutotimerRepository;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
@@ -22,16 +21,17 @@ public class AutoTimerServiceTest {
 
     private AutoTimerService service;
     private ObjectStorage objectStorage;
-    private AutotimerRepository autotimerRepository;
+    private MessageBus messageBus;
 
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        autotimerRepository = mock(AutotimerRepository.class);
         objectStorage = mock(ObjectStorage.class);
-        service = new AutoTimerService(autotimerRepository, objectStorage);
+        messageBus = mock(MessageBus.class);
+
+        service = new AutoTimerService(objectStorage, messageBus);
         Field zoneOffset = service.getClass().getDeclaredField("zoneOffset");
         zoneOffset.setAccessible(true);
-        zoneOffset.set(service, "3");
+        zoneOffset.set(service, 3);
     }
 
     @Test
@@ -42,16 +42,15 @@ public class AutoTimerServiceTest {
 
         service.processAutotimerRecords();
 
-        @SuppressWarnings("unchecked") final ArgumentCaptor<List<Autotimer>> argument = ArgumentCaptor.forClass(List.class);
-        verify(autotimerRepository).saveAll(argument.capture());
-        List<Autotimer> list = argument.getValue();
+        @SuppressWarnings("unchecked") final ArgumentCaptor<Autotimer> argument = ArgumentCaptor.forClass(Autotimer.class);
+        verify(messageBus, times(2)).send(anyString(), argument.capture());
+        Autotimer list = argument.getValue();
 
-        assertEquals(2, list.size());
-        assertNull(list.get(0).getId());
-        assertEquals("Google Chrome -> Dreams by Ytho.",list.get(0).getName());
-        assertEquals(LocalDateTime.of(2019, 11, 26, 23, 52, 1).toInstant(ZoneOffset.ofHours(3)), list.get(0).getStartTime());
-        assertEquals(LocalDateTime.of(2019, 11, 26, 23, 52, 10).toInstant(ZoneOffset.ofHours(3)), list.get(0).getEndTime());
-        assertEquals(1, list.get(0).getType());
+        assertNull(list.getId());
+        assertEquals("Google Chrome -> Dreams by Ytho.",list.getName());
+        assertEquals(LocalDateTime.of(2019, 11, 26, 23, 52, 30).toInstant(ZoneOffset.ofHours(3)), list.getStartTime());
+        assertEquals(LocalDateTime.of(2019, 11, 26, 23, 55, 0).toInstant(ZoneOffset.ofHours(3)), list.getEndTime());
+        assertEquals(1, list.getType());
     }
 
 }

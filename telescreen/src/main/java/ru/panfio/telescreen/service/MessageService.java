@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.model.Message;
@@ -14,27 +15,27 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
 public class MessageService implements Processing {
 
     @Value("${server.zoneOffset}")
-    private String zoneOffset;
-    private final MessageRepository messageRepository;
+    private int zoneOffset;
+    @Autowired //todo remove
+    private MessageRepository messageRepository;
+    private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
 
     /**
      * Constructor.
      *
-     * @param messageRepository repo
-     * @param objectStorage     storage
+     * @param messageBus    message bus
+     * @param objectStorage storage
      */
-    public MessageService(MessageRepository messageRepository,
-                          ObjectStorage objectStorage) {
-        this.messageRepository = messageRepository;
+    public MessageService(ObjectStorage objectStorage,
+                          MessageBus messageBus) {
+        this.messageBus = messageBus;
         this.objectStorage = objectStorage;
     }
 
@@ -50,7 +51,7 @@ public class MessageService implements Processing {
             }
             //todo process in parallel
             String content = objectStorage.getContent(filename, "utf-8");
-            saveMessages(getTelegramMessages(content));
+            processFile(content);
         }
         log.info("End processing Telegram messages");
     }
@@ -59,13 +60,11 @@ public class MessageService implements Processing {
      * Collecting messages from the given html file.
      *
      * @param html html
-     * @return message list
      */
-    private List<Message> getTelegramMessages(String html) {
-        List<Message> telegramMessages = new ArrayList<>();
+    private void processFile(String html) {
         Elements messages = parseTelegramMessages(html);
         if (messages == null) {
-            return telegramMessages;
+            return;
         }
         String author = "";
         for (Element message : messages) {
@@ -77,9 +76,8 @@ public class MessageService implements Processing {
             }
 
             tm.setAuthor(author);
-            telegramMessages.add(tm);
+            messageBus.send("message", tm);
         }
-        return telegramMessages;
     }
 
     private Elements parseTelegramMessages(String html) {
@@ -100,27 +98,11 @@ public class MessageService implements Processing {
         // message1234567890
         tm.setLegacyID(message.id().substring("message".length()));
         tm.setCreated(date.toInstant(
-                ZoneOffset.ofHours(Integer.parseInt(zoneOffset))));
+                ZoneOffset.ofHours(zoneOffset)));
         tm.setType(Message.Type.TELEGRAM);
         tm.setAuthor(message.select("div.from_name").text());
         tm.setContent(message.select("div.text").text());
         return tm;
-    }
-
-    /**
-     * Saves message records in the database.
-     *
-     * @param records list of records
-     */
-    public void saveMessages(List<Message> records) {
-        for (Message message : records) {
-            Message dbMessage =
-                    messageRepository.findByLegacyIDAndCreated(
-                            message.getLegacyID(), message.getCreated());
-            if (dbMessage == null) {
-                messageRepository.save(message);
-            }
-        }
     }
 
     /**

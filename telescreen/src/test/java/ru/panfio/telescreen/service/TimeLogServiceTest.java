@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.model.TimeLog;
 import ru.panfio.telescreen.model.timesheet.TimesheetExport;
-import ru.panfio.telescreen.repository.TimeLogRepository;
 import ru.panfio.telescreen.service.util.DateWizard;
 
 import java.time.Instant;
@@ -18,18 +17,17 @@ import static ru.panfio.telescreen.service.TestFiles.toInputStream;
 
 public class TimeLogServiceTest {
 
-
     private TimeLogService service;
     private ObjectStorage objectStorage;
-    private TimeLogRepository timeLogRepository;
+    private MessageBus messageBus;
     private DateWizard dateWizard;
 
     @Before
     public void setUp() {
-        timeLogRepository = mock(TimeLogRepository.class);
         objectStorage = mock(ObjectStorage.class);
         dateWizard = mock(DateWizard.class);
-        service = new TimeLogService(timeLogRepository, objectStorage, dateWizard);
+        messageBus = mock(MessageBus.class);
+        service = new TimeLogService(objectStorage, messageBus);
     }
 
     @Test
@@ -55,15 +53,15 @@ public class TimeLogServiceTest {
 
         service.processTimesheetRecords();
 
-        @SuppressWarnings("unchecked") final ArgumentCaptor<List<TimeLog>> argument = ArgumentCaptor.forClass(List.class);
-        verify(timeLogRepository).saveAll(argument.capture());
-        List<TimeLog> list = argument.getValue();
+        @SuppressWarnings("unchecked") final ArgumentCaptor<TimeLog> argument = ArgumentCaptor.forClass(TimeLog.class);
+        verify(messageBus, times(1)).send(anyString(), argument.capture());
 
-        assertEquals(1, list.size());
-        assertEquals("Coding", list.get(0).getTags().get(0));
-        assertEquals("Description", list.get(0).getDescription());
+        TimeLog timeLog = argument.getValue();
+
+        assertEquals("Coding", timeLog.getTags().get(0));
+        assertEquals("Description", timeLog.getDescription());
         assertEquals(
                 Instant.parse("2019-12-07T16:28:00Z"),
-                list.get(0).getStartDate());
+                timeLog.getStartDate());
     }
 }

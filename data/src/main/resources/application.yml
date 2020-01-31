@@ -1,0 +1,20 @@
+server:
+  port: 8111
+
+spring:
+  application.name: "Telescreen-data"
+  #boot.admin.client.url: "http://localhost:9090"
+
+  kafka:
+    consumer.properties.spring.json.trusted.packages: ru.panfio.telescreen.model
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      username: user
+      password: passpass
+      database: telescreen
+
+kafka:
+  bootstrapAddress: localhost:9092
