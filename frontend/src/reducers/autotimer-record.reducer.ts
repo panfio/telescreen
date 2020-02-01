@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<IAutoTimerRecord>) => ({
 
 export const fetchAutoTimerRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getAutotimers(startDate, endDate).then((data: ReadonlyArray<IAutoTimerRecord>) => {
-            dispath(setEntities(data))
+        apiService.getAutotimers(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.autotimers))
         });
     }
 }

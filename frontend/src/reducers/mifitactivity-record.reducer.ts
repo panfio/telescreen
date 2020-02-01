@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<IMiFitActivityRecord>) => ({
 
 export const fetchMiFitActivityRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getMiFitActivity(startDate, endDate).then((data: ReadonlyArray<IMiFitActivityRecord>) => {
-            dispath(setEntities(data))
+        apiService.getMiFitActivity(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.mifits))
         });
     }
 }

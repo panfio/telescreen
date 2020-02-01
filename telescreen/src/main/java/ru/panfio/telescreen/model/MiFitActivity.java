@@ -1,7 +1,11 @@
 package ru.panfio.telescreen.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import ru.panfio.telescreen.util.IsoInstantDeserializer;
+import ru.panfio.telescreen.util.IsoInstantSerializer;
 
 import java.time.Instant;
 
@@ -11,9 +15,15 @@ public class MiFitActivity {
     @Id
     private String id;
 
+    @JsonSerialize(using = IsoInstantSerializer.class)
+    @JsonDeserialize(using = IsoInstantDeserializer.class)
     private Instant date;
-    private Instant SleepStart;
-    private Instant SleepEnd;
+    @JsonSerialize(using = IsoInstantSerializer.class)
+    @JsonDeserialize(using = IsoInstantDeserializer.class)
+    private Instant sleepStart;
+    @JsonSerialize(using = IsoInstantSerializer.class)
+    @JsonDeserialize(using = IsoInstantDeserializer.class)
+    private Instant sleepEnd;
     private int inBedMin;
     private int DeepSleepMin;
     private int LightSleepMin;

@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<ICallRecord>) => ({
 
 export const fetchCallRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getCallHistory(startDate, endDate).then((data: ReadonlyArray<ICallRecord>) => {
-            dispath(setEntities(data))
+        apiService.getCallHistory(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.calls))
         });
     }
 }

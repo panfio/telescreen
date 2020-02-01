@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<IMediaRecord>) => ({
 
 export const fetchMediaRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getMediaHistory(startDate, endDate).then((data: ReadonlyArray<IMediaRecord>) => {
-            dispath(setEntities(data))
+        apiService.getMediaHistory(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.medias))
         });
     }
 }

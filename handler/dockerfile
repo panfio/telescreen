@@ -1,0 +1,9 @@
+FROM openjdk:11.0-jre-slim-buster
+
+EXPOSE 8222
+
+USER 1001
+
+CMD ["java",  "-jar", "/handler.jar"]
+
+COPY ./target/*.jar /handler.jar
