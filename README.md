@@ -5,8 +5,7 @@ Telescreen helps aggregate and monitor your actions in one place and visually pr
 <!--You can start service and store data on a local computer, on any Kubernetes cluster or on a remote server like Heroku and use Amazon S3 as a data store.
 -->
 If you find a bug or have any suggestions and feature request feel free to open an issue.
-**Important! App is under active development and not ready for production!
-Only you control what data should be collected and where it should be stored**
+**Important! App is under active development and not ready for production!**
 
 ## Quickstart
 
@@ -99,16 +98,31 @@ chmod +x sync.sh
 - SoundCloud: [SoundCloud](https://soundcloud.com/)
 - YouTube history: [Takeout](https://takeout.google.com/)
 - Mi Fit: [Play Store](https://play.google.com/store/apps/details?id=com.xiaomi.hm.health)
+- Telegram
 
-## Used technologies
+## How it works
+
+##### Data microservice
+
+Reads Kafka topics and saves items into MongoDB. Uses Spring Data REST for managing the data.
+
+Java 8 | Spring Boot / Data / Kafka | MongoDB
+
+##### Handler microservice
+
+The service handles export, media and historical files stored in the Minio storage and sends the processed items to Kafka.
+
+Java 11 | Spring Boot / Data JDBC / Kafka | Minio | SQLite
+
+##### Gateway microservice
+
+Redirects requests between services and serves static frontend content.
+
+Java 8 | Spring: Boot / Zuul
 
 TypeScript | React | Redux
 
-Java 1.8 | SpringBoot 2.1 | Swagger
-
-[Minio](https://min.io/) | MongoDB
-
-Components:
+Frontend components:
 
 - [material-ui](https://material-ui.com/)
 - [material-ui-pickers](https://material-ui-pickers.dev/)
