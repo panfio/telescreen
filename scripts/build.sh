@@ -7,19 +7,31 @@ npm install
 npm run-script build
 cd ..
 
-#build
+#build gateway service
 rm -rf ./telescreen/src/main/resources/static/*
 cp -r ./frontend/build/* ./telescreen/src/main/resources/static/
 cd ./telescreen
 ./mvnw -B clean install package
+docker build --tag panfio/telescreen:latest .
 cd ..
-docker build --tag panfio/telescreen .
 
-#build
+#build handler service
+cd ./handler
+./mvnw -B clean install package
+docker build --tag panfio/telescreen:handler-latest .
+cd ..
+
+#build data service
 cd ./data
 ./mvnw -B clean install package
 docker build --tag panfio/telescreen:data-latest .
+cd ..
 
+#build admin service
+cd ./admin
+./mvnw -B clean install package
+docker build --tag panfio/telescreen:admin-latest .
+cd ..
 
 
 

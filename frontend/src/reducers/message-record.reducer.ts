@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<IMessageRecord>) => ({
 
 export const fetchMessageRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getMessageHistory(startDate, endDate).then((data: ReadonlyArray<IMessageRecord>) => {
-            dispath(setEntities(data))
+        apiService.getMessageHistory(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.messages))
         });
     }
 }

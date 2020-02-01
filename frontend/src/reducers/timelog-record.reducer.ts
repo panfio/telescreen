@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<ITimeLogRecord>) => ({
 
 export const fetchTimeLogRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getTimeLogs(startDate, endDate).then((data: ReadonlyArray<ITimeLogRecord>) => {
-            dispath(setEntities(data))
+        apiService.getTimeLogs(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.timelogs))
         });
     }
 }

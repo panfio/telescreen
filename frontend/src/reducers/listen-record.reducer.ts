@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<IListenRecord>) => ({
 
 export const fetchListenRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getListenHistory(startDate, endDate).then((data: ReadonlyArray<IListenRecord>) => {
-            dispath(setEntities(data))
+        apiService.getListenHistory(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.musics))
         });
     }
 }

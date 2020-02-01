@@ -181,7 +181,7 @@ export const TimelineWrapper = (props: ITimelineProps) => {
       canChangeGroup: false,
       itemProps: {
         onMouseDown: () => {
-          window.open(host + "/api/media/file?filename=" + e.path, '_blank');
+          window.open(host + "/handler/media/file?filename=" + e.path, '_blank');
         },
         style: {
           overflow: "hidden",

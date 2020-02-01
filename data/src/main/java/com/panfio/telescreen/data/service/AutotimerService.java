@@ -8,6 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class AutotimerService {
@@ -43,4 +47,24 @@ public class AutotimerService {
         //todo
         autotimerRepository.save(record);
     }
+
+//    /**
+//     * Finds and returns the "AutoTimer" records for the period.
+//     *
+//     * @param from time
+//     * @param to   time
+//     * @return records
+//     */
+//    public Iterable<Autotimer> getAutotimerRecordsBetweenDates(
+//            Instant from, Instant to) {
+//        return autotimerRepository.findByStartTimeBetween(from, to)
+//                .stream().filter(t -> {
+//                    long duration = Duration.between(
+//                            t.getStartTime(), t.getEndTime()).toMillis();
+//                    // 10s < duration < 5h
+//                    //CHECKSTYLE:OFF
+//                    return duration > 10000 && duration < 18000000;
+//                    //CHECKSTYLE:ON
+//                }).collect(Collectors.toList());
+//    }
 }

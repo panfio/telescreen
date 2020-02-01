@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<IYouTubeRecord>) => ({
 
 export const fetchYouTubeRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getYouTubes(startDate, endDate).then((data: ReadonlyArray<IYouTubeRecord>) => {
-            dispath(setEntities(data))
+        apiService.getYouTubes(startDate, endDate).then((data: any) => {
+            dispath(setEntities(data._embedded.videos))
         });
     }
 }

@@ -1,35 +1,41 @@
+spring.application.name: "telescreen"
+
 server:
   port: 8080
-  zoneOffset: 3 #
-  #url: "http://localhost:8080"
 
-minio:
-  url: "http://localhost:9000"
-  access-key: "user"
-  secret-key: "passpass"
-  bucket: "app"
+ribbon:
+  eureka:
+    enabled: false
 
-spring:
-  application.name: "Telescreen"
-  #boot.admin.client.url: "http://localhost:9090"
-  security:
-    user:
-      name: "user"
-      password: "passpass"
+zuul:
+  routes:
+    admin:
+      url: http://localhost:8990
+    data:
+      url: http://localhost:8111
+    handler:
+      url: http://localhost:8222
 
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      authentication-database: admin
-      username: user
-      password: passpass
-      database: telescreen
+
+##### MAIN PROPS #####
+spring.security:
+  user:
+    name: "user"
+    password: "passpass"
+
+spring.boot:
+  admin:
+    client:
+      url: http://localhost:8990
+      username: ${spring.security.user.name}
+      password: ${spring.security.user.password}
+      instance.metadata.user.name: ${spring.security.user.name}
+      instance.metadata.user.password: ${spring.security.user.password}
 
 kafka:
   bootstrapAddress: localhost:9092
 
-#management:
-#  security.enabled: false
-#  endpoints.web.exposure.include: *
-#  endpoint.health.show-details: always
+management:
+  security.enabled: false
+  endpoints.web.exposure.include: health, status, env, metrics, trace, jolokia, info, configprops
+  endpoint.health.show-details: always

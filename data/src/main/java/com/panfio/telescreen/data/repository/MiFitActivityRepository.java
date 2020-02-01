@@ -2,22 +2,28 @@ package com.panfio.telescreen.data.repository;
 
 import com.panfio.telescreen.model.MiFitActivity;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 import java.time.Instant;
 import java.util.List;
 
-public interface MiFitActivityRepository
-        extends MongoRepository<MiFitActivity, String> {
+@CrossOrigin
+@RepositoryRestResource(collectionResourceRel = "mifits", path = "mifit")
+public interface MiFitActivityRepository extends MongoRepository<MiFitActivity, String> {
 
     /**
      * {@inheritDoc}
      */
-    List<MiFitActivity> findByDateBetween(Instant startDate,
-                                          Instant endDate);
+    @RestResource
+    List<MiFitActivity> findByDateBetween(@Param("startDate") Instant startDate,
+                                          @Param("endDate") Instant endDate);
 
     /**
      * {@inheritDoc}
      */
-    MiFitActivity findByDate(Instant date);
+    MiFitActivity findByDate(@Param("date") Instant date);
 }

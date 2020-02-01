@@ -34,8 +34,8 @@ export const setEntities = (items: ReadonlyArray<IWellbeingRecord>) => ({
 
 export const fetchWellbeingRecords = (startDate: Date, endDate: Date) => {
     return (dispath: any) => {
-        apiService.getWellbeingHistory(startDate, endDate).then((data: ReadonlyArray<IWellbeingRecord>) => {
-            dispath(setEntities(data))
+        apiService.getWellbeingHistory(startDate, endDate).then((data) => {
+            dispath(setEntities(data._embedded.wellbeings))
         });
     }
 }

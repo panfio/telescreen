@@ -41,4 +41,21 @@ public class WellbeingService {
             wellbeingRepository.save(wellbeing);
         }
     }
+
+    /**
+     * Finds and returns message records for the period.
+     * //TODO rename to app activity
+     *
+     * @param from time
+     * @param to   time
+     * @return records
+     */
+//    public List<Wellbeing> getWellbeingBetweenDates(
+//            Instant from, Instant to) {
+//        return wellbeingRepository.findByStartTimeBetween(from, to).stream()
+//                .filter(t -> Duration
+//                        .between(t.getStartTime(), t.getEndTime())
+//                        .toMillis() > MIN_USAGE_TIME)
+//                .collect(Collectors.toList());
+//    }
 }
