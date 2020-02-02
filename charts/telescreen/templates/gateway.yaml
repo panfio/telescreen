@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment 
+metadata: 
+  name: "{{ .Chart.Name }}-gateway"  
+spec: 
+  strategy:
+    type: RollingUpdate 
+  replicas: 1 
+  revisionHistoryLimit: 3  
+  template: 
+    metadata:
+      labels:
+        service: "{{ .Chart.Name }}-gateway"  
+    spec:  
+      imagePullSecrets:  
+      - name: regsecret 
+      containers:  
+      - name: "{{ .Chart.Name }}-gateway"  
+        image: panfio/telescreen:latest
+        ports:
+        - containerPort: 8080 
+          protocol: TCP 
+        # livenessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8080 
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8080
+        #   initialDelaySeconds: 10
+        # resources:  
+        #   requests:   
+        #     memory: {{ .Values.reqmem }} 
+        #     cpu: {{ .Values.reqcpu }} 
+        #   limits: 
+        #     memory: {{ .Values.limmem }}
+        #     cpu: {{ .Values.limcpu }} 
+        env:
+        - name: MINIO_URL
+          value: http://minio:9000
+        - name: SPRING_DATA_MONGODB_HOST
+          value: mongodb
+        - name: KAFKA_BOOTSTRAPADDRESS
+          value: kafka:9092
+        - name: SPRING_BOOT_ADMIN_CLIENT_URL
+          value: http://admin:8990
+        - name: ZUUL_ROUTES_ADMIN
+          value: http://admin:8990
+        - name: ZUUL_ROUTES_DATA
+          value: http://data:8111
+        - name: ZUUL_ROUTES_HANDLER
+          value: http://handler:8222
+
+---  
+apiVersion: v1  
+kind: Service  
+metadata:  
+  name: "gateway"  
+spec:  
+  type: ClusterIP  
+  selector:
+    service: "{{ .Chart.Name }}-gateway" 
+  ports:  
+  - name: http 
+    port: 8080 
+    targetPort: 8080
+    protocol: TCP 
