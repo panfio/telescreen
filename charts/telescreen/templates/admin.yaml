@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment 
+metadata: 
+  name: "{{ .Chart.Name }}-admin"  
+spec: 
+  strategy:
+    type: RollingUpdate 
+  replicas: 1 
+  revisionHistoryLimit: 3  
+  template: 
+    metadata:
+      labels:
+        service: "{{ .Chart.Name }}-admin"  
+    spec:  
+      imagePullSecrets:  
+      - name: regsecret 
+      containers:  
+      - name: "{{ .Chart.Name }}-admin"  
+        image: panfio/telescreen:admin-latest
+        ports:
+        - containerPort: 8990 
+          protocol: TCP 
+        # livenessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8990 
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /actuator/health
+        #     port: 8990
+        #   initialDelaySeconds: 10
+        # resources:  
+        #   requests:   
+        #     memory: {{ .Values.reqmem }} 
+        #     cpu: {{ .Values.reqcpu }} 
+        #   limits: 
+        #     memory: {{ .Values.limmem }}
+        #     cpu: {{ .Values.limcpu }} 
+        env:
+        - name: SPRING_BOOT_ADMIN_CLIENT_URL
+          value: http://admin:8990
+
+---  
+apiVersion: v1  
+kind: Service  
+metadata:  
+  name: "admin"  
+spec:  
+  type: ClusterIP  
+  selector:
+    service: "{{ .Chart.Name }}-admin" 
+  ports:  
+  - name: http 
+    port: 8990 
+    targetPort: 8990
+    protocol: TCP 

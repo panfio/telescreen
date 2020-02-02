@@ -1,0 +1,33 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Chart.Name }}
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: {{ .Values.gatewayHost }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: gateway
+          servicePort: 8080
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Chart.Name }}-admin
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: {{ .Values.adminHost }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: admin
+          servicePort: 8990
