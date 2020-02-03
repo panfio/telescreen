@@ -3,7 +3,6 @@ package ru.panfio.telescreen.handler.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 import ru.panfio.telescreen.handler.util.IsoInstantDeserializer;
 import ru.panfio.telescreen.handler.util.IsoInstantSerializer;
 
@@ -11,8 +10,6 @@ import java.time.Instant;
 
 @Data
 public class MiFitActivity {
-
-    @Id
     private String id;
 
     @JsonSerialize(using = IsoInstantSerializer.class)

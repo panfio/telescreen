@@ -48,7 +48,7 @@ public class TimeLogServiceTest {
     public void processTimesheetRecordsTest() {
         List<String> activityFiles = Arrays.asList("timesheet/TimesheetBackup_2018-11-04_000000.xml");
 
-        when(objectStorage.listAllObjects()).thenReturn(activityFiles);
+        when(objectStorage.listObjects(any())).thenReturn(activityFiles);
         when(dateWizard.dateFromPath(activityFiles.get(0))).thenReturn(Instant.parse("2018-11-04T00:00:00Z"));
         when(objectStorage.getInputStream(activityFiles.get(0))).thenReturn(toInputStream(TestFiles.TIMESHEET));
 

@@ -9,14 +9,19 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,6 +43,40 @@ public class MinioService implements ObjectStorage {
         this.bucket = bucket;
     }
 
+    public void createFolderStructure() {
+        try {
+            if (!mc.bucketExists(bucket)) {
+                mc.makeBucket(bucket);
+            }
+            InputStream file = new ByteArrayInputStream(
+                    "*\n!.gitignore".getBytes(StandardCharsets.UTF_8));
+            List<String> folders = Arrays.asList(
+                    "autotimer", "call", "dayone", "google",
+                    "media/call", "media/photo",
+                    "media/screenshot", "media/video",
+                    "media/voicenote", "mifit", "sms",
+                    "soundcloud", "timesheet", "wellbeing", "whatsapp"
+            );
+            for (String path : folders) {
+                String filename = path + "/.gitignore";
+                if (!isObjectExists(bucket, filename)) {
+                    mc.putObject(bucket, filename, file, "text/plain");
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error creating folder structure {}", e.getMessage());
+        }
+    }
+
+    private boolean isObjectExists(String bucket, String objectName) {
+        try {
+            mc.statObject(bucket, objectName);
+            return true;
+        } catch (Exception ignore) {
+            return false;
+        }
+    }
+
     /**
      * Returns list of filenames in bucket.
      *
@@ -47,9 +86,6 @@ public class MinioService implements ObjectStorage {
     public List<String> listAllObjects() {
         List<String> fileList = new ArrayList<>();
         try {
-            if (!mc.bucketExists(bucket)) {
-                log.error("{} bucket does not exist", bucket);
-            }
             for (Result<Item> obj : mc.listObjects(bucket)) {
                 if (obj.get().isDir()) {
                     continue;
@@ -59,11 +95,18 @@ public class MinioService implements ObjectStorage {
                 }
                 fileList.add(obj.get().objectName());
             }
-            return fileList;
         } catch (Exception e) {
             log.error("Minio is not available: {}", e.getMessage());
-            return fileList;
         }
+        return fileList;
+    }
+
+    @Override
+    public List<String> listObjects(Predicate<String> criteria) {
+        return listAllObjects()
+                .stream()
+                .filter(criteria)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -158,7 +201,7 @@ public class MinioService implements ObjectStorage {
         }
         try {
             Date createdTime = mc.statObject(bucket, filename).createdTime();
-            return  createdTime.toInstant();
+            return createdTime.toInstant();
         } catch (Exception e) {
             log.warn("File not found {} {}", filename, e.getMessage());
             return null;

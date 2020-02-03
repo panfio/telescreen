@@ -9,11 +9,8 @@ import ru.panfio.telescreen.handler.model.timesheet.TimesheetExport;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,47 +43,14 @@ public class TimeLogService implements Processing {
             log.error("File is invalid");
             return false;
         }
-        //tags are collected here to increase performance
-        Map<String, String> tags = getTags(export);
+
         for (Task task : export.getTasks().getTasks()) {
-            List<String> taskTags = getTaskTags(export, tags, task);
+            List<String> taskTags = export.getTaskTags(task);
             TimeLog activity = createTimeLog(task, taskTags);
             messageBus.send("timelog", activity);
         }
         log.info("End processing Timesheet records");
         return true;
-    }
-
-    /**
-     * Gets all tags.
-     *
-     * @param export export
-     * @return tags
-     */
-    private Map<String, String> getTags(TimesheetExport export) {
-        Map<String, String> tags = new HashMap<>();
-        export.getTags().getTags().forEach(tag -> {
-            tags.put(tag.getTagId(), tag.getName());
-        });
-        return tags;
-    }
-
-    /**
-     * Collects task tags.
-     *
-     * @param export export
-     * @param tags   tags
-     * @param task   task
-     * @return tags
-     */
-    private List<String> getTaskTags(final TimesheetExport export,
-                                     final Map<String, String> tags,
-                                     final Task task) {
-        return export.getTaskTags().getTaskTags()
-                .stream()
-                .filter(taskTag -> taskTag.getTaskId().equals(task.getTaskId()))
-                .map(el -> tags.get(el.getTagId()))
-                .collect(Collectors.toList());
     }
 
     /**
@@ -111,15 +75,15 @@ public class TimeLogService implements Processing {
      */
     private TimeLog createTimeLog(final Task task,
                                   final List<String> taskTags) {
-        var tl = new TimeLog();
-        tl.setId(task.getTaskId());
-        tl.setDescription(task.getDescription());
-        tl.setStartDate(task.getStartDate());
-        tl.setEndDate(task.getEndDate());
-        tl.setLocation(task.getLocation());
-        tl.setFeeling(task.getFeeling());
-        tl.setTags(taskTags);
-        return tl;
+        return TimeLog.builder()
+                .id(task.getTaskId())
+                .description(task.getDescription())
+                .startDate(task.getStartDate())
+                .endDate(task.getEndDate())
+                .location(task.getLocation())
+                .feeling(task.getFeeling())
+                .tags(taskTags)
+                .build();
     }
 
     /**
@@ -127,13 +91,16 @@ public class TimeLogService implements Processing {
      *
      * @return file path
      */
-    public String findLastBackupFile() {
-        return objectStorage.listAllObjects()
+    private String findLastBackupFile() {
+        return objectStorage.listObjects(this::isaTimesheetExportFile)
                 .stream()
-                .filter(s -> s.startsWith("timesheet/TimesheetBackup"))
                 .max(String::compareToIgnoreCase)
                 .orElseThrow(
                         () -> new NoSuchElementException("No files found"));
+    }
+
+    private boolean isaTimesheetExportFile(String s) {
+        return s.startsWith("timesheet/TimesheetBackup");
     }
 
     /**
@@ -142,7 +109,7 @@ public class TimeLogService implements Processing {
      * @param clazz  class
      * @param stream input stream
      * @param <T>    type
-     * @return //todo
+     * @return <T>
      */
     @SuppressWarnings("unchecked")
     public <T> T unmarshallXml(Class<T> clazz, InputStream stream) {

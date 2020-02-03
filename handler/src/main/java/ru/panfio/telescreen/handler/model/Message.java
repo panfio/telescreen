@@ -2,19 +2,17 @@ package ru.panfio.telescreen.handler.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import ru.panfio.telescreen.handler.util.IsoInstantDeserializer;
 import ru.panfio.telescreen.handler.util.IsoInstantSerializer;
 
 import java.time.Instant;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class Message {
     public enum Type { TELEGRAM, SKYPE, WHATSUP, SLACK, VK }
-    @Id
     private String id;
     private String legacyID;
     private Type type;
@@ -22,6 +20,5 @@ public class Message {
     @JsonDeserialize(using = IsoInstantDeserializer.class)
     private Instant created;
     private String author;
-
     private String content;
 }

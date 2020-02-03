@@ -35,9 +35,7 @@ public class SoundCloudDaoJdbc implements SoundCloudDao {
                 "soundcloud/SoundCloud");
         Map<String, Music> infos = new HashMap<>();
         soundsInfo.query(CustomSQL.SOUND_INFO_SQL, new MusicInfoMapper())
-                .forEach(track -> {
-                    infos.put(track.getExternalId(), track);
-                });
+                .forEach(track -> infos.put(track.getExternalId(), track));
         return infos;
     }
 

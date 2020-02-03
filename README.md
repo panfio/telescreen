@@ -9,7 +9,11 @@ If you find a bug or have any suggestions and feature request feel free to open 
 
 ## Quickstart
 
-**Requirements:** Docker and docker-compose or https://labs.play-with-docker.com/
+**Kubernetes guide: [charts/README.md](https://github.com/panfio/telescreen/blob/master/charts/README.md)**
+
+**Docker-Compose guide:**
+
+**Requirements:** locally installed Docker and docker-compose or https://labs.play-with-docker.com/
 
 Run this in the terminal.
 
@@ -99,6 +103,12 @@ chmod +x sync.sh
 - YouTube history: [Takeout](https://takeout.google.com/)
 - Mi Fit: [Play Store](https://play.google.com/store/apps/details?id=com.xiaomi.hm.health)
 - Telegram
+
+## HighLights
+
+- [Dec 22, 2019](https://github.com/panfio/telescreen/blob/b575ab3cb885d06b7b36d81a919f366f512978e0/telescreen/src/main/java/ru/panfio/telescreen/service/ProcessService.java)
+
+- 
 
 ## How it works
 

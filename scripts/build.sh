@@ -1,6 +1,8 @@
 #!/bin/bash
 #This script builds artifacts and docker container
 
+export MAVEN_OPTS=-Dorg.slf4j.simpleLogger.defaultLogLevel=warn
+
 #build 
 cd ./frontend 
 npm install

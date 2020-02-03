@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.data.annotation.Id;
 import ru.panfio.telescreen.handler.util.IsoInstantDeserializer;
 import ru.panfio.telescreen.handler.util.IsoInstantSerializer;
 
@@ -18,7 +17,6 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Wellbeing implements Serializable {
-    @Id
     private Long id;
     private int type;
     @JsonSerialize(using = IsoInstantSerializer.class)

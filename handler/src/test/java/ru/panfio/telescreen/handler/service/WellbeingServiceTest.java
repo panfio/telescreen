@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 public class WellbeingServiceTest {
@@ -46,7 +47,7 @@ public class WellbeingServiceTest {
         verify(messageBus, times(2)).send(anyString(), argument.capture());
 
         Wellbeing wr = argument.getValue();
-        assertEquals(230777275 , wr.getId().longValue());
+        assertNull(wr.getId());
         assertEquals("org.telegram.messenger" , wr.getApp());
         assertEquals(2, wr.getType());
         assertEquals(Instant.parse("2020-01-17T21:37:53.135Z"), wr.getStartTime());

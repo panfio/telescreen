@@ -28,9 +28,7 @@ public class CommonService {
      */
     public CommonService(@Autowired List<Processing> services) {
         Map<String, Processing> handlers = new HashMap<>();
-        services.forEach((service) -> {
-            handlers.put(service.name(), service);
-        });
+        services.forEach(service -> handlers.put(service.name(), service));
         this.handlers = handlers;
     }
 

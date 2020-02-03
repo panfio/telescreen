@@ -6,7 +6,6 @@ import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.handler.model.Media;
 import ru.panfio.telescreen.handler.service.util.ObjectDateWizard;
 
-import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -22,15 +21,11 @@ public class MediaServiceTest {
     private MessageBus messageBus;
 
     @Before
-    public void setUp() throws NoSuchFieldException, IllegalAccessException {
+    public void setUp() {
         objectStorage = mock(ObjectStorage.class);
         messageBus = mock(MessageBus.class);
 
         ObjectDateWizard dw = new ObjectDateWizard(objectStorage);
-        Field zoneOffset = dw.getClass().getDeclaredField("zoneOffset");
-        zoneOffset.setAccessible(true);
-        zoneOffset.set(dw, 3);
-
         service = new MediaService(objectStorage, dw, messageBus);
     }
 
@@ -40,7 +35,7 @@ public class MediaServiceTest {
                 "media/photo/IMG_20181104_105411.jpg",
                 "media/video/VID_20181104_105411.mp4",
                 "media/voicenote/2018-11-04-10-54-11-note.m4a");
-        when(objectStorage.listAllObjects()).thenReturn(mediaFiles);
+        when(objectStorage.listObjects(any())).thenReturn(mediaFiles);
         service.processMediaRecords();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<Media> argument = ArgumentCaptor.forClass(Media.class);

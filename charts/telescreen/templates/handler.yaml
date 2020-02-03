@@ -39,16 +39,18 @@ spec:
         #     memory: {{ .Values.limmem }}
         #     cpu: {{ .Values.limcpu }} 
         env:
-        - name: MINIO_URL
-          value: http://minio:9000
-        - name: SPRING_DATA_MONGODB_HOST
-          value: mongodb
-        - name: KAFKA_BOOTSTRAPADDRESS
-          value: kafka:9092
-        - name: SERVER_ZONEOFFSET
-          value: "{{ .Values.zoneOffset }}"
-        - name: SPRING_BOOT_ADMIN_CLIENT_URL
-          value: http://admin:8990
+          - name: JAVA_TOOL_OPTIONS
+            value: "{{ .Values.javaToolOptions }}"
+          - name: MINIO_URL
+            value: http://minio:9000
+          - name: SPRING_DATA_MONGODB_HOST
+            value: mongodb
+          - name: KAFKA_BOOTSTRAPADDRESS
+            value: kafka:9092
+          - name: SERVER_ZONEOFFSET
+            value: "{{ .Values.zoneOffset }}"
+          - name: SPRING_BOOT_ADMIN_CLIENT_URL
+            value: http://admin:8990
 
 ---  
 apiVersion: v1  

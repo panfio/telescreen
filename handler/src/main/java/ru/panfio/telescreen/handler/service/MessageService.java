@@ -2,22 +2,21 @@ package ru.panfio.telescreen.handler.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.handler.model.Message;
+import ru.panfio.telescreen.handler.service.util.DateWizard;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 public class MessageService implements Processing {
-    @Value("${server.zoneOffset}")
-    private int zoneOffset;
     private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
 
@@ -38,16 +37,24 @@ public class MessageService implements Processing {
      */
     public void processTelegramHistory() {
         log.info("Start processing Telegram messages");
-        for (String filename : objectStorage.listAllObjects()) {
-            if (!filename.startsWith("app/telegram")
-                    && !filename.contains("messages")) {
-                continue;
-            }
+        for (var filename : getExportFiles()) {
             //todo process in parallel
-            String content = objectStorage.getContent(filename, "utf-8");
-            processFile(content);
+            var fileContent = getExportContent(filename);
+            processFile(fileContent);
         }
         log.info("End processing Telegram messages");
+    }
+
+    private String getExportContent(String filename) {
+        return objectStorage.getContent(filename, "utf-8");
+    }
+
+    private List<String> getExportFiles() {
+        return objectStorage.listObjects(this::isMessagesFile);
+    }
+
+    private boolean isMessagesFile(String name) {
+        return !(name.startsWith("app/telegram") || name.contains("messages"));
     }
 
     /**
@@ -76,7 +83,7 @@ public class MessageService implements Processing {
 
     private Elements parseTelegramMessages(String html) {
         try {
-            Document doc = Jsoup.parse(html, "utf-8");
+            var doc = Jsoup.parse(html, "utf-8");
             return doc.select("div.message.default");
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -85,18 +92,21 @@ public class MessageService implements Processing {
     }
 
     private Message parseTelegramMessage(Element message) {
-        var date = LocalDateTime.parse(
-                message.select("div.date.details").attr("title"),
-                DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
-        var msg = new Message();
-        // message1234567890
-        msg.setLegacyID(message.id().substring("message".length()));
-        msg.setCreated(date.toInstant(
-                ZoneOffset.ofHours(zoneOffset)));
-        msg.setType(Message.Type.TELEGRAM);
-        msg.setAuthor(message.select("div.from_name").text());
-        msg.setContent(message.select("div.text").text());
-        return msg;
+        return Message.builder()
+                .legacyID(message.id().substring("message".length()))
+                .created(parseCreationTime(message).orElseThrow())
+                .author(message.select("div.from_name").text())
+                .content(message.select("div.text").text())
+                .type(Message.Type.TELEGRAM)
+                .build();
+    }
+
+    private Optional<Instant> parseCreationTime(Element message) {
+        return Optional.of(DateWizard.toInstant(
+                LocalDateTime.parse(
+                        message.select("div.date.details").attr("title"),
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+                )));
     }
 
     @Override

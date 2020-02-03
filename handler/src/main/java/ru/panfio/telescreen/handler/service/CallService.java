@@ -31,9 +31,11 @@ public class CallService implements Processing {
      */
     public void processCallHistory() {
         List<Call> callRecords = callDaoJdbc.getPhoneCalls();
-        callRecords.forEach((call) -> {
-            messageBus.send("call", call);
-        });
+        callRecords.forEach(this::sendCall);
+    }
+
+    private void sendCall(Call call) {
+        messageBus.send("call", call);
     }
 
     @Override

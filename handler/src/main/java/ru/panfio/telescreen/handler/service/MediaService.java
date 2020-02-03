@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.handler.model.Media;
 import ru.panfio.telescreen.handler.service.util.DateWizard;
 
+import java.time.Instant;
+import java.util.List;
+
 @Slf4j
 @Service
 public class MediaService implements Processing {
@@ -49,13 +52,19 @@ public class MediaService implements Processing {
      * Save Media records into database.
      */
     public void processMediaRecords() {
-        for (String path : objectStorage.listAllObjects()) {
-            if (!path.startsWith("media")) {
-                continue;
-            }
-            messageBus.send("media", createMedia(path));
+        for (var path : getMediaFiles()) {
+            Media media = createMedia(path);
+            messageBus.send("media", media);
         }
         log.info("Processing media records complete");
+    }
+
+    private List<String> getMediaFiles() {
+        return objectStorage.listObjects(this::isMedia);
+    }
+
+    private boolean isMedia(String path) {
+        return path.startsWith("media");
     }
 
     /**
@@ -65,11 +74,16 @@ public class MediaService implements Processing {
      * @return media record
      */
     private Media createMedia(String path) {
-        var record = new Media();
-        record.setPath(path);
-        record.setType(getMediaType(path));
-        record.setCreated(dateWizard.creationTime(path));
-        return record;
+        return Media.builder()
+                .path(path)
+                .type(getMediaType(path))
+                .created(getCreatedTime(path))
+                .build();
+
+    }
+
+    private Instant getCreatedTime(String path) {
+        return dateWizard.creationTime(path);
     }
 
     private String getMediaType(String path) {

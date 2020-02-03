@@ -12,16 +12,13 @@ import java.util.Map;
 @Slf4j
 @Service
 public class WellbeingService implements Processing {
-    private static final int MIN_USAGE_TIME = 5000;
-    private static final int MAX_SIZE = 500;
-
     private final MessageBus messageBus;
     private final WellbeingDao wellbeingDao;
 
     /**
      * Constructor.
      *
-     * @param messageBus    message bus
+     * @param messageBus   message bus
      * @param wellbeingDao wellbeingDao
      */
     public WellbeingService(WellbeingDao wellbeingDao,
@@ -37,21 +34,27 @@ public class WellbeingService implements Processing {
         log.info("Start processing Wellbeing history");
         List<Wellbeing> activities = wellbeingDao.getActivities();
 
-        Map<Long, Wellbeing> tmp = new HashMap<>();
+        Map<Long, Wellbeing> startedActivities = new HashMap<>();
         for (var activity : activities) {
-            if (activity.getType() == 1) {
-                tmp.put(activity.getId(), activity);
+            final var id = activity.getId();
+            final var type = activity.getType();
+
+            if (type == 1) { //activity started
+                startedActivities.put(id, activity);
             }
 
-            if (activity.getType() == 2) {
-                final long id = activity.getId();
-                Wellbeing tmpRecord = tmp.get(id);
-                if (tmpRecord == null) {
+            if (type == 2) { //activity ended
+                var started = startedActivities.get(id);
+                if (started == null) {
                     continue;
                 }
-                activity.setStartTime(tmpRecord.getStartTime());
+                //Android activity has a unique ID but
+                //there are many activities with the same ID
+                activity.setId(null);
+
+                activity.setStartTime(started.getStartTime());
                 messageBus.send("wellbeing", activity);
-                tmp.remove(id);
+                startedActivities.remove(id);
             }
         }
         log.info("End processing Wellbeing history");

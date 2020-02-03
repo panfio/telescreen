@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.handler.dao.MiFitDao;
 import ru.panfio.telescreen.handler.model.MiFitActivity;
-import ru.panfio.telescreen.handler.util.Json;
 
 import java.util.List;
 
@@ -32,9 +31,11 @@ public class MiFitService implements Processing {
     public void processMiFitActivity() {
         log.info("Start processing Mi Fit daily activity history");
         List<MiFitActivity> activities = miFitDao.getActivities();
-        for (var activity : activities) {
-            messageBus.send("mifit", Json.toJson(activity));
-        }
+        activities.forEach(this::sendActivity);
+    }
+
+    private void sendActivity(MiFitActivity activity) {
+        messageBus.send("mifit", activity);
     }
 
     /**

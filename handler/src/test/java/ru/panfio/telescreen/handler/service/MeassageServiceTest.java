@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import ru.panfio.telescreen.handler.model.Message;
 
-import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -21,21 +20,17 @@ public class MeassageServiceTest {
     private MessageBus messageBus;
 
     @Before
-    public void setUp() throws NoSuchFieldException, IllegalAccessException {
+    public void setUp() {
         objectStorage = mock(ObjectStorage.class);
         messageBus = mock(MessageBus.class);
         service = new MessageService(objectStorage, messageBus);
-
-        Field zoneOffset = service.getClass().getDeclaredField("zoneOffset");
-        zoneOffset.setAccessible(true);
-        zoneOffset.set(service, 3);
     }
 
     @Test
     public void processTelegramHistoryTest() {
         List<String> activityFiles = Arrays.asList("app/telegram/messages1.html");
 
-        when(objectStorage.listAllObjects()).thenReturn(activityFiles);
+        when(objectStorage.listObjects(any())).thenReturn(activityFiles);
         when(objectStorage.getContent(activityFiles.get(0), "utf-8")).thenReturn(TestFiles.TELEGRAM);
 
         service.processTelegramHistory();

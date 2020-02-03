@@ -26,7 +26,7 @@ public class MinioConfig {
      * @throws MinioException if error
      */
     @Bean
-    public MinioClient minioClient() throws MinioException {
+    public MinioClient minioClient() {
         try {
             return new MinioClient(
                     endpoint,
