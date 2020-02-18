@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import ru.panfio.telescreen.util.IsoInstantDeserializer;
 import ru.panfio.telescreen.util.IsoInstantSerializer;
 
@@ -14,7 +13,7 @@ import java.time.Instant;
 @NoArgsConstructor
 public class Message {
     public enum Type { TELEGRAM, SKYPE, WHATSUP, SLACK, VK }
-    @Id
+
     private String id;
     private String legacyID;
     private Type type;

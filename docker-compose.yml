@@ -24,7 +24,6 @@ services:
     ports:
       - 8888:8080
     links:
-      - minio
       - kafka
       - admin
       - data
@@ -33,20 +32,22 @@ services:
   data:
     image: panfio/telescreen:data-latest
     environment:
-      - SPRING_DATA_MONGODB_HOST=mongodb
+      - SPRING_DATA_MONGODB_HOST=http://mongo:
       - KAFKA_BOOTSTRAPADDRESS=kafka:9094
       - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:8990
     links:
       - kafka
       - admin
+      - mongo
   
   handler:
     image: panfio/telescreen:handler-latest
     environment:
       - KAFKA_BOOTSTRAPADDRESS=kafka:9094
       - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:8990
-      - SERVER_ZONEOFFSET=3
+      - JAVA_TOOL_OPTIONS='-Duser.timezone="Europe/Moscow"'
     links:
+      - minio
       - kafka
       - admin
 
@@ -57,7 +58,7 @@ services:
     ports:
       - 8999:8990
 
-  mongodb:
+  mongo:
     image: mongo
     restart: always
     ports:

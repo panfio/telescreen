@@ -19,20 +19,10 @@ import java.util.List;
 public class MiFitDaoJdbc implements MiFitDao {
     private final DbManager dbManager;
 
-    /**
-     * Constructor.
-     *
-     * @param dbManager dbManager
-     */
     public MiFitDaoJdbc(DbManager dbManager) {
         this.dbManager = dbManager;
     }
 
-    /**
-     * Gets activities from the database.
-     *
-     * @return activity list
-     */
     @Override
     public List<MiFitActivity> getActivities() {
         JdbcTemplate miData = dbManager.getTemplate("mifit/db/origin_db");
@@ -41,8 +31,7 @@ public class MiFitDaoJdbc implements MiFitDao {
                 new MiFitActivityMapper());
     }
 
-    private static class MiFitActivityMapper
-            implements RowMapper<MiFitActivity> {
+    private class MiFitActivityMapper implements RowMapper<MiFitActivity> {
         @Override
         public MiFitActivity mapRow(ResultSet rs, int i) throws SQLException {
             var formatter = new DateTimeFormatterBuilder()

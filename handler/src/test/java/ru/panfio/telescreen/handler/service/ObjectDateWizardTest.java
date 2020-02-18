@@ -5,7 +5,6 @@ import org.junit.Test;
 import ru.panfio.telescreen.handler.service.util.DateWizard;
 import ru.panfio.telescreen.handler.service.util.ObjectDateWizard;
 
-import java.lang.reflect.Field;
 import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
@@ -18,13 +17,9 @@ public class ObjectDateWizardTest {
     private ObjectStorage objectStorage;
 
     @Before
-    public void setUp() throws IllegalAccessException, NoSuchFieldException {
+    public void setUp() {
         objectStorage = mock(ObjectStorage.class);
         service = new ObjectDateWizard(objectStorage);
-
-        Field zoneOffset = service.getClass().getDeclaredField("zoneOffset");
-        zoneOffset.setAccessible(true);
-        zoneOffset.set(service, 3);
     }
 
     @Test

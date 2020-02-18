@@ -5,20 +5,17 @@ import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.handler.model.Media;
 import ru.panfio.telescreen.handler.service.util.DateWizard;
 
+import java.time.Instant;
+import java.util.List;
+
 @Slf4j
 @Service
 public class MediaService implements Processing {
+    private static final String DEFAULT_TYPE = "other";
     private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
     private final DateWizard dateWizard;
 
-    /**
-     * Constructor.
-     *
-     * @param messageBus    message bus
-     * @param objectStorage storage
-     * @param dateWizard    date helper
-     */
     public MediaService(ObjectStorage objectStorage,
                         DateWizard dateWizard,
                         MessageBus messageBus) {
@@ -27,10 +24,6 @@ public class MediaService implements Processing {
         this.dateWizard = dateWizard;
     }
 
-    /**
-     * @param filename path
-     * @return content type
-     */
     public String getContentType(String filename) {
         return objectStorage.contentType(filename);
     }
@@ -45,31 +38,36 @@ public class MediaService implements Processing {
         return objectStorage.getByteArray(filename);
     }
 
-    /**
-     * Save Media records into database.
-     */
-    public void processMediaRecords() {
-        for (String path : objectStorage.listAllObjects()) {
-            if (!path.startsWith("media")) {
-                continue;
-            }
-            messageBus.send("media", createMedia(path));
+    @Override
+    public void process() {
+        for (var path : getMediaFiles()) {
+            Instant creationTime = getCreatedTime(path);
+            Media media = createMedia(path, creationTime);
+            messageBus.send("media", media);
         }
         log.info("Processing media records complete");
     }
 
-    /**
-     * Creates media record.
-     *
-     * @param path file patch.
-     * @return media record
-     */
-    private Media createMedia(String path) {
-        var record = new Media();
-        record.setPath(path);
-        record.setType(getMediaType(path));
-        record.setCreated(dateWizard.creationTime(path));
-        return record;
+    private List<String> getMediaFiles() {
+        return objectStorage.listObjects(this::isMedia);
+    }
+
+    private boolean isMedia(String path) {
+        return path.startsWith("media");
+    }
+
+    private Instant getCreatedTime(String path) {
+        return dateWizard.creationTime(path);
+    }
+
+    private Media createMedia(String path,
+                              Instant creationTime) {
+        return Media.builder()
+                .path(path)
+                .type(getMediaType(path))
+                .created(creationTime)
+                .build();
+
     }
 
     private String getMediaType(String path) {
@@ -78,13 +76,8 @@ public class MediaService implements Processing {
                     path.indexOf('/') + 1,
                     path.lastIndexOf('/'));
         } catch (Exception e) {
-            return "other";
+            return DEFAULT_TYPE;
         }
-    }
-
-    @Override
-    public void process() {
-        processMediaRecords();
     }
 
     @Override

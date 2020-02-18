@@ -2,7 +2,6 @@ spring.application.name: "handler"
 
 server:
   port: 8222
-  zoneOffset: 3 #
 
 minio:
   url: "http://localhost:9000"
@@ -29,7 +28,6 @@ kafka:
   bootstrapAddress: localhost:9092
 
 management:
-  security.enabled: false
   endpoints.web.exposure.include: health, status, env, metrics, trace, jolokia, info, configprops
   endpoint.health.show-details: always
 ##### MAIN PROPS #####

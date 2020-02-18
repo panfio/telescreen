@@ -6,6 +6,8 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import ru.panfio.telescreen.config.SimpleFilter;
 
+import java.util.stream.Stream;
+
 //CHECKSTYLE:OFF
 @SpringBootApplication
 @EnableZuulProxy

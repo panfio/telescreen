@@ -3,6 +3,7 @@ package ru.panfio.telescreen.handler.service;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Predicate;
 
 public interface ObjectStorage {
 
@@ -12,6 +13,8 @@ public interface ObjectStorage {
      * @return list of filenames or empty list
      */
     List<String> listAllObjects();
+
+    List<String> listObjects(Predicate<String> predicate);
 
     /**
      * Gets file content type.

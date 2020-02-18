@@ -1,8 +1,21 @@
 package ru.panfio.telescreen.handler.service.util;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public interface DateWizard {
+
+    /**
+     * Converts LocaDateTime to instant at default timezone.
+     * @param time LocaDateTime
+     * @return Instant
+     */
+    static Instant toInstant(LocalDateTime time) {
+        return time.toInstant(
+                ZoneId.systemDefault().getRules().getOffset(Instant.now())
+        );
+    }
 
     /**
      * Returns creation time of the object.

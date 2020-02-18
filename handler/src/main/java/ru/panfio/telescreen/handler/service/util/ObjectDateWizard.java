@@ -1,13 +1,11 @@
 package ru.panfio.telescreen.handler.service.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.panfio.telescreen.handler.service.ObjectStorage;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -18,11 +16,8 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 public class ObjectDateWizard implements DateWizard {
-
-    @Value("${server.zoneOffset}")
-    private int zoneOffset;
     private static final Map<String, String> DATE_REGEXPS =
-            new HashMap<String, String>();
+            new HashMap<>();
 
     //Please cover new cases in the test
     static {
@@ -41,21 +36,10 @@ public class ObjectDateWizard implements DateWizard {
 
     private final ObjectStorage objectStorage;
 
-    /**
-     * Creates with object storage.
-     *
-     * @param objectStorage storage
-     */
     public ObjectDateWizard(ObjectStorage objectStorage) {
         this.objectStorage = objectStorage;
     }
 
-    /**
-     * Returns creation time.
-     *
-     * @param path file path
-     * @return file's creation time
-     */
     @Override
     public Instant creationTime(String path) {
         if (path == null) {
@@ -129,18 +113,11 @@ public class ObjectDateWizard implements DateWizard {
         }
     }
 
-    /**
-     * Finds and return creation time from the filename or null if not found.
-     *
-     * @param path file path
-     * @return time can be null
-     */
     @Override
     public Instant dateFromPath(String path) {
         LocalDateTime dateFromPath = parse(path);
         if (dateFromPath != null) {
-            return dateFromPath.toInstant(
-                    ZoneOffset.ofHours(zoneOffset));
+            return DateWizard.toInstant(dateFromPath);
         }
         return null;
     }

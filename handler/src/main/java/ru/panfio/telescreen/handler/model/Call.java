@@ -2,25 +2,22 @@ package ru.panfio.telescreen.handler.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import lombok.Builder;
+import lombok.Getter;
 import ru.panfio.telescreen.handler.util.IsoInstantDeserializer;
 import ru.panfio.telescreen.handler.util.IsoInstantSerializer;
 
 import java.time.Instant;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Builder
 public class Call {
-    @Id
-    private String id;
-    private String number;
+    private final String id;
+    private final String number;
     @JsonSerialize(using = IsoInstantSerializer.class)
     @JsonDeserialize(using = IsoInstantDeserializer.class)
-    private Instant date;
-    private int duration;
-    private String name;
-    private int type;
-
+    private final Instant date;
+    private final int duration;
+    private final String name;
+    private final int type;
 }

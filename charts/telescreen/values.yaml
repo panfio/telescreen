@@ -1,3 +1,3 @@
-zoneOffset: "3"
+javaToolOptions: '-Duser.timezone="Europe/Moscow"'
 gatewayHost: telescreen.192.168.99.103.xip.io
 adminHost: admin.telescreen.192.168.99.103.xip.io

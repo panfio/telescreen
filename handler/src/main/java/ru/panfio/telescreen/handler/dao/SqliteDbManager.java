@@ -12,14 +12,8 @@ import javax.sql.DataSource;
 @Slf4j
 @Service
 public class SqliteDbManager implements DbManager {
-
     private final ObjectStorage objectStorage;
 
-    /**
-     * Constructor.
-     *
-     * @param objectStorage storage
-     */
     @Autowired
     public SqliteDbManager(ObjectStorage objectStorage) {
         this.objectStorage = objectStorage;
@@ -42,9 +36,6 @@ public class SqliteDbManager implements DbManager {
         return dataSource;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public JdbcTemplate getTemplate(String filename) {
         var dataSource = sqliteDataSource(filename);
         return new JdbcTemplate(dataSource);

@@ -13,29 +13,22 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class VideoService implements Processing { //TODO create VideoEntity
+public class YouTubeVideoService implements Processing { //TODO create VideoEntity
+    private static final String YOUTUBE_EXPORT_PATH =
+            "google/YouTube/history/watch-history.json";
     private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
 
-    /**
-     * Constructor.
-     *
-     * @param messageBus    message bus
-     * @param objectStorage     repo
-     */
-    public VideoService(ObjectStorage objectStorage,
-                        MessageBus messageBus) {
+    public YouTubeVideoService(ObjectStorage objectStorage,
+                               MessageBus messageBus) {
         this.messageBus = messageBus;
         this.objectStorage = objectStorage;
     }
 
-    /**
-     * Processing YouTube history from Google export.
-     */
-    public void processYouTubeHistory() {
+    @Override
+    public void process() {
         log.info("Start processing YouTube history");
-        var filename = "google/YouTube/history/watch-history.json";
-        var stream = objectStorage.getInputStream(filename);
+        var stream = objectStorage.getInputStream(YOUTUBE_EXPORT_PATH);
         if (stream == null) {
             log.warn("File not found. Put watch-history.json "
                     + "in google/YouTube/history/");
@@ -68,11 +61,6 @@ public class VideoService implements Processing { //TODO create VideoEntity
             log.warn("Parse error " + e.getMessage());
             return new ArrayList<>();
         }
-    }
-
-    @Override
-    public void process() {
-        processYouTubeHistory();
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import ru.panfio.telescreen.util.IsoInstantDeserializer;
 import ru.panfio.telescreen.util.IsoInstantSerializer;
 
@@ -15,7 +14,6 @@ import java.time.Instant;
 public class Music implements Cloneable {
     public enum Type {SPOTIFY, SOUNDCLOUD}
 
-    @Id
     private Long id;
     private String externalId;
     private Type type;

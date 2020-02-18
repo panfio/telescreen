@@ -1,4 +1,4 @@
-package ru.panfio.telescreen.handler.model;
+package ru.panfio.telescreen.handler.model.soundcloud;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -15,29 +15,19 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Music {
-    public enum Type {SPOTIFY, SOUNDCLOUD}
-
+public class PlayHistory {
     private Long id;
     private String externalId;
-    private Type type;
-    private String artist;
-    private String title;
     @JsonSerialize(using = IsoInstantSerializer.class)
     @JsonDeserialize(using = IsoInstantDeserializer.class)
     private Instant listenTime;
-    private String url;
 
     @Override
     public String toString() {
-        return "Music{" +
+        return "PlayHistory{" +
                 "id=" + id +
                 ", externalId='" + externalId + '\'' +
-                ", type=" + type +
-                ", artist='" + artist + '\'' +
-                ", title='" + title + '\'' +
                 ", listenTime=" + listenTime +
-                ", url='" + url + '\'' +
                 '}';
     }
 }

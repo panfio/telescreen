@@ -17,7 +17,7 @@ spec:
       - name: regsecret 
       containers:  
       - name: "{{ .Chart.Name }}-gateway"  
-        image: panfio/telescreen:latest
+        image: panfio/telescreen:gateway-latest
         ports:
         - containerPort: 8080 
           protocol: TCP 
