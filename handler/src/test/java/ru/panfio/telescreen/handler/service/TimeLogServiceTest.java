@@ -52,7 +52,7 @@ public class TimeLogServiceTest {
         when(dateWizard.dateFromPath(activityFiles.get(0))).thenReturn(Instant.parse("2018-11-04T00:00:00Z"));
         when(objectStorage.getInputStream(activityFiles.get(0))).thenReturn(toInputStream(TestFiles.TIMESHEET));
 
-        service.processTimesheetRecords();
+        service.process();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<TimeLog> argument = ArgumentCaptor.forClass(TimeLog.class);
         verify(messageBus, times(1)).send(anyString(), argument.capture());

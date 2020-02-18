@@ -1,3 +1,11 @@
+FROM openjdk:11.0-jdk-slim-buster as build
+
+COPY . /usr/share/project/
+
+WORKDIR /usr/share/project
+
+RUN chmod +x ./mvnw && ./mvnw -B clean install package
+
 FROM openjdk:11.0-jre-slim-buster
 
 EXPOSE 8222
@@ -6,4 +14,4 @@ USER 1001
 
 CMD ["java",  "-jar", "/handler.jar"]
 
-COPY ./target/*.jar /handler.jar
+COPY --from=build /usr/share/project/target/*.jar /handler.jar

@@ -24,7 +24,6 @@ public class WellbeingServiceTest {
         wellbeingDao = mock(WellbeingDao.class);
         messageBus = mock(MessageBus.class);
         service = new WellbeingService(wellbeingDao,messageBus);
-
     }
 
     @Test
@@ -41,7 +40,7 @@ public class WellbeingServiceTest {
 
         when(wellbeingDao.getActivities()).thenReturn(activities);
 
-        service.processWellbeingRecords();
+        service.process();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<Wellbeing> argument = ArgumentCaptor.forClass(Wellbeing.class);
         verify(messageBus, times(2)).send(anyString(), argument.capture());
@@ -53,5 +52,4 @@ public class WellbeingServiceTest {
         assertEquals(Instant.parse("2020-01-17T21:37:53.135Z"), wr.getStartTime());
         assertEquals(Instant.parse("2020-01-17T21:37:53.803Z"), wr.getEndTime());
     }
-
 }

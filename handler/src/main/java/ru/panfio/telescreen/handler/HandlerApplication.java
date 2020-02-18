@@ -13,4 +13,14 @@ public class HandlerApplication {
 		context.getBean(MinioService.class).createFolderStructure();
 	}
 
+//	@Bean
+//	public BeanPostProcessor legacyTesterBeanPostProcessor() {
+//		return new BeanPostProcessor() {
+//			@Override
+//			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+//				return new LegacyTesterBeanPostProcessor(bean, beanName).createProxy();
+//			}
+//		};
+//	}
+
 }

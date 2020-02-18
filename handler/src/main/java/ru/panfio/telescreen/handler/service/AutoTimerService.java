@@ -15,31 +15,25 @@ public class AutoTimerService implements Processing {
     private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
 
-    /**
-     * Constructor.
-     *
-     * @param messageBus    message bus
-     * @param objectStorage storage
-     */
     public AutoTimerService(ObjectStorage objectStorage,
                             MessageBus messageBus) {
         this.messageBus = messageBus;
         this.objectStorage = objectStorage;
     }
 
-    /**
-     * Processing AutoTimer records.
-     *
-     */
-    public void processAutotimerRecords() {
+    @Override
+    public void process() {
         log.info("Processsing Autotimer records");
-        for (var filename : getActivityFiles()) {
-            //todo processing files in parallel
-            AutotimerRecords records = parseActivityFile(filename);
-            List<Autotimer> list = records.collectAutotimers();
-            list.forEach(this::sendMessage);
-        }
+        List<String> activityFiles = getActivityFiles();
+        activityFiles.parallelStream()
+                .forEach(this::handleExportFile);
         log.info("End processsing Autotimer records");
+    }
+
+    private void handleExportFile(String filename) {
+        AutotimerRecords records = parseActivityFile(filename);
+        List<Autotimer> list = records.collectAutotimers();
+        list.forEach(this::sendMessage);
     }
 
     private void sendMessage(Autotimer activity) {
@@ -54,12 +48,6 @@ public class AutoTimerService implements Processing {
         return filename.contains("activities");
     }
 
-    /**
-     * Parsing activity file.
-     *
-     * @param filename fillename
-     * @return activity list
-     */
     private AutotimerRecords parseActivityFile(String filename) {
         try {
             var mapper = new ObjectMapper();
@@ -70,11 +58,6 @@ public class AutoTimerService implements Processing {
             log.warn("Autotimer parse error " + filename);
             return new AutotimerRecords();
         }
-    }
-
-    @Override
-    public void process() {
-        processAutotimerRecords();
     }
 
     @Override

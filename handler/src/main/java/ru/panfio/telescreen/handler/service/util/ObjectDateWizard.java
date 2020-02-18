@@ -36,21 +36,10 @@ public class ObjectDateWizard implements DateWizard {
 
     private final ObjectStorage objectStorage;
 
-    /**
-     * Creates with object storage.
-     *
-     * @param objectStorage storage
-     */
     public ObjectDateWizard(ObjectStorage objectStorage) {
         this.objectStorage = objectStorage;
     }
 
-    /**
-     * Returns creation time.
-     *
-     * @param path file path
-     * @return file's creation time
-     */
     @Override
     public Instant creationTime(String path) {
         if (path == null) {
@@ -124,12 +113,6 @@ public class ObjectDateWizard implements DateWizard {
         }
     }
 
-    /**
-     * Finds and return creation time from the filename or null if not found.
-     *
-     * @param path file path
-     * @return time can be null
-     */
     @Override
     public Instant dateFromPath(String path) {
         LocalDateTime dateFromPath = parse(path);

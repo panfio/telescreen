@@ -36,7 +36,7 @@ public class MediaServiceTest {
                 "media/video/VID_20181104_105411.mp4",
                 "media/voicenote/2018-11-04-10-54-11-note.m4a");
         when(objectStorage.listObjects(any())).thenReturn(mediaFiles);
-        service.processMediaRecords();
+        service.process();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<Media> argument = ArgumentCaptor.forClass(Media.class);
         verify(messageBus, times(3)).send(anyString(), argument.capture());

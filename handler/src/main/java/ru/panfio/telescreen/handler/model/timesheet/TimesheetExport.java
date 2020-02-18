@@ -2,14 +2,13 @@ package ru.panfio.telescreen.handler.model.timesheet;
 
 import lombok.Data;
 import lombok.ToString;
+import ru.panfio.telescreen.handler.model.TimeLog;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -24,15 +23,9 @@ public class TimesheetExport {
     @XmlElement(name = "taskTags")
     private TaskTags taskTags;
 
-    /**
-     * Collects task tags.
-     *
-     * @param task task
-     * @return tag list
-     */
-    public List<String> getTaskTags(final Task task) {
-        final Map<String, String> tags = this.tagsMap();
-        return this.getTaskTags().getTaskTags()
+    private List<String> getTaskTags(final Task task,
+                                     Map<String, String> tags) {
+        return taskTags.getTaskTags()
                 .stream()
                 .filter(taskTag -> taskTag.getTaskId().equals(task.getTaskId()))
                 .map(el -> tags.get(el.getTagId()))
@@ -40,10 +33,30 @@ public class TimesheetExport {
     }
 
     private Map<String, String> tagsMap() {
-        Map<String, String> tags = new HashMap<>();
-        this.getTags().getTags().forEach(
-                tag -> tags.put(tag.getTagId(), tag.getName())
-        );
-        return tags;
+        return tags.getTags()
+                .stream()
+                .collect(Collectors.toMap(
+                        Tag::getTagId, Tag::getName, (a, b) -> b));
+    }
+
+    public List<TimeLog> getTimeLogs() {
+        final Map<String, String> allTags = tagsMap();
+        return tasks.getTasks()
+                .stream()
+                .map(task -> createTimeLog(task, getTaskTags(task, allTags)))
+                .collect(Collectors.toList());
+    }
+
+    private TimeLog createTimeLog(final Task task,
+                                  final List<String> taskTags) {
+        return TimeLog.builder()
+                .id(task.getTaskId())
+                .description(task.getDescription())
+                .startDate(task.getStartDate())
+                .endDate(task.getEndDate())
+                .location(task.getLocation())
+                .feeling(task.getFeeling())
+                .tags(taskTags)
+                .build();
     }
 }

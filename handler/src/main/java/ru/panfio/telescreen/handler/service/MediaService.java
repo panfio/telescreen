@@ -11,17 +11,11 @@ import java.util.List;
 @Slf4j
 @Service
 public class MediaService implements Processing {
+    private static final String DEFAULT_TYPE = "other";
     private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
     private final DateWizard dateWizard;
 
-    /**
-     * Constructor.
-     *
-     * @param messageBus    message bus
-     * @param objectStorage storage
-     * @param dateWizard    date helper
-     */
     public MediaService(ObjectStorage objectStorage,
                         DateWizard dateWizard,
                         MessageBus messageBus) {
@@ -30,10 +24,6 @@ public class MediaService implements Processing {
         this.dateWizard = dateWizard;
     }
 
-    /**
-     * @param filename path
-     * @return content type
-     */
     public String getContentType(String filename) {
         return objectStorage.contentType(filename);
     }
@@ -48,12 +38,11 @@ public class MediaService implements Processing {
         return objectStorage.getByteArray(filename);
     }
 
-    /**
-     * Save Media records into database.
-     */
-    public void processMediaRecords() {
+    @Override
+    public void process() {
         for (var path : getMediaFiles()) {
-            Media media = createMedia(path);
+            Instant creationTime = getCreatedTime(path);
+            Media media = createMedia(path, creationTime);
             messageBus.send("media", media);
         }
         log.info("Processing media records complete");
@@ -67,23 +56,18 @@ public class MediaService implements Processing {
         return path.startsWith("media");
     }
 
-    /**
-     * Creates media record.
-     *
-     * @param path file patch.
-     * @return media record
-     */
-    private Media createMedia(String path) {
+    private Instant getCreatedTime(String path) {
+        return dateWizard.creationTime(path);
+    }
+
+    private Media createMedia(String path,
+                              Instant creationTime) {
         return Media.builder()
                 .path(path)
                 .type(getMediaType(path))
-                .created(getCreatedTime(path))
+                .created(creationTime)
                 .build();
 
-    }
-
-    private Instant getCreatedTime(String path) {
-        return dateWizard.creationTime(path);
     }
 
     private String getMediaType(String path) {
@@ -92,13 +76,8 @@ public class MediaService implements Processing {
                     path.indexOf('/') + 1,
                     path.lastIndexOf('/'));
         } catch (Exception e) {
-            return "other";
+            return DEFAULT_TYPE;
         }
-    }
-
-    @Override
-    public void process() {
-        processMediaRecords();
     }
 
     @Override

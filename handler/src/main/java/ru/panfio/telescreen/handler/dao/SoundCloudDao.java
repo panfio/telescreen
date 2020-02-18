@@ -1,6 +1,7 @@
 package ru.panfio.telescreen.handler.dao;
 
-import ru.panfio.telescreen.handler.model.Music;
+import ru.panfio.telescreen.handler.model.soundcloud.PlayHistory;
+import ru.panfio.telescreen.handler.model.soundcloud.TrackInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -9,13 +10,13 @@ public interface SoundCloudDao {
     /**
      * Collects sounds info.
      *
-     * @return info map
+     * @return tracks info
      */
-    Map<String, Music> soundsInfo();
+    Map<String, TrackInfo> tracksInfo();
     /**
      * Return SoundCloud recently played history.
      *
      * @return recently played sounds list
      */
-    List<Music> recentlyPlayed();
+    List<PlayHistory> recentlyPlayed();
 }

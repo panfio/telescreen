@@ -6,4 +6,4 @@ USER 1001
 
 CMD ["java",  "-jar", "/telescreen.jar"]
 
-COPY ./telescreen/target/telescreen*.jar /telescreen.jar
+COPY ./target/telescreen*.jar /telescreen.jar

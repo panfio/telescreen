@@ -89,6 +89,39 @@ public class TestFiles {
             "    ]\n" +
             "}";
 
+    public static final String YOUTUBE = "[{\n" +
+            "  \"header\": \"YouTube\",\n" +
+            "  \"title\": \"Watched Unnholy - Become Human\",\n" +
+            "  \"titleUrl\": \"https://www.youtube.com/watch?v\\u003dMxHpNYTbO_w\",\n" +
+            "  \"subtitles\": [{\n" +
+            "    \"name\": \"the_accidental_poet\",\n" +
+            "    \"url\": \"https://www.youtube.com/channel/UCVBkfxb4xfrBT2uyo0xmuKA\"\n" +
+            "  }],\n" +
+            "  \"time\": \"2020-01-25T08:36:04.679Z\",\n" +
+            "  \"products\": [\"YouTube\"]\n" +
+            "},{\n" +
+            "  \"header\": \"YouTube\",\n" +
+            "  \"title\": \"Watched Олег Шелаев — Node.js: так же быстро, выше, сильнее с GraalVM\",\n" +
+            "  \"titleUrl\": \"https://www.youtube.com/watch?v\\u003dsKS4A9I8xb8\",\n" +
+            "  \"subtitles\": [{\n" +
+            "    \"name\": \"HolyJS\",\n" +
+            "    \"url\": \"https://www.youtube.com/channel/UC2Jwo4Q0s-ucjGseHP8XUSQ\"\n" +
+            "  }],\n" +
+            "  \"description\": \"Watched at 3:48pm\",\n" +
+            "  \"time\": \"2020-01-24T12:08:10.009Z\",\n" +
+            "  \"products\": [\"YouTube\"]\n" +
+            "},{\n" +
+            "  \"header\": \"YouTube\",\n" +
+            "  \"title\": \"Watched Шаблоны Java. Bridge (Мост)\",\n" +
+            "  \"titleUrl\": \"https://www.youtube.com/watch?v\\u003d1KOkb-B2qnM\",\n" +
+            "  \"subtitles\": [{\n" +
+            "    \"name\": \"Eugene Suleimanov\",\n" +
+            "    \"url\": \"https://www.youtube.com/channel/UCj7PgzcJ5yZfspMzxUUYcIA\"\n" +
+            "  }],\n" +
+            "  \"description\": \"Watched at 4:32pm\",\n" +
+            "  \"time\": \"2020-01-23T16:21:47.652Z\",\n" +
+            "  \"products\": [\"YouTube\"]\n" +
+            "}]";
     public static final String TELEGRAM = "<!DOCTYPE html>\n" +
             "<html>\n" +
             " <body onload=\"CheckLocation();\">\n" +

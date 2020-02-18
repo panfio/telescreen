@@ -108,7 +108,7 @@ chmod +x sync.sh
 
 - [Dec 22, 2019](https://github.com/panfio/telescreen/blob/b575ab3cb885d06b7b36d81a919f366f512978e0/telescreen/src/main/java/ru/panfio/telescreen/service/ProcessService.java)
 
-- 
+- [Feb 03, 2020](https://github.com/panfio/telescreen/blob/master/handler/src/main/java/ru/panfio/telescreen/handler/service/AutoTimerService.java)
 
 ## How it works
 

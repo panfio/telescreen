@@ -38,7 +38,7 @@ public class AutoTimerServiceTest {
         when(objectStorage.listObjects(any())).thenReturn(activityFiles);
         when(objectStorage.getInputStream(activityFiles.get(0))).thenReturn(toInputStream(TestFiles.ACTIVITIES));
 
-        service.processAutotimerRecords();
+        service.process();
 
         @SuppressWarnings("unchecked") final ArgumentCaptor<Autotimer> argument = ArgumentCaptor.forClass(Autotimer.class);
         verify(messageBus, times(2)).send(anyString(), argument.capture());

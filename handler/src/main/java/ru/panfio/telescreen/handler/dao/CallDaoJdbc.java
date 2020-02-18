@@ -14,11 +14,6 @@ import java.util.List;
 public class CallDaoJdbc implements CallDao {
     private final DbManager dbManager;
 
-    /**
-     * Constructor.
-     *
-     * @param dbManager dbManager
-     */
     public CallDaoJdbc(DbManager dbManager) {
         this.dbManager = dbManager;
     }
@@ -33,14 +28,14 @@ public class CallDaoJdbc implements CallDao {
     private static class CallRecordMapper implements RowMapper<Call> {
         @Override
         public Call mapRow(ResultSet rs, int i) throws SQLException {
-            var cr = new Call();
-            cr.setDate(rs.getTimestamp("date").toInstant());
-            cr.setDuration(rs.getInt("duration"));
-            cr.setNumber(rs.getString("number"));
             var name = rs.getString("name");
-            cr.setName(name.equals("") ? "Unknown" : name);
-            cr.setType(rs.getInt("type"));
-            return cr;
+            return Call.builder()
+                    .date(rs.getTimestamp("date").toInstant())
+                    .duration(rs.getInt("duration"))
+                    .number(rs.getString("number"))
+                    .name(name.equals("") ? "Unknown" : name)
+                    .type(rs.getInt("type"))
+                    .build();
         }
     }
 }

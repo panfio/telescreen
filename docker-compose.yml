@@ -24,7 +24,6 @@ services:
     ports:
       - 8888:8080
     links:
-      - minio
       - kafka
       - admin
       - data
@@ -33,12 +32,13 @@ services:
   data:
     image: panfio/telescreen:data-latest
     environment:
-      - SPRING_DATA_MONGODB_HOST=mongodb
+      - SPRING_DATA_MONGODB_HOST=http://mongo:
       - KAFKA_BOOTSTRAPADDRESS=kafka:9094
       - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:8990
     links:
       - kafka
       - admin
+      - mongo
   
   handler:
     image: panfio/telescreen:handler-latest
@@ -47,6 +47,7 @@ services:
       - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:8990
       - JAVA_TOOL_OPTIONS='-Duser.timezone="Europe/Moscow"'
     links:
+      - minio
       - kafka
       - admin
 
@@ -57,7 +58,7 @@ services:
     ports:
       - 8999:8990
 
-  mongodb:
+  mongo:
     image: mongo
     restart: always
     ports:
@@ -80,13 +81,13 @@ services:
     environment:
       KAFKA_CREATE_TOPICS: "wellbeing:1:1,video:1:1,music:1:1,timelog:1:1,mifit:1:1,message:1:1,call:1:1,media:1:1,autotimer:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1   # dev
+      # KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1   # dev
 
-      # KAFKA_BROKER_ID: 1
-      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      # KAFKA_ADVERTISED_LISTENERS: INSIDE://localhost:9092,OUTSIDE://kafka:9094
-      # KAFKA_LISTENERS: INSIDE://localhost:9092,OUTSIDE://kafka:9094
-      # KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://localhost:9092,OUTSIDE://kafka:9094
+      KAFKA_LISTENERS: INSIDE://localhost:9092,OUTSIDE://kafka:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

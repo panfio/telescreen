@@ -20,11 +20,6 @@ public class MinioConfig {
     @Value("${minio.secret-key}")
     private String secretKey;
 
-    /**
-     * Minio connection.
-     * @return MinioClient
-     * @throws MinioException if error
-     */
     @Bean
     public MinioClient minioClient() {
         try {
@@ -34,7 +29,7 @@ public class MinioConfig {
                     secretKey);
         } catch (MinioException e) {
             log.error("Error occurred: " + e);
-            throw new RuntimeException("Minio isn't available");
+            throw new RuntimeException("Minio is not available");
         }
     }
 }

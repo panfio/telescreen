@@ -10,14 +10,8 @@ import ru.panfio.telescreen.handler.service.MediaService;
 @RestController
 @RequestMapping("/media")
 public class MediaController {
-
     private final MediaService service;
 
-    /**
-     * Constructor.
-     *
-     * @param service service
-     */
     public MediaController(MediaService service) {
         this.service = service;
     }

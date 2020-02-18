@@ -1,7 +1,7 @@
 #!/bin/bash
 #This script builds artifacts and docker container
 
-export MAVEN_OPTS=-Dorg.slf4j.simpleLogger.defaultLogLevel=warn
+# export MAVEN_OPTS=-Dorg.slf4j.simpleLogger.defaultLogLevel=warn
 
 #build 
 cd ./frontend 
@@ -14,12 +14,12 @@ rm -rf ./telescreen/src/main/resources/static/*
 cp -r ./frontend/build/* ./telescreen/src/main/resources/static/
 cd ./telescreen
 ./mvnw -B clean install package
-docker build --tag panfio/telescreen:latest .
+docker build --tag panfio/telescreen:gateway-latest .
 cd ..
 
 #build handler service
 cd ./handler
-./mvnw -B clean install package
+# ./mvnw -B clean install package
 docker build --tag panfio/telescreen:handler-latest .
 cd ..
 
@@ -35,7 +35,10 @@ cd ./admin
 docker build --tag panfio/telescreen:admin-latest .
 cd ..
 
-
+# java -jar ./admin/target/*.jar
+# java -jar ./telescreen/target/*.jar
+# java -jar ./data/target/*.jar
+# java -jar ./handler/target/*.jar
 
 
 

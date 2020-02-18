@@ -3,26 +3,25 @@ package ru.panfio.telescreen.handler.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import ru.panfio.telescreen.handler.util.IsoInstantDeserializer;
 import ru.panfio.telescreen.handler.util.IsoInstantSerializer;
 
 import java.time.Instant;
 import java.util.List;
 
-@Data
+@Getter
 @Builder
 public class TimeLog {
-    private String id;
+    private final String id;
     @JsonSerialize(using = IsoInstantSerializer.class)
     @JsonDeserialize(using = IsoInstantDeserializer.class)
-    private Instant startDate;
+    private final Instant startDate;
     @JsonSerialize(using = IsoInstantSerializer.class)
     @JsonDeserialize(using = IsoInstantDeserializer.class)
-    private Instant endDate;
-    private String description;
-    private String location;
-    private int feeling;
-
-    private List<String> tags;
+    private final Instant endDate;
+    private final String description;
+    private final String location;
+    private final int feeling;
+    private final List<String> tags;
 }

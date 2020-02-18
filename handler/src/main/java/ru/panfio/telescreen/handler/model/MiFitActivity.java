@@ -34,4 +34,27 @@ public class MiFitActivity {
     private int RunDistanceMeter;
     private int RunTimeMin;
     private int RunBurnCalories;
+
+    @Override
+    public String toString() {
+        return "MiFitActivity{" +
+                "id='" + id + '\'' +
+                ", date=" + date +
+                ", sleepStart=" + sleepStart +
+                ", sleepEnd=" + sleepEnd +
+                ", inBedMin=" + inBedMin +
+                ", DeepSleepMin=" + DeepSleepMin +
+                ", LightSleepMin=" + LightSleepMin +
+                ", AwakeMin=" + AwakeMin +
+                ", DailyDistanceMeter=" + DailyDistanceMeter +
+                ", DailySteps=" + DailySteps +
+                ", DailyBurnCalories=" + DailyBurnCalories +
+                ", WalkDistance=" + WalkDistance +
+                ", WalkTimeMin=" + WalkTimeMin +
+                ", WalkBurnCalories=" + WalkBurnCalories +
+                ", RunDistanceMeter=" + RunDistanceMeter +
+                ", RunTimeMin=" + RunTimeMin +
+                ", RunBurnCalories=" + RunBurnCalories +
+                '}';
+    }
 }

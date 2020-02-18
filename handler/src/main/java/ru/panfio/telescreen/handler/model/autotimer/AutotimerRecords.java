@@ -3,8 +3,9 @@ package ru.panfio.telescreen.handler.model.autotimer;
 import lombok.Data;
 import ru.panfio.telescreen.handler.model.Autotimer;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class AutotimerRecords {
@@ -16,10 +17,9 @@ public class AutotimerRecords {
      * @return Autotimer list
      */
     public List<Autotimer> collectAutotimers() {
-        List<Autotimer> autotimers = new ArrayList<>();
-        for (Activity activity : activities) {
-            autotimers.addAll(activity.collectAutotimers());
-        }
-        return autotimers;
+        return activities.stream()
+                .map(Activity::collectAutotimers)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 }

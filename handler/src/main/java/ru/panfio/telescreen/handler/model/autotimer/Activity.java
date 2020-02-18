@@ -5,11 +5,10 @@ import ru.panfio.telescreen.handler.model.Autotimer;
 import ru.panfio.telescreen.handler.service.util.DateWizard;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class Activity {
@@ -17,20 +16,12 @@ public class Activity {
     private List<TimeEntry> time_entries;
 
     public List<Autotimer> collectAutotimers() {
-        List<Autotimer> autotimers = new ArrayList<>();
-        for (TimeEntry timeEntry : time_entries) {
-            autotimers.add(createAutotimer(name, timeEntry));
-        }
-        return autotimers;
+        return time_entries
+                .stream()
+                .map(timeEntry -> createAutotimer(name, timeEntry))
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Creates the Autotimer entity.
-     *
-     * @param name      activity name
-     * @param timeEntry time entry
-     * @return autotimer
-     */
     private Autotimer createAutotimer(String name,
                                       TimeEntry timeEntry) {
         return Autotimer.builder()
@@ -41,17 +32,11 @@ public class Activity {
                 .build();
     }
 
-    /**
-     * Converts Date to Instant.
-     *
-     * @param date date object
-     * @return instant
-     */
     private Instant toInstant(Date date) {
-        LocalDateTime ldt = Instant.ofEpochMilli(date.getTime())
+        var local = Instant.ofEpochMilli(date.getTime())
                 .atZone(ZoneOffset.ofHours(0))
                 .toLocalDateTime();
-        return DateWizard.toInstant(ldt);
+        return DateWizard.toInstant(local);
     }
 
 }

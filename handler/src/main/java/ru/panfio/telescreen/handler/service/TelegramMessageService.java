@@ -11,38 +11,34 @@ import ru.panfio.telescreen.handler.service.util.DateWizard;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
-public class MessageService implements Processing {
+public class TelegramMessageService implements Processing {
     private final MessageBus messageBus;
     private final ObjectStorage objectStorage;
 
-    /**
-     * Constructor.
-     *
-     * @param messageBus    message bus
-     * @param objectStorage storage
-     */
-    public MessageService(ObjectStorage objectStorage,
-                          MessageBus messageBus) {
+    public TelegramMessageService(ObjectStorage objectStorage,
+                                  MessageBus messageBus) {
         this.messageBus = messageBus;
         this.objectStorage = objectStorage;
     }
 
-    /**
-     * Processing Telegram message history from chat history export.
-     */
-    public void processTelegramHistory() {
+    @Override
+    public void process() {
         log.info("Start processing Telegram messages");
-        for (var filename : getExportFiles()) {
-            //todo process in parallel
-            var fileContent = getExportContent(filename);
-            processFile(fileContent);
-        }
+        getExportFiles().parallelStream().forEach(this::processFile);
         log.info("End processing Telegram messages");
+    }
+
+    private void processFile(String filename) {
+        log.info("processing {}", filename);
+        var fileContent = getExportContent(filename);
+        List<Message> messages = getMessages(fileContent);
+        messages.forEach(this::sendMessage);
     }
 
     private String getExportContent(String filename) {
@@ -54,7 +50,11 @@ public class MessageService implements Processing {
     }
 
     private boolean isMessagesFile(String name) {
-        return !(name.startsWith("app/telegram") || name.contains("messages"));
+        return name.startsWith("telegram/") && name.contains("messages");
+    }
+
+    private void sendMessage(Message tm) {
+        messageBus.send("message", tm);
     }
 
     /**
@@ -62,12 +62,13 @@ public class MessageService implements Processing {
      *
      * @param html html
      */
-    private void processFile(String html) {
+    private List<Message> getMessages(String html) {
         Elements messages = parseTelegramMessages(html);
         if (messages == null) {
-            return;
+            return new ArrayList<>();
         }
         var author = "";
+        List<Message> messageList = new ArrayList<>();
         for (Element message : messages) {
             Message tm = parseTelegramMessage(message);
             //in a message group, only the first element has an author
@@ -76,9 +77,19 @@ public class MessageService implements Processing {
                 author = currentAuthor;
             }
 
-            tm.setAuthor(author);
-            messageBus.send("message", tm);
+            messageList.add(constructMessage(author, tm));
         }
+        return messageList;
+    }
+
+    private Message constructMessage(String author, Message tm) {
+        return Message.builder()
+                .legacyID(tm.getLegacyID())
+                .created(tm.getCreated())
+                .author(author)
+                .content(tm.getContent())
+                .type(Message.Type.TELEGRAM)
+                .build();
     }
 
     private Elements parseTelegramMessages(String html) {
@@ -94,24 +105,18 @@ public class MessageService implements Processing {
     private Message parseTelegramMessage(Element message) {
         return Message.builder()
                 .legacyID(message.id().substring("message".length()))
-                .created(parseCreationTime(message).orElseThrow())
+                .created(parseSendTime(message).orElseThrow())
                 .author(message.select("div.from_name").text())
                 .content(message.select("div.text").text())
-                .type(Message.Type.TELEGRAM)
                 .build();
     }
 
-    private Optional<Instant> parseCreationTime(Element message) {
+    private Optional<Instant> parseSendTime(Element message) {
         return Optional.of(DateWizard.toInstant(
                 LocalDateTime.parse(
                         message.select("div.date.details").attr("title"),
                         DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
                 )));
-    }
-
-    @Override
-    public void process() {
-        processTelegramHistory();
     }
 
     @Override
