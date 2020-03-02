@@ -19,7 +19,7 @@ cd ..
 
 #build handler service
 cd ./handler
-./mvnw -B clean install package
+#./mvnw -B clean install package
 docker build --tag panfio/telescreen:handler-latest .
 cd ..
 
