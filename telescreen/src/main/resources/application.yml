@@ -10,10 +10,13 @@ ribbon:
 zuul:
   routes:
     admin:
+      path: /admin/**
       url: http://localhost:8990
     data:
+      path: /data/**
       url: http://localhost:8111
     handler:
+      path: /handler/**
       url: http://localhost:8222
 
 
@@ -36,5 +39,5 @@ kafka:
   bootstrapAddress: localhost:9092
 
 management:
-  endpoints.web.exposure.include: health, status, env, metrics, trace, jolokia, info, configprops
+  endpoints.web.exposure.include: health, status, env, metrics, trace, jolokia, info, configprops, routes
   endpoint.health.show-details: always
