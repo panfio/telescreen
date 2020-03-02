@@ -13,14 +13,13 @@ services:
       - MINIO_SECRET_KEY=passpass
 
   telescreen:
-    image: panfio/telescreen:latest
+    image: panfio/telescreen:gateway-latest
     environment:
-      - MINIO_URL=http://minio:9000
       - KAFKA_BOOTSTRAPADDRESS=kafka:9094
       - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:8990
-      - ZUUL_ROUTES_ADMIN=http://admin:8990
-      - ZUUL_ROUTES_DATA=http://data:8111
-      - ZUUL_ROUTES_HANDLER=http://handler:8222
+      - ZUUL_ROUTES_ADMIN_URL=http://admin:8990
+      - ZUUL_ROUTES_DATA_URL=http://data:8111
+      - ZUUL_ROUTES_HANDLER_URL=http://handler:8222
     ports:
       - 8888:8080
     links:
@@ -32,7 +31,7 @@ services:
   data:
     image: panfio/telescreen:data-latest
     environment:
-      - SPRING_DATA_MONGODB_HOST=http://mongo:
+      - SPRING_DATA_MONGODB_HOST=mongo
       - KAFKA_BOOTSTRAPADDRESS=kafka:9094
       - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:8990
     links:
@@ -43,6 +42,7 @@ services:
   handler:
     image: panfio/telescreen:handler-latest
     environment:
+      - MINIO_URL=http://minio:9000
       - KAFKA_BOOTSTRAPADDRESS=kafka:9094
       - SPRING_BOOT_ADMIN_CLIENT_URL=http://admin:8990
       - JAVA_TOOL_OPTIONS='-Duser.timezone="Europe/Moscow"'

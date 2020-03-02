@@ -8,7 +8,7 @@ spring.kafka:
 
 spring.data:
   mongodb:
-    host: localhost
+    host: mongo
     port: 27017
     authentication-database: admin
     username: user
